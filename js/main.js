@@ -7,14 +7,14 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261010200603';
-import { createProps } from './props.js?v=20261010200603';
-import { createSky } from './sky.js?v=20261010200603';
-import { createRoute } from './route.js?v=20261010200603';
-import { createSong } from './song.js?v=20261010200603';
-import { SONGS } from './songs.js?v=20261010200603';
-import { clamp, fmt, toLRC } from './util.js?v=20261010200603';
-import { createDrops } from './drops.js?v=20261010200603';
+import { createCity } from './city.js?v=20261010200729';
+import { createProps } from './props.js?v=20261010200729';
+import { createSky } from './sky.js?v=20261010200729';
+import { createRoute } from './route.js?v=20261010200729';
+import { createSong } from './song.js?v=20261010200729';
+import { SONGS } from './songs.js?v=20261010200729';
+import { clamp, fmt, toLRC } from './util.js?v=20261010200729';
+import { createDrops } from './drops.js?v=20261010200729';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -109,7 +109,7 @@ let userPaused = false;
 // ---------- player ----------
 const togglePlay = () => { if (audio.paused) { userPaused = false; audio.play(); } else { userPaused = true; audio.pause(); } };
 $('pp').addEventListener('click', togglePlay);
-audio.addEventListener('play', () => ($('pp').textContent = 'pause'));
+audio.addEventListener('play', () => { $('pp').textContent = 'pause'; $('ending').hidden = true; $('player').hidden = false; });
 audio.addEventListener('pause', () => ($('pp').textContent = 'play'));
 audio.addEventListener('ended', () => { $('player').hidden = true; $('ending').hidden = false; });
 $('again').addEventListener('click', () => { $('ending').hidden = true; $('player').hidden = false; song.reset(); dropsFallen = 0; $('titles').classList.remove('off'); audio.currentTime = 0; audio.play(); });
