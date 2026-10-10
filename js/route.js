@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010205504';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH } from './layout.js?v=20261010205504';
+import { clamp } from './util.js?v=20261010205907';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH } from './layout.js?v=20261010205907';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0];
@@ -11,7 +11,7 @@ const W = ROOM.win;
 
 // place kinds: banner (across the way, a little high), ahead (eye level), sky (big and far), room (inside the apartment)
 const BEATS = {
-  Pre:     { sky: 'night', keys: [[0, 0, 92, 90], [0.5, 0, 40, 36], [0.85, 0, 8, -4], [1, 0, EYE + 0.3, -14]], place: ['sky'], lookAt: new THREE.Vector3(0, 28, -62), lookMix: 0.85 },
+  Pre:     { sky: 'night', keys: [[0, 0, 92, 90], [0.5, 0, 40, 36], [0.85, 0, 8, -4], [1, 0, EYE + 0.3, -14]], place: ['sky'], lookAt: new THREE.Vector3(0, 50, -62), lookMix: 0.85 },
   Intro:   { sky: 'night', keys: [[0, 0, EYE, -14], [0.5, 0, EYE, -28], [1, 0, EYE, -41]],
              place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 12 },
   // the avenue goes dark around the walker: windows switch off, then the lamps, one lamp left at the alley mouth

@@ -1,6 +1,6 @@
 // The sky: a dome with drifting clouds, moon, stars, a sunrise and lightning. Presets blend per section.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010205504';
+import { clamp } from './util.js?v=20261010205907';
 
 const VS = `varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`;
 const FS = /* glsl */`
