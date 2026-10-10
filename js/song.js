@@ -2,12 +2,14 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261010225256';
-import { fxFor, applyFx } from './fx.js?v=20261010225256';
-import { FACADE } from './layout.js?v=20261010225256';
-import { LOOKS } from './songs.js?v=20261010225256';
+import { clamp, easeOutExpo } from './util.js?v=20261010225651';
+import { fxFor, applyFx } from './fx.js?v=20261010225651';
+import { FACADE } from './layout.js?v=20261010225651';
+import { LOOKS } from './songs.js?v=20261010225651';
 
-const LEAD = Math.max(-1, Math.min(1, parseFloat(new URLSearchParams(location.search).get('lead')) || 0));   // ?lead=0.2 shows every word 0.2 s before its timestamp (ear test)
+// every word appears 0.2 s before its timestamp: Roman's ear test (the aligner marks vowel onsets a touch late); ?lead= overrides
+const LEAD_PARAM = parseFloat(new URLSearchParams(location.search).get('lead'));
+export const LEAD = Number.isFinite(LEAD_PARAM) ? Math.max(-1, Math.min(1, LEAD_PARAM)) : 0.2;
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607);
 const SMALL = new Set(['the','a','an','to','and','of','in','on','for','by','with','as','at','or','so','but','i','i\'m','i\'ll','you','your','you\'re','me','my','he','his','they','them','their','it','is','was','be','that','what','when','then','than','though','if','all','do','don\'t','who','there','were','will','would','we']);
