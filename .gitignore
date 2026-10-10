@@ -4,3 +4,5 @@
 !songs/*/song.mp3
 .DS_Store
 .venv/
+songs/*/timing.before_wx.json
+songs/*/timing.wx_raw.json
