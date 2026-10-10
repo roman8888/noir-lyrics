@@ -7,14 +7,14 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261010233523';
-import { createProps } from './props.js?v=20261010233523';
-import { createSky } from './sky.js?v=20261010233523';
-import { createRoute } from './route.js?v=20261010233523';
-import { createSong, LEAD } from './song.js?v=20261010233523';
-import { SONGS } from './songs.js?v=20261010233523';
-import { clamp, fmt, toLRC } from './util.js?v=20261010233523';
-import { createDrops } from './drops.js?v=20261010233523';
+import { createCity } from './city.js?v=20261010233938';
+import { createProps } from './props.js?v=20261010233938';
+import { createSky } from './sky.js?v=20261010233938';
+import { createRoute } from './route.js?v=20261010233938';
+import { createSong, LEAD } from './song.js?v=20261010233938';
+import { SONGS } from './songs.js?v=20261010233938';
+import { clamp, fmt, toLRC } from './util.js?v=20261010233938';
+import { createDrops } from './drops.js?v=20261010233938';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -93,7 +93,7 @@ setTimeout(() => { $('loading').classList.add('gone'); }, 150);
 // first touch/scroll/key anywhere unmutes it silently. The analyser is wired only once the browser allows audio.
 let needUnmute = false;
 // a deep link /<song>/line/<n> starts the song at that line
-const LINE_AT = (() => { const m = location.pathname.match(/\/([^/]+)\/line\/(\d+)\/?$/); if (!m || m[1] !== current.slug) return 0;
+const LINE_AT = (() => { const m = location.pathname.match(/\/([^/]+)\/line\/(\d+)\/?$/); if (!m || m[1] !== current.slug) return 0;   // /<song>/ alone starts from the top
   const L = timing.lines[parseInt(m[2], 10) - 1]; return L && L.t != null ? Math.max(0, L.t - 0.15) : 0; })();
 async function startSong() {
   audio.currentTime = LINE_AT; audio.muted = false;
@@ -199,7 +199,7 @@ function frame(once) {
   noir.uniforms.uWater.value = props.under; bokeh.uniforms.maxblur.value = 0.0022 + props.under * 0.012;
   composer.render(dt);
   drops.update(dt); drops.fade(clamp((t - DROP_AT[4] - 1.5) / 2.5));                   // the blood runs for a moment after the last drop, then is gone
-  if (!once) requestAnimationFrame(frame);
+  if (once !== true) requestAnimationFrame(frame);                        // (rAF passes a timestamp as the first argument: only an explicit true is a one-shot)
 }
 let lastSize = '';
 function resize() {
