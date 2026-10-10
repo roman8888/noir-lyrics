@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010230826';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261010230826';
+import { rng, clamp } from './util.js?v=20261010233523';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261010233523';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -337,15 +337,16 @@ export function createProps(scene, city, timing, fonts, route) {
   const T_HEART = lineT('heart still breaks');
   // ---- "they gave me hell": fire breaks out of the road under the word, black smoke rolling up through the rain
   const T_HELL = (() => { const L = timing.lines.find(l => /gave me hell/i.test(l.text)); const w = L?.words?.find(w => /^hell/i.test(w.w || '')); return w?.t ?? L?.t ?? -1; })();
-  const hell = new THREE.Group(); hell.visible = false; scene.add(hell); let hellPlaced = false;
+  const hell = new THREE.Group(); hell.visible = false; scene.add(hell);
   const NF = 160, NSM = 90;
   const fPos = new Float32Array(NF * 3), fCol = new Float32Array(NF * 3), fLife = new Float32Array(NF).map(() => Math.random()), fSeed = new Float32Array(NF * 2).map(() => Math.random());
   const flameGeo = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(fPos, 3)).setAttribute('color', new THREE.BufferAttribute(fCol, 3));
-  const flames = new THREE.Points(flameGeo, new THREE.PointsMaterial({ map: puffTex, size: 1.25, transparent: true, depthWrite: false, opacity: 0.9, vertexColors: true, blending: THREE.AdditiveBlending })); hell.add(flames);
+  const flames = new THREE.Points(flameGeo, new THREE.PointsMaterial({ map: puffTex, size: 0.42, transparent: true, depthWrite: false, opacity: 0.75, vertexColors: true, blending: THREE.AdditiveBlending })); hell.add(flames);
   const sPos = new Float32Array(NSM * 3), sLife = new Float32Array(NSM).map(() => Math.random()), sSeed = new Float32Array(NSM * 2).map(() => Math.random());
   const smokeGeo = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(sPos, 3));
-  const smoke = new THREE.Points(smokeGeo, new THREE.PointsMaterial({ map: puffTex, size: 2.6, transparent: true, depthWrite: false, opacity: 0.5, color: 0x1a1718 })); hell.add(smoke);
-  const fireLight = new THREE.PointLight(0xff4a14, 0, 22, 1.6); fireLight.position.set(0, 1.2, 0); hell.add(fireLight);
+  const smoke = new THREE.Points(smokeGeo, new THREE.PointsMaterial({ map: puffTex, size: 0.9, transparent: true, depthWrite: false, opacity: 0.32, color: 0x1a1718 })); hell.add(smoke);
+  const fireLight = new THREE.PointLight(0xff4a14, 0, 8, 1.8); fireLight.position.set(0, 0.5, 0.3); hell.add(fireLight);
+  const hellAt = new THREE.Vector3(); let hellLife = 0, hellW = 1;
   const embersH = new THREE.PointLight(0xff2a0a, 0, 9, 2); embersH.position.set(0, 0.3, 0); hell.add(embersH);
   // ---- "the years I've lost": the lost years, 1991 to 2016, burst out of the word in blood and spread across the street
   const T_YEARS = (() => { const L = timing.lines.find(l => /years i've lost/i.test(l.text)); const w = L?.words?.find(w => /^years/i.test(w.w || '')); return w?.t ?? L?.t ?? -1; })();
@@ -462,35 +463,34 @@ export function createProps(scene, city, timing, fonts, route) {
       if (tw > 0 && !twoZ && route) twoZ = route.pose(T_TWO).pos.z - 9;             // start a few steps ahead of the walker
       two.forEach((f, i) => { f.visible = false; f.position.set(-0.6 + i * 1.2, Math.abs(Math.sin(time * 4.8 + i)) * 0.04, twoZ - tw * 1.0); f.rotation.y = 0; });
       // the heart
+      // the fire lives on the word "hell" itself: small flames licking up out of the letters, a little smoke, gone with the word
       const hz = T_HELL > 0 ? t - T_HELL : -99;
-      hell.visible = hz > -0.1 && hz < 9;
+      const hw = (hz > -0.1 && hz < 12 && this.wordAt) ? this.wordAt(timing.lines.findIndex(l => /gave me hell/i.test(l.text)), /^hell/i, hellAt) : null;
+      hellLife += (((hw && hw.alpha > 0.05) ? Math.min(1, hw.alpha * 1.2) : 0) - hellLife) * Math.min(1, dt * (hw ? 3.5 : 6));   // catches fast, goes out faster
+      hell.visible = hellLife > 0.01;
       if (hell.visible) {
-        if (!hellPlaced && route) {                                                   // on the road, right under the line
-          const idx = timing.lines.findIndex(l => /gave me hell/i.test(l.text)), a = route.anchorFor(idx);
-          hell.position.set(Math.max(-5, Math.min(5, a.pos.x)), 0.05, a.pos.z + 0.5); hellPlaced = true;
-        }
-        const grow = ease(hz / 1.2), die = clamp((hz - 6.5) / 2.2), life = grow * (1 - die);        // bursts up, burns, dies down
+        if (hw) { hell.position.set(hw.x, hw.y - 0.22, hw.z + 0.06); hellW = Math.max(0.5, hw.width || 1); }
+        const life = hellLife;
         for (let i = 0; i < NF; i++) {
-          fLife[i] += dt * (1.1 + fSeed[i * 2] * 0.9); if (fLife[i] > 1) fLife[i] -= 1;
-          const q = fLife[i], ang = fSeed[i * 2 + 1] * 6.283, rad = (0.4 + fSeed[i * 2] * 1.6) * (1 - q * 0.5) * (0.6 + 0.4 * life);
-          fPos[i * 3] = Math.cos(ang) * rad + Math.sin(time * 7 + i) * 0.08 * q;
-          fPos[i * 3 + 1] = q * q * (1.6 + fSeed[i * 2] * 1.4) * life + 0.05;
-          fPos[i * 3 + 2] = Math.sin(ang) * rad * 0.6;
+          fLife[i] += dt * (1.6 + fSeed[i * 2] * 1.2); if (fLife[i] > 1) fLife[i] -= 1;
+          const q = fLife[i];
+          fPos[i * 3] = (fSeed[i * 2 + 1] - 0.5) * hellW * (1 - q * 0.35) + Math.sin(time * 9 + i) * 0.03 * q;
+          fPos[i * 3 + 1] = q * q * (0.45 + fSeed[i * 2] * 0.5) * life;
+          fPos[i * 3 + 2] = (fSeed[i * 2] - 0.5) * 0.12;
           const heat = (1 - q) * life;                                                 // red at the root, dark at the tip: never yellow
-          fCol[i * 3] = 0.55 + 0.45 * heat; fCol[i * 3 + 1] = 0.05 + 0.16 * heat * heat; fCol[i * 3 + 2] = 0.02;
-          if (life < 0.02) fCol[i * 3] = fCol[i * 3 + 1] = fCol[i * 3 + 2] = 0;
+          fCol[i * 3] = (0.5 + 0.5 * heat) * life; fCol[i * 3 + 1] = (0.04 + 0.14 * heat * heat) * life; fCol[i * 3 + 2] = 0.01 * life;
         }
         flameGeo.attributes.position.needsUpdate = true; flameGeo.attributes.color.needsUpdate = true;
         for (let i = 0; i < NSM; i++) {
-          sLife[i] += dt * (0.22 + sSeed[i * 2] * 0.18); if (sLife[i] > 1) sLife[i] -= 1;
-          const q = sLife[i], ang = sSeed[i * 2 + 1] * 6.283;
-          sPos[i * 3] = Math.cos(ang) * (0.5 + q * 2.6) + Math.sin(time * 0.9 + i) * 0.3 * q;
-          sPos[i * 3 + 1] = 0.6 + q * (5 + sSeed[i * 2] * 3) * life;
-          sPos[i * 3 + 2] = Math.sin(ang) * (0.4 + q * 1.8);
+          sLife[i] += dt * (0.35 + sSeed[i * 2] * 0.25); if (sLife[i] > 1) sLife[i] -= 1;
+          const q = sLife[i];
+          sPos[i * 3] = (sSeed[i * 2 + 1] - 0.5) * hellW * (1 + q) + Math.sin(time * 0.9 + i) * 0.15 * q;
+          sPos[i * 3 + 1] = 0.3 + q * (1.4 + sSeed[i * 2] * 0.8) * life;
+          sPos[i * 3 + 2] = (sSeed[i * 2] - 0.5) * 0.3 * (1 + q);
         }
         smokeGeo.attributes.position.needsUpdate = true;
-        smoke.material.opacity = 0.5 * life; flames.material.opacity = 0.9 * life;
-        fireLight.intensity = (40 + Math.random() * 18 + Math.sin(time * 11) * 6) * life; embersH.intensity = 8 * life;
+        smoke.material.opacity = 0.32 * life; flames.material.opacity = 0.75 * life;
+        fireLight.intensity = (5 + Math.random() * 2.5 + Math.sin(time * 11)) * life; embersH.intensity = 1.5 * life;
       }
       const yk = T_YEARS > 0 ? t - T_YEARS : -99;
       years.visible = yk > 0 && yk < 8;

@@ -2,8 +2,8 @@
 // interior-mapped windows (every lit window is a small parallax room), street lamps, traffic, rain.
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
-import { rng, makeRain } from './util.js?v=20261010230826';
-import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261010230826';
+import { rng, makeRain } from './util.js?v=20261010233523';
+import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261010233523';
 
 const buildingVS = /* glsl */`
   varying vec3 vW; varying vec3 vN; varying float vSeed;
@@ -234,6 +234,16 @@ export function createCity() {
     car.userData = { dir, x: dir < 0 ? 4.2 : -4.2, z: 40 - r() * (Z_START - Z_END), v: 9 + r() * 7 };   // lanes clear of the camera's walk
     scene.add(car); cars.push(car);
   }
+  // the car that comes for you: one of the traffic cars' twins, high beams up, driven by the storyboard
+  const chase = makeCar(); chase.rotation.y = Math.PI; chase.visible = false; scene.add(chase);
+  for (const sx of [-0.7, 0.7]) { const h = new THREE.SpotLight(0xdfe8ff, 900, 70, 0.42, 0.6, 1.2); h.position.set(sx, 0.75, 2.1); h.target.position.set(sx * 1.5, 0.3, 40); chase.add(h, h.target); }
+  const chaseGlow = new THREE.PointLight(0xdfe8ff, 30, 12, 1.6); chaseGlow.position.set(0, 0.8, 2.4); chase.add(chaseGlow);
+  // high beams you can see: two big additive glows, swelling as the car closes in
+  const beamTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+    const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(225,235,255,0.75)'); gr.addColorStop(0.6, 'rgba(200,215,255,0.18)'); gr.addColorStop(1, 'rgba(200,215,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
+  const beams = [];
+  for (const sx of [-0.7, 0.7]) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: beamTex, color: 0xffffff, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending, opacity: 0.95 })); sp.position.set(sx, 0.75, 2.2); sp.scale.set(2.2, 2.2, 1); chase.add(sp); beams.push(sp); }
   // parked cars at the kerbs
   for (let i = 0; i < 14; i++) {
     const car = makeCar(); const s = i % 2 ? 1 : -1;
@@ -252,6 +262,9 @@ export function createCity() {
     part(m) { placeBoxes(m); },
     setDark(amount, z) { bMat.uniforms.uDark.value = amount; bMat.uniforms.uDarkZ.value = z; },
     dimLamp(i, v) { dim[i] = v; cones.geometry.attributes.aDim.needsUpdate = true; bulbColor.setRGB(v, v, v); bulbs.setColorAt(i, bulbColor); bulbs.instanceColor.needsUpdate = true; },
+    chaseAt(p, camera) { if (!p) { chase.visible = false; return; } chase.visible = true; chase.position.set(p.x, 0, p.z);
+      const d = camera ? Math.max(4, camera.position.distanceTo(chase.position)) : 40, sc = Math.min(4.5, 1.4 + 40 / d);   // the glare grows as it bears down, never a white-out
+      beams.forEach(b => { b.scale.set(sc, sc, 1); b.material.opacity = Math.min(0.8, 0.35 + 14 / d); }); },
     update(dt, time, camera, sky) {
       bMat.uniforms.uTime.value = time;
       bMat.uniforms.uFlash.value = sky.flash; flashLight.intensity = sky.flash * 2.5;

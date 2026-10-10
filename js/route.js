@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010230826';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261010230826';
+import { clamp } from './util.js?v=20261010233523';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261010233523';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0], A2 = ALLEYS[1];
@@ -87,10 +87,10 @@ export function createRoute(timing) {
   }
 
   // the walking cycle at song time t for beat b: step rate, bounce, sway, roll, and a slow unevenness
-  function gaitOf(b, t) {
-    const w = b.stride ? 11.0 : b.walk ? 9.4 : 5.2;                               // step rate (rad/s): two steps per 2π
+  function gaitOf(b, t, run = 0) {
+    const w = (b.stride ? 11.0 : b.walk ? 9.4 : 5.2) * (1 + 0.55 * run);           // step rate (rad/s): two steps per 2π; faster when running
     const uneven = 1 + 0.22 * Math.sin(t * 0.9) * Math.sin(t * 1.7 + 1.1);       // steps that are never quite the same
-    const amp = (b.stride ? 0.05 : b.walk ? 0.04 : 0.025) * uneven;
+    const amp = (b.stride ? 0.05 : b.walk ? 0.04 : 0.025) * uneven * (1 + 0.9 * run);
     const bob = Math.abs(Math.sin(t * w)) * amp + Math.sin(t * 0.37) * 0.006;      // one bounce per step
     const sway = Math.sin(t * w / 2 + 0.4) * (b.stride ? 0.028 : b.walk ? 0.022 : 0.01) * uneven;   // left foot, right foot
     const roll = Math.sin(t * w / 2 + 1.0) * (b.stride ? 0.0075 : b.walk ? 0.006 : 0.003);          // the head tilts with the sway (≈0.35°)
@@ -116,6 +116,7 @@ export function createRoute(timing) {
       const side = g.sway + (Math.abs(out.pos.x) < 6 ? g.drift : 0);        // the drift only on the open avenue, never in an alley or a doorway
       out.pos.x += lastDir.z * side; out.pos.z += -lastDir.x * side;        // along the right-hand vector
       if (Math.abs(out.pos.x) < 6) out.pos.x = Math.max(-3.2, Math.min(3.2, out.pos.x));   // and well inside the road, clear of the traffic lanes
+      const dash = dashAt(t); if (dash > 0) out.pos.x += (dodgeX(t) - out.pos.x) * dash;      // the run for the kerb when a car comes
     }
     out.look.copy(out.pos).addScaledVector(lastDir, 8);
     if (b.looks) {
@@ -124,6 +125,9 @@ export function createRoute(timing) {
       tmp2.set(a0[1] + (a1[1] - a0[1]) * g, a0[2] + (a1[2] - a0[2]) * g, a0[3] + (a1[3] - a0[3]) * g);
       out.look.lerp(tmp2, a0[4] + (a1[4] - a0[4]) * g);
     } else if (b.lookAt) out.look.lerp(b.lookAt, b.lookMix ?? 1);
+    for (const c of CARS) { const k = t - c.t, g = smooth((k - 1.2) / 1.0) * (1 - smooth((k - 4.6) / 0.9));   // eyes on the car as it comes, then it is past
+      if (g > 0 && carAt(t, tmp2)) { tmp2.y = 1.1; out.look.lerp(tmp2, 0.8 * g); } }
+    const pr = prayAt(t); if (pr > 0) { tmp2.copy(out.pos).addScaledVector(lastDir, 5); tmp2.y += 13; out.look.lerp(tmp2, 0.92 * pr); }   // up to the sky for "pray"
     return out;
   }
 
@@ -134,14 +138,16 @@ export function createRoute(timing) {
     if (anchors.has(i)) return anchors.get(i);
     const L = lines[i]; let b = beatAt(L.t); const idx = Math.max(0, b.lines.indexOf(i));
     const kind = b.place[idx % b.place.length];
-    const cam = pose(L.t + 0.9);
+    const cam = pose(prayAt(L.t + 0.9) > 0 ? T_PRAY : L.t + 0.9);              // a line sung with the eyes up is placed where the eyes will be
     const fb = clamp((L.t - b.t0) / (b.t1 - b.t0)); if (b.dist2 && fb >= b.dist2[0]) b = { ...b, dist: b.dist2[1] };   // a beat may change its distance partway (out of the alley)
     const camPos = cam.pos.clone();
     const fwd = tmp.copy(cam.look).sub(cam.pos); fwd.y = 0; if (fwd.lengthSq() < 1e-4) fwd.set(0, 0, -1); fwd.normalize();
     const yawTo = (from, to) => Math.atan2(from.x - to.x, from.z - to.z);
     const pos = new THREE.Vector3(), q = new THREE.Quaternion(), E = new THREE.Euler(); let scale = 1;
     switch (kind) {
-      case 'banner': pos.copy(cam.pos).addScaledVector(fwd, b.dist ?? 9); pos.y = cam.pos.y + (b.alley ? 1.8 : 0.9); break;   // in the alley: above the figures' heads       // same height every time: no hopping between lines
+      case 'banner': pos.copy(cam.pos).addScaledVector(fwd, b.dist ?? 9); pos.y = cam.pos.y + (b.alley ? 1.8 : 0.9);
+        { const up = tmp.copy(cam.look).sub(cam.pos); if (up.y > 0.35 * Math.hypot(up.x, up.z)) { up.normalize(); pos.copy(cam.pos).addScaledVector(up, (b.dist ?? 9) * 0.8); } }   // eyes up: the line hangs in the sky
+        break;   // in the alley: above the figures' heads       // same height every time: no hopping between lines
       case 'ahead':  pos.copy(cam.pos).addScaledVector(fwd, (b.dist ?? 9) - 0.5); pos.y = cam.pos.y + (b.alley ? 1.7 : 0.8); break;
       case 'sky':    pos.copy(cam.pos).addScaledVector(fwd, 22); pos.y = cam.pos.y + 1.5; scale = 2.6; break;
       case 'facadeL': case 'facadeR':                           // written on the wall beside the apartment window
@@ -169,6 +175,27 @@ export function createRoute(timing) {
   const T_HEARS = lines.find(l => /no one hears/i.test(l.text))?.t ?? -1;
   const T_DROWN = lines.find(l => /watched me drown/i.test(l.text))?.t ?? -1;
   const T_ALONE = lines.find(l => /wonder why you're left alone/i.test(l.text))?.t ?? -1;
+  // the cars: three times a car comes down the avenue toward you, in its own lane until the last second, then switches
+  // lanes straight at you, high beams up; you break into a run for the far kerb and it tears past where you were walking
+  const CAR_V = 26, CAR_HIT = 4.2;                                           // speed; seconds after the cue it reaches your line
+  const CARS = [['thought i\'d crawl', 4.2, -6.2], ['slammed the door', -4.2, 6.2], ['took so much', 4.2, -6.2]]
+    .map(([re, lane, dodge]) => ({ t: lines.find(l => l.text.toLowerCase().includes(re))?.t ?? -1, lane, dodge, z0: null, xHit: 0 }))
+    .filter(c => c.t > 0);
+  let carInit = false;
+  function carAt(t, out) {                                                   // the car on the road at song time t (null = none)
+    if (carInit === null) return null;                                       // (initialising: no glance yet)
+    if (!carInit) { carInit = null; noDash = true; for (const c of CARS) { const p = pose(c.t + CAR_HIT); c.z0 = p.pos.z - CAR_HIT * CAR_V; c.xHit = p.pos.x; } noDash = false; carInit = true; }   // it aims at where you WOULD have been walking
+    for (const c of CARS) { const k = t - c.t; if (k < -0.5 || k > 11) continue;
+      const sw = smooth((k - (CAR_HIT - 1.4)) / 1.1);                         // the lane switch: the last 1.4 s, straight at you
+      out.set(c.lane + (c.xHit - c.lane) * sw, 0, c.z0 + Math.max(0, k) * CAR_V); out.dodge = c.dodge; return out; }
+    return null;
+  }
+  let noDash = false;
+  const dashAt = t => { if (noDash) return 0; let d = 0; for (const c of CARS) d = Math.max(d, smooth((t - (c.t + 2.3)) / 0.8) * (1 - smooth((t - (c.t + 6.0)) / 2.4))); return d; };   // the run for the kerb, and back
+  const dodgeX = t => { for (const c of CARS) if (t > c.t && t < c.t + 11) return c.dodge; return 0; };
+  // "pray": the eyes go up to the sky just before the word and stay there through it
+  const T_PRAY = (() => { const L = lines.find(l => /when i pray/i.test(l.text)); return L?.words?.find(w => /^pray/i.test(w.w || ''))?.t ?? L?.t ?? -1; })();
+  const prayAt = t => T_PRAY < 0 ? 0 : smooth((t - (T_PRAY - 1.9)) / 1.3) * (1 - smooth((t - (T_PRAY + 1.4)) / 1.1));
   const T_CALL = lines.find(l => /i heard you call/i.test(l.text))?.t ?? -1;
   const endBeat = beats.find(b => b.name === 'End');
   const endDur = endBeat.t1 - endBeat.t0;
@@ -187,7 +214,7 @@ export function createRoute(timing) {
     return out;
   }
   return {
-    beats, pose, anchorFor, beatAt, fade, T_DOOR, gait(t) { return gaitOf(beatAt(t), t); }, T_VOID: 1e9, T_TOWER: endBeat.t0 + 0.74 * (endBeat.t1 - endBeat.t0),
+    beats, pose, anchorFor, beatAt, fade, T_DOOR, gait(t) { return gaitOf(beatAt(t), t, dashAt(t)); }, carAt, dashAt, CARS, prayAt, T_VOID: 1e9, T_TOWER: endBeat.t0 + 0.74 * (endBeat.t1 - endBeat.t0),
     skyAt(t) { return beatAt(t).sky; },
     // how far the hands have pushed the viewer under the water (metres below the path), gasping back up after the line
     dive(t) { if (T_DROWN < 0) return 0; const down = smooth((t - T_DROWN - 1.2) / 1.6), up = smooth((t - T_DROWN - 3.4) / 2.8); return -0.72 * down * (1 - up); },

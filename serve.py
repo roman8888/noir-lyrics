@@ -4,6 +4,7 @@ import http.server, os, re, sys
 
 class RangeHandler(http.server.SimpleHTTPRequestHandler):
     def send_head(self):
+        if re.search(r'/line/\d+/?$', self.path.split('?')[0]): self.path = '/index.html'     # deep links: /<song>/line/<n>
         rng = self.headers.get('Range')
         path = self.translate_path(self.path)
         if not rng or not os.path.isfile(path):

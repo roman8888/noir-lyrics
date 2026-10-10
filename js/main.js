@@ -7,14 +7,14 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261010230826';
-import { createProps } from './props.js?v=20261010230826';
-import { createSky } from './sky.js?v=20261010230826';
-import { createRoute } from './route.js?v=20261010230826';
-import { createSong, LEAD } from './song.js?v=20261010230826';
-import { SONGS } from './songs.js?v=20261010230826';
-import { clamp, fmt, toLRC } from './util.js?v=20261010230826';
-import { createDrops } from './drops.js?v=20261010230826';
+import { createCity } from './city.js?v=20261010233523';
+import { createProps } from './props.js?v=20261010233523';
+import { createSky } from './sky.js?v=20261010233523';
+import { createRoute } from './route.js?v=20261010233523';
+import { createSong, LEAD } from './song.js?v=20261010233523';
+import { SONGS } from './songs.js?v=20261010233523';
+import { clamp, fmt, toLRC } from './util.js?v=20261010233523';
+import { createDrops } from './drops.js?v=20261010233523';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -76,6 +76,7 @@ const sky = createSky(city.scene);
 const route = createRoute(timing);
 const props = createProps(city.scene, city, timing, { roman, italic }, route);
 const song = createSong({ roman, italic }, city.scene, route, [city.blds, ...props.solid]);
+props.wordAt = (i, re, out) => song.wordAt(i, re, out);                 // set pieces that ride on a word (the fire on "hell")
 song.load(current, timing);
 audio.src = `songs/${current.slug}/song.mp3`;
 renderPass.scene = city.scene; renderPass.camera = song.camera; bokeh.scene = city.scene; bokeh.camera = song.camera;
@@ -91,8 +92,11 @@ setTimeout(() => { $('loading').classList.add('gone'); }, 150);
 // Autoplay: the song starts by itself. If the browser refuses sound before any touch, it starts muted and the
 // first touch/scroll/key anywhere unmutes it silently. The analyser is wired only once the browser allows audio.
 let needUnmute = false;
+// a deep link /<song>/line/<n> starts the song at that line
+const LINE_AT = (() => { const m = location.pathname.match(/\/([^/]+)\/line\/(\d+)\/?$/); if (!m || m[1] !== current.slug) return 0;
+  const L = timing.lines[parseInt(m[2], 10) - 1]; return L && L.t != null ? Math.max(0, L.t - 0.15) : 0; })();
 async function startSong() {
-  audio.currentTime = 0; audio.muted = false;
+  audio.currentTime = LINE_AT; audio.muted = false;
   try { await audio.play(); }
   catch { audio.muted = true; needUnmute = true; try { await audio.play(); } catch { /* nothing more we can do until a gesture */ } }
   if (actx) actx.resume();
@@ -160,14 +164,16 @@ function markLyrics(t) {
   if (n === lyNow) return;
   if (lyNow >= 0) lyItems[lyNow].classList.remove('now');
   lyNow = n; if (n >= 0) { lyItems[n].classList.add('now'); lyItems[n].scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+  // the address follows the line: /<song>/line/<n> (1-based, as listed in the panel)
+  try { history.replaceState(null, '', (window.__root || '/') + (n >= 0 ? `${current.slug}/line/${n + 1}` : '')); } catch { /* file:// and friends */ }
 }
 let idleTimer = 0;
 addEventListener('pointermove', e => { $('player').classList.remove('idle'); idleTimer = 0; song.setPointer((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); });
 
 // ---------- loop ----------
 let skyName = '';
-const fadeOut = { k: 0, r: 0, g: 0, b: 0 };
-function frame() {
+const fadeOut = { k: 0, r: 0, g: 0, b: 0 }, carPos = new THREE.Vector3();
+function frame(once) {
   const dt = Math.min(clock.getDelta(), 0.05), now = clock.elapsedTime;
   const t = audio.currentTime;
   if (audio.duration) $('fill').style.width = `${(t / audio.duration) * 100}%`;
@@ -180,6 +186,7 @@ function frame() {
   song.update(dt, now, t, analyser, fbuf);
   const env = song.env, P = song.P;
   sky.update(dt, now, song.camera.position, env.bass);
+  city.chaseAt(route.carAt(t, carPos), song.camera);                                     // the car that comes for you (Rap 2)
   city.update(dt, now, song.camera, sky);
   props.update(dt, t, now, { ...env, sun: sky.sun }, song.camera);
   route.cue(t, city);
@@ -192,7 +199,7 @@ function frame() {
   noir.uniforms.uWater.value = props.under; bokeh.uniforms.maxblur.value = 0.0022 + props.under * 0.012;
   composer.render(dt);
   drops.update(dt); drops.fade(clamp((t - DROP_AT[4] - 1.5) / 2.5));                   // the blood runs for a moment after the last drop, then is gone
-  requestAnimationFrame(frame);
+  if (!once) requestAnimationFrame(frame);
 }
 let lastSize = '';
 function resize() {
@@ -208,4 +215,4 @@ function resize() {
 }
 addEventListener('resize', resize); new ResizeObserver(resize).observe(document.documentElement); resize();
 requestAnimationFrame(frame);
-window.__noir = { audio, song, city, props, sky, route, renderer, get mode() { return mode; } };
+window.__noir = { audio, song, city, props, sky, route, renderer, get mode() { return mode; }, step: () => frame(true) };   // step(): one frame on demand (probes while the tab is hidden and rAF sleeps)

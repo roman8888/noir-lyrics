@@ -1,7 +1,7 @@
 // Words that act out what they mean: "fade" fades, "fall" falls, "fly" flies away, "drown" sinks...
 // Each effect runs after the word is sung. age = seconds since it was sung.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010230826';
+import { clamp } from './util.js?v=20261010233523';
 
 const RED = new THREE.Color(0.36, 0.015, 0.03), EMBER = new THREE.Color(0.8, 0.12, 0.05), GOLD = new THREE.Color(0.85, 0.88, 1.0);   // 'GOLD' is now a pale cold light: no yellow in this film
 const BLUE = new THREE.Color(0.25, 0.4, 0.6), ASH = new THREE.Color(0.2, 0.19, 0.18);
@@ -60,6 +60,12 @@ const FX = {
     m.material.opacity *= 1 - k * 0.85;
     m.material.emissiveIntensity *= 1 - Math.min(1, k * 1.6);              // its light goes out before it is gone
   },
+  hell(m, u, a, x) {                           // the word is set alight: it glows ember-red from inside and chars dark, flickering
+    const k = ease(a / 0.5), fl = 0.8 + 0.2 * Math.sin(x.now * 23) * Math.sin(x.now * 7.3);
+    m.material.color.lerp(new THREE.Color(0.08, 0.02, 0.01), k * 0.85);
+    m.material.emissive.setRGB(0.9, 0.16, 0.03); m.material.emissiveIntensity = k * 1.6 * fl;
+    m.position.y += Math.sin(x.now * 19 + u.seed.x) * 0.006 * k;
+  },
   ahead(m, u, a) {                             // far ahead: the word shrinks into the distance
     const k = ease(a / 2.4); m.position.z -= k * 7; m.scale.multiplyScalar(1 - k * 0.72); m.material.opacity *= 1 - k * 0.3; },
   shame(m, u, a, x) {                          // enlarged, and knocked: three hard knocks as it lands
@@ -76,7 +82,7 @@ const MAP = [
   [/^(break|broke|broken|cracks|wounds|scars|shatter)$/, 'break'], [/^(burn|burned|burns|flame)$/, 'burn'],
   [/^light$/, 'light'], [/^(silence|silent|quiet|sleep)$/, 'silence'],
   [/^ahead$/, 'ahead'], [/^(away|lost|nowhere|retreat|gone)$/, 'away'], [/^(turn|turned|backs)$/, 'turn'], [/^(slammed|shut|door)$/, 'slam'],
-  [/^(beats|beat|heart)$/, 'beat'], [/^breathe$/, 'breathe'], [/^deep$/, 'deep'], [/^long$/, 'long'], [/^near$/, 'near'],
+  [/^hell/, 'hell'], [/^(beats|beat|heart)$/, 'beat'], [/^breathe$/, 'breathe'], [/^deep$/, 'deep'], [/^long$/, 'long'], [/^near$/, 'near'],
   [/^(tight|held|holding|hold)$/, 'tight'], [/^(fears|afraid)$/, 'tremble'], [/^weak$/, 'weak'], [/^crawl$/, 'crawl'],
   [/^lies$/, 'lies'], [/^pretend$/, 'pretend'], [/^rain$/, 'rain'], [/^(sun|morning|hope)$/, 'sun'],
   [/^(call|hears|hear|heard|voice|speak|said)$/, 'echo'], [/^(pray|prayer)$/, 'pray'], [/^(walk|walking)$/, 'walk'],

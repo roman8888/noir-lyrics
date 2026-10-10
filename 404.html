@@ -1,0 +1,7 @@
+<!doctype html><meta charset="utf-8"><title>noir</title>
+<script>
+// GitHub Pages: an unknown path such as /noir-lyrics/<song>/line/12 lands here; hand it to the app as ?p=
+const seg = location.pathname.split('/').filter(Boolean);
+const root = location.hostname.endsWith('github.io') && seg.length ? '/' + seg[0] + '/' : '/';
+location.replace(root + '?p=' + encodeURIComponent(location.pathname));
+</script>

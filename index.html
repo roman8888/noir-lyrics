@@ -3,10 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script>
+// the address carries the line being sung: /<song>/line/<n>. Every asset stays relative to the app root, so a
+// <base> is set first (GitHub Pages lands deep links here via 404.html with ?p=<path>).
+(() => { const q = new URLSearchParams(location.search), p = q.get('p');
+  if (p) history.replaceState(null, '', p);
+  const root = location.pathname.replace(/[^/]+\/line\/\d+\/?$/, '').replace(/\/?$/, '/');
+  const b = document.createElement('base'); b.href = location.origin + root; document.head.appendChild(b); window.__root = root; })();
+</script>
 <title>Roman — When God Wants to Make You Stronger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=20261010230826">
+<link rel="stylesheet" href="css/site.css?v=20261010233523">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -47,6 +55,6 @@
 </div>
 <div id="loading"></div>
 
-<script type="module" src="js/main.js?v=20261010230826"></script>
+<script type="module" src="js/main.js?v=20261010233523"></script>
 </body>
 </html>
