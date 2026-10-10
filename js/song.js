@@ -2,10 +2,10 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261010225651';
-import { fxFor, applyFx } from './fx.js?v=20261010225651';
-import { FACADE } from './layout.js?v=20261010225651';
-import { LOOKS } from './songs.js?v=20261010225651';
+import { clamp, easeOutExpo } from './util.js?v=20261010230029';
+import { fxFor, applyFx } from './fx.js?v=20261010230029';
+import { FACADE } from './layout.js?v=20261010230029';
+import { LOOKS } from './songs.js?v=20261010230029';
 
 // every word appears 0.2 s before its timestamp: Roman's ear test (the aligner marks vowel onsets a touch late); ?lead= overrides
 const LEAD_PARAM = parseFloat(new URLSearchParams(location.search).get('lead'));
@@ -220,7 +220,7 @@ export function createSong(fonts, scene, route, occluders = []) {
         const nx = lines[i + 1];                                               // a line steps aside when the next one starts
         let leave = nx ? clamp((t - nx.t + 0.15) / (cut ? 0.35 : 0.9)) : clamp((t - end) / 3);
         // a street line also steps aside as the walk reaches it: never a wall of giant letters at the lens
-        if (a.kind === 'banner' || a.kind === 'ahead' || a.kind === 'sky') { const dx = camera.position.x - group.position.x, dz = camera.position.z - group.position.z; const near = (a.beat?.dist ?? 9) > 12 ? 12 : 7.5; leave = Math.max(leave, clamp((near - Math.hypot(dx, dz)) / (near * 0.5))); }
+        if (a.kind === 'banner' || a.kind === 'ahead' || a.kind === 'sky') { const dx = camera.position.x - group.position.x, dz = camera.position.z - group.position.z; const near = (a.beat?.dist ?? 9) > 12 ? 9 : 7.5; leave = Math.max(leave, clamp((near - Math.hypot(dx, dz)) / (near * 0.5))); }
         let newest = null;
         for (const m of words) if (m.userData.reveal <= t) newest = m;
         if (isActive && newest) { newest.getWorldPosition(spotAt); spotOn = 1; }
@@ -270,7 +270,8 @@ export function createSong(fonts, scene, route, occluders = []) {
       camera.position.copy(camBase); camera.position.y += route.dive(t);
       camera.position.x += Math.sin(now * 0.37) * 0.015;                 // the faintest breathing, nothing more
       camera.position.y += Math.sin(now * 0.29 + 1) * 0.01;
-      camera.lookAt(look);                                                  // level horizon, always
+      camera.lookAt(look);                                                  // level horizon, then the gait's small roll, nod and wander
+      { const g = route.gait(t); camera.rotateZ(g.roll); camera.rotateX(g.pitch); camera.rotateY(g.yaw); }
       spot.position.lerp(tmp.copy(spotAt).add(new THREE.Vector3(0, 0.5, 0)).addScaledVector(tmp.subVectors(camera.position, spotAt).normalize(), 1.1), 1 - Math.exp(-dt * 14));
       spot.intensity += ((spotOn ? 7 : 0) - spot.intensity) * (1 - Math.exp(-dt * 8)); spotOn = 0;
       key.position.copy(camera.position).add(new THREE.Vector3(-3, 5, 2)); key.target.position.copy(look);

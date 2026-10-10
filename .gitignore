@@ -3,3 +3,4 @@
 *.wav
 !songs/*/song.mp3
 .DS_Store
+.venv/

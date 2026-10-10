@@ -2,8 +2,8 @@
 // interior-mapped windows (every lit window is a small parallax room), street lamps, traffic, rain.
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
-import { rng, makeRain } from './util.js?v=20261010225651';
-import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261010225651';
+import { rng, makeRain } from './util.js?v=20261010230029';
+import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261010230029';
 
 const buildingVS = /* glsl */`
   varying vec3 vW; varying vec3 vN; varying float vSeed;
@@ -133,9 +133,8 @@ export function createCity() {
   mirror.rotation.x = -Math.PI / 2; mirror.position.set(0, 0, ZMID); scene.add(mirror);
   const skin = new THREE.Mesh(new THREE.PlaneGeometry(110, ZLEN), new THREE.MeshBasicMaterial({ color: 0x030406, transparent: true, opacity: 0.62 }));
   skin.rotation.x = -Math.PI / 2; skin.position.set(0, 0.02, ZMID); scene.add(skin);
-  const dashes = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.14, 2.4), new THREE.MeshBasicMaterial({ color: 0x8a8670 }), Math.ceil(ZLEN / 6));
-  for (let i = 0; i < Math.ceil(ZLEN / 6); i++) dashes.setMatrixAt(i, M.makeRotationX(-Math.PI / 2).setPosition(0, 0.03, 40 - i * 6));
-  scene.add(dashes);
+  // (no centre line on the road: Roman wants the wet asphalt bare)
+  scene.add();
   // kerbs
   const kerbMat = new THREE.MeshStandardMaterial({ color: 0x15161a, roughness: 0.9 });
   for (const s of [-1, 1]) { const k = new THREE.Mesh(new THREE.BoxGeometry(1, 0.18, ZLEN - 160), kerbMat); k.position.set(s * (FACADE - 0.5), 0.09, ZMID); scene.add(k); }
