@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010195259';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H } from './layout.js?v=20261010195259';
+import { rng, clamp } from './util.js?v=20261010195658';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H } from './layout.js?v=20261010195658';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -413,6 +413,9 @@ export function createProps(scene, city, timing, fonts, route) {
           u.thumb.rotation.x = -curl * 0.6;
         });
         this.under = Math.max(0, Math.min(1, (0.44 - camera.position.y) / 0.12));
+        // under the surface the hands are pale, lit from above, so they read against the dark water
+        handMat.color.setHex(0x17100f).lerp(new THREE.Color(0x7d8a94), this.under * 0.7);
+        handMat.emissive.setHex(0x000000).lerp(new THREE.Color(0x2a3842), this.under); handMat.roughness = 0.75 - this.under * 0.3;
         bubbles.visible = this.under > 0;
         if (bubbles.visible) { for (let i = 0; i < NB; i++) { bLife[i] += dt * (0.35 + (i % 5) * 0.08); if (bLife[i] > 1) bLife[i] = 0; const L2 = bLife[i];
             const p = lens.clone().addScaledVector(camR, Math.sin(i * 7.3) * 0.5).addScaledVector(camU, -0.4 + L2 * 1.1).addScaledVector(camF, 0.25 + (i % 7) * 0.08); bPos.set([p.x, p.y, p.z], i * 3); }

@@ -2,9 +2,9 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261010195259';
-import { fxFor, applyFx } from './fx.js?v=20261010195259';
-import { LOOKS } from './songs.js?v=20261010195259';
+import { clamp, easeOutExpo } from './util.js?v=20261010195658';
+import { fxFor, applyFx } from './fx.js?v=20261010195658';
+import { LOOKS } from './songs.js?v=20261010195658';
 
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607);

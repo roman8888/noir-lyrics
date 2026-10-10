@@ -7,14 +7,14 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261010195259';
-import { createProps } from './props.js?v=20261010195259';
-import { createSky } from './sky.js?v=20261010195259';
-import { createRoute } from './route.js?v=20261010195259';
-import { createSong } from './song.js?v=20261010195259';
-import { SONGS } from './songs.js?v=20261010195259';
-import { clamp, fmt, toLRC } from './util.js?v=20261010195259';
-import { createDrops } from './drops.js?v=20261010195259';
+import { createCity } from './city.js?v=20261010195658';
+import { createProps } from './props.js?v=20261010195658';
+import { createSky } from './sky.js?v=20261010195658';
+import { createRoute } from './route.js?v=20261010195658';
+import { createSong } from './song.js?v=20261010195658';
+import { SONGS } from './songs.js?v=20261010195658';
+import { clamp, fmt, toLRC } from './util.js?v=20261010195658';
+import { createDrops } from './drops.js?v=20261010195658';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -40,7 +40,7 @@ const NoirShader = {
       float lum = dot(col, vec3(0.299, 0.587, 0.114));
       float sat = smoothstep(0.06, 0.28, max(col.r - col.b, col.g - col.b));
       col = mix(vec3(lum) * vec3(1.0, 0.985, 0.96), col, clamp(sat + uColor, 0., 1.));
-      col = mix(col, col * vec3(0.25, 0.42, 0.5) + vec3(0.0, 0.015, 0.02), uWater * 0.85);
+      col = mix(col, col * vec3(0.55, 0.78, 0.9) + vec3(0.01, 0.035, 0.045), uWater * 0.85);
       col *= smoothstep(1.05, 0.3 + uWater * 0.35, length(c * vec2(uAspect * 0.78, 1.0)));
       col += (h(gl_FragCoord.xy + fract(uTime) * 91.) - 0.5) * 0.028;
       gl_FragColor = vec4(col, 1.);
