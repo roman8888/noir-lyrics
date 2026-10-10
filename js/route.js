@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010230029';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261010230029';
+import { clamp } from './util.js?v=20261010230436';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261010230436';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0], A2 = ALLEYS[1];
@@ -96,7 +96,9 @@ export function createRoute(timing) {
     const roll = Math.sin(t * w / 2 + 1.0) * (b.stride ? 0.0075 : b.walk ? 0.006 : 0.003);          // the head tilts with the sway (≈0.35°)
     const pitch = Math.cos(t * w) * (b.stride ? 0.0035 : b.walk ? 0.003 : 0.0015);                   // a nod at every footfall
     const yaw = (Math.sin(t * 0.61) * Math.sin(t * 1.13 + 0.7)) * (b.walk || b.stride ? 0.004 : 0.0015);   // the heading wanders a little
-    return { bob, sway, roll, pitch, yaw };
+    // and a slow drift across the road: a walker never holds a dead-straight line (avenue beats only, ±1.6 m, ~30 s period)
+    const drift = (b.walk || b.stride) ? (Math.sin(t * 0.21) * Math.sin(t * 0.09 + 1.3) * 1.6 + Math.sin(t * 0.33 + 0.5) * 0.35) : 0;
+    return { bob, sway, roll, pitch, yaw, drift };
   }
   // camera pose at song time t: position + where it looks (before the slow easing in song.js)
   function pose(t, out = { pos: new THREE.Vector3(), look: new THREE.Vector3(), beat: null, u: 0 }) {
@@ -111,7 +113,9 @@ export function createRoute(timing) {
     if (out.pos.y < 3) {
       const g = gaitOf(b, t);
       out.pos.y += g.bob;
-      out.pos.x += lastDir.z * g.sway; out.pos.z += -lastDir.x * g.sway;    // along the right-hand vector
+      const side = g.sway + (Math.abs(out.pos.x) < 6 ? g.drift : 0);        // the drift only on the open avenue, never in an alley or a doorway
+      out.pos.x += lastDir.z * side; out.pos.z += -lastDir.x * side;        // along the right-hand vector
+      if (Math.abs(out.pos.x) < 6) out.pos.x = Math.max(-3.2, Math.min(3.2, out.pos.x));   // and well inside the road, clear of the traffic lanes
     }
     out.look.copy(out.pos).addScaledVector(lastDir, 8);
     if (b.looks) {
