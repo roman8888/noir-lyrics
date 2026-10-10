@@ -2,9 +2,9 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261010222625';
-import { fxFor, applyFx } from './fx.js?v=20261010222625';
-import { LOOKS } from './songs.js?v=20261010222625';
+import { clamp, easeOutExpo } from './util.js?v=20261010223100';
+import { fxFor, applyFx } from './fx.js?v=20261010223100';
+import { LOOKS } from './songs.js?v=20261010223100';
 
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607);
@@ -239,6 +239,8 @@ export function createSong(fonts, scene, route, occluders = []) {
       const act = active >= 0 ? live.get(active) : null;
       if (act) { act.group.getWorldPosition(focusAt); } else focusAt.copy(pose.look);
       let w = act ? 0.88 * (1 - clamp((t - lineEnd(active)) / 1.5)) : 0;
+      // a line the walk has reached or passed no longer holds the gaze: never a turn-around to look back at it
+      if (act) { const fw = tmp.copy(pose.look).sub(pose.pos); fw.y = 0; fw.normalize(); const ahead = (focusAt.x - pose.pos.x) * fw.x + (focusAt.z - pose.pos.z) * fw.z; w *= clamp((ahead - 3) / 5); }
       const nxI = active + 1;
       if (lines[nxI] && lines[nxI].t != null) {
         const lead = clamp((t - (lines[nxI].t - 2.2)) / 1.8);
