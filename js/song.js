@@ -2,10 +2,12 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261010223100';
-import { fxFor, applyFx } from './fx.js?v=20261010223100';
-import { LOOKS } from './songs.js?v=20261010223100';
+import { clamp, easeOutExpo } from './util.js?v=20261010224707';
+import { fxFor, applyFx } from './fx.js?v=20261010224707';
+import { FACADE } from './layout.js?v=20261010224707';
+import { LOOKS } from './songs.js?v=20261010224707';
 
+const LEAD = Math.max(-1, Math.min(1, parseFloat(new URLSearchParams(location.search).get('lead')) || 0));   // ?lead=0.2 shows every word 0.2 s before its timestamp (ear test)
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607);
 const SMALL = new Set(['the','a','an','to','and','of','in','on','for','by','with','as','at','or','so','but','i','i\'m','i\'ll','you','your','you\'re','me','my','he','his','they','them','their','it','is','was','be','that','what','when','then','than','though','if','all','do','don\'t','who','there','were','will','would','we']);
@@ -91,6 +93,15 @@ export function createSong(fonts, scene, route, occluders = []) {
     }
     const rowH = rows.map(row => LINE_H * Math.max(...row.map(tk => tk.ws))), totH = rowH.reduce((s, b) => s + b, 0);
     const group = new THREE.Group(); group.position.copy(a.pos); group.quaternion.copy(a.q); group.scale.setScalar(a.scale);
+    if ((a.kind === 'banner' || a.kind === 'ahead') && Math.abs(a.pos.x) < FACADE - 1) {
+      // on the avenue the whole line stays inside the kerb line: nothing hugs a facade, its awnings or its shop signs
+      const hw = Math.max(...rows.map(row => row.reduce((s2, tk) => s2 + tk.wd, 0) + SPACE * (row.length - 1))) * a.scale / 2;
+      const rx = Math.abs(new THREE.Vector3(1, 0, 0).applyQuaternion(a.q).x), lim = FACADE - 1.8, span = hw * rx;
+      if (span > lim) { const k = lim / span; group.scale.multiplyScalar(k); a.scale *= k; }
+      const ext = Math.min(span, lim);
+      if (a.pos.x + ext > lim) a.pos.x = lim - ext; else if (a.pos.x - ext < -lim) a.pos.x = -lim + ext;
+      group.position.copy(a.pos);
+    }
     if (a.kind !== 'room' && a.camPos) {
       // nothing may stand between the camera and the line
       const dir = new THREE.Vector3().subVectors(a.pos, a.camPos), dist = dir.length(); dir.normalize();
@@ -117,7 +128,7 @@ export function createSong(fonts, scene, route, occluders = []) {
         const mesh = new THREE.Mesh(tk.geo.g, mat); mesh.castShadow = true;
         const home = new THREE.Vector3(x + tk.wd / 2, y - (rowH[ri] / LINE_H - tk.ws) * SIZE * 0.4, 0);
         const seed = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
-        mesh.userData = { home, seed, reveal: tk.t ?? (L.t + wi * step), acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : fxFor(tk.w), hl: 0, hov: 0 };
+        mesh.userData = { home, seed, reveal: (tk.t ?? (L.t + wi * step)) - LEAD, acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : fxFor(tk.w), hl: 0, hov: 0 };
         if (mesh.userData.fx === 'tight' || mesh.userData.fx === 'home') {   // built letter by letter: these words move as letters
           const chars = [...tk.w], geos = chars.map(ch => wordGeo(ch, tk.acc)), gap = SIZE * 0.1;
           const natW = geos.reduce((s2, g) => s2 + g.width, 0) + gap * (chars.length - 1), sqW = geos.reduce((s2, g) => s2 + g.width * 0.86, 0);
@@ -145,7 +156,8 @@ export function createSong(fonts, scene, route, occluders = []) {
     if (a.camPos) {
       const lineW = Math.max(...rows.map(row => row.reduce((s2, tk) => s2 + tk.wd, 0) + SPACE * (row.length - 1))) * group.scale.x, lineH = totH * group.scale.x;
       const d = group.position.distanceTo(a.camPos), tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-      let maxW = 2 * d * tanH * camera.aspect * 0.62; const maxH = 2 * d * tanH * 0.55;
+      const maxH = 2 * d * tanH * 0.55;
+      let maxW = 2 * d * tanH * camera.aspect * 0.62 * (camera.view?.enabled ? camera.view.width / camera.view.fullWidth : 1);   // only the part of the frame the lyrics panel leaves
       const al = a.beat?.alley; if (al && Math.abs(group.position.x) > 8) maxW = Math.min(maxW, al.w - 0.5);   // inside an alley: narrower than the alley
       const fit = Math.min(1, maxW / lineW, maxH / lineH);
       if (fit < 1) group.scale.multiplyScalar(fit);

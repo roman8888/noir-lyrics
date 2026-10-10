@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010223100';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261010223100';
+import { rng, clamp } from './util.js?v=20261010224707';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261010224707';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -58,7 +58,7 @@ export function createProps(scene, city, timing, fonts, route) {
   for (let i = 0; i < 16; i++) { const s = i % 2 ? 1 : -1; const c = tubeCols[i % 4];
     M.compose(V.set(s * (FACADE - 0.1), 3.6 + (i % 3) * 0.3, 0 - i * 22 - r() * 10), Q.setFromEuler(new THREE.Euler(0, Math.PI / 2, 0)), new THREE.Vector3(1, 1, 1)); tube.setMatrixAt(i, M);
     tube.setColorAt(i, new THREE.Color(c[0], c[1], c[2])); }
-  scene.add(hyd, bin, awn, tube);
+  scene.add(hyd, bin, awn, tube); solid.push(awn, tube);                 // awnings and shop tubes hang at line height: they must count as occluders
 
   // ---- alleys: dumpsters, fire escapes, a hanging bulb, puddles
   const alleyLights = [];
@@ -396,15 +396,43 @@ export function createProps(scene, city, timing, fonts, route) {
       for (const f of walkers) { const w = f.userData.w; w.z += w.v * dt; if (w.z < Z_END) w.z = Z_START; if (w.z > Z_START) w.z = Z_END; f.position.set(w.x, Math.abs(Math.sin(time * 5 + w.x)) * 0.03, w.z);
         const dz = camera.position.z - w.z; f.visible = !(camera.position.y < 6 && dz > -6 && dz < 42); }   // only far down the street, never near the lens
       // crowd: faces the camera until the line, then turns its back and walks away
-      const ct = T_CROWD > 0 ? t - T_CROWD : -99;
-      for (const f of crowd) {
-        const ph = f.userData.ph;
-        f.visible = ct > -1.2 && ct < 11;
-        const headTurn = ease((ct - 0.9 - ph * 0.5) / 0.7), bodyTurn = ease((ct - 1.7 - ph * 0.6) / 1.1), walk = clamp((ct - 3.0 - ph * 0.8) / 0.5);
-        f.userData.head.rotation.y = Math.PI * 0.6 * headTurn * (1 - bodyTurn);
-        f.rotation.y = Math.PI / 2 + Math.PI * bodyTurn + Math.sin(time * 0.6 + ph * 9) * 0.04;
-        if (walk > 0) { f.position.x -= 0.55 * dt * walk; f.position.y = Math.abs(Math.sin(time * 4.2 + ph * 7)) * 0.045 * walk; f.rotation.z = Math.sin(time * 4.2 + ph * 7) * 0.03 * walk; }
-      }
+      const ct = T_CROWD > 0 ? t - T_CROWD : -99, dk = T_DROWN > 0 ? t - T_DROWN : -1;
+      // the crowd: it stands at the alley's end and turns its back, drifts off, comes back to the water's edge to watch
+      // you drown, then walks away down the alley and the avenue. Every move is a walk; nobody pops in or out.
+      const faceTo = (f, x, z) => Math.atan2(x - f.position.x, z - f.position.z) + Math.PI;
+      const cf = new THREE.Vector3(); camera.getWorldDirection(cf); cf.y = 0; cf.normalize();
+      crowd.forEach((f, i) => {
+        const u = f.userData, ph = u.ph;
+        if (!u.home) u.home = f.position.clone();
+        f.visible = ct > -1.2 && !u.gone;
+        if (!f.visible) return;
+        let tx = u.home.x, tz = u.home.z, speed = 0, faceCam = false;
+        if (dk >= 5.5) {                                                                       // leave: along the alley wall to the street, then down the avenue
+          if (!u.exitZ) u.exitZ = A.z + (ph > 0.5 ? 1.5 : -1.5) + (ph - 0.5) * 0.4;
+          if (f.position.x < -7) { tx = -6 + ph * 2; tz = u.exitZ; } else { tx = -4 + ph * 3; tz = A.z - 70; }
+          speed = 1.25 + ph * 0.25;
+          if (dk > 7 && f.position.distanceTo(camera.position) > 30) u.gone = true;
+        } else if (dk > -2.8) {                                                                 // gather around the water
+          if (!u.ring) { const a = (i / (crowd.length - 1) - 0.5) * 3.3, cs = Math.cos(a), sn = Math.sin(a), rad = 4.6 + (i % 3) * 0.6;
+            u.ring = { x: camera.position.x + (cf.x * cs - cf.z * sn) * rad, z: camera.position.z + (cf.x * sn + cf.z * cs) * rad }; }
+          tx = u.ring.x; tz = u.ring.z; speed = 1.3 + ph * 0.3; faceCam = true;
+        } else if (ct > 3.0 - ph * 0.8) { tx = u.home.x - 3.5 - ph * 2.5; tz = u.home.z; speed = 0.55; }   // after turning its back: drifts deeper
+        const dx = tx - f.position.x, dz = tz - f.position.z, d = Math.hypot(dx, dz);
+        if (speed > 0 && d > 0.08) {                                                             // walking
+          const st = Math.min(d, speed * dt); f.position.x += dx / d * st; f.position.z += dz / d * st;
+          f.rotation.y = faceTo(f, tx, tz) + Math.PI;
+          f.position.y = Math.abs(Math.sin(time * 4.2 + ph * 7)) * 0.045; f.rotation.z = Math.sin(time * 4.2 + ph * 7) * 0.03;
+          u.head.rotation.set(0.1, 0, 0);
+        } else {                                                                                 // standing
+          f.position.y = 0; f.rotation.z = 0;
+          if (faceCam) { f.rotation.y = faceTo(f, camera.position.x, camera.position.z) + Math.sin(time * 0.5 + i) * 0.03; u.head.rotation.set(0.42 + 0.25 * ease((dk - 1.0) / 1.6), 0, 0); }
+          else if (ct < 3.0 - ph * 0.8) {                                                        // at the alley's end: the head turns, then the body
+            const headTurn = ease((ct - 0.9 - ph * 0.5) / 0.7), bodyTurn = ease((ct - 1.7 - ph * 0.6) / 1.1);
+            u.head.rotation.y = Math.PI * 0.6 * headTurn * (1 - bodyTurn);
+            f.rotation.y = Math.PI / 2 + Math.PI * bodyTurn + Math.sin(time * 0.6 + ph * 9) * 0.04;
+          }
+        }
+      });
       // the two walking
       const tw = T_TWO > 0 ? t - T_TWO + 1.5 : -1;
       if (tw > 0 && !twoZ && route) twoZ = route.pose(T_TWO).pos.z - 9;             // start a few steps ahead of the walker
@@ -444,16 +472,6 @@ export function createProps(scene, city, timing, fonts, route) {
         irises.forEach(ir => ir.position.set(Math.sin(time * 1.7) * 0.1 * (1 - flip), Math.cos(time * 1.1) * 0.05 * (1 - flip), 0.005));
       } else eyesPlaced = eyesPlaced && ek < 6.5;
       // the drowning
-      const dk = T_DROWN > 0 ? t - T_DROWN : -1;
-      if (dk > -2.8 && dk < 9) {                                             // from "I held them up": they stand around the water and watch
-        const cf = new THREE.Vector3(); camera.getWorldDirection(cf); cf.y = 0; cf.normalize();
-        if (dk < 0.5) ringAt.copy(camera.position);                              // the ring gathers around where you stand, then stays put as you leave
-        crowd.forEach((f, i) => { const a = (i / (crowd.length - 1) - 0.5) * 3.3, cs = Math.cos(a), sn = Math.sin(a);
-          const dx = cf.x * cs - cf.z * sn, dz = cf.x * sn + cf.z * cs, rad = 4.6 + (i % 3) * 0.6;   // a wide ring at the water's edge, gaps between them
-          f.visible = true; f.position.set(ringAt.x + dx * rad, 0, ringAt.z + dz * rad);
-          f.rotation.y = Math.atan2(camera.position.x - f.position.x, camera.position.z - f.position.z) + Math.PI + Math.sin(time * 0.5 + i) * 0.03;
-          f.rotation.z = 0; f.userData.head.rotation.set(0.42 + 0.25 * ease((dk - 1.0) / 1.6), 0, 0); });   // heads bow further as they press
-      } else if (dk >= 9 && dk < 60) crowd.forEach(f => (f.visible = false));
       pool.visible = dk > -1.5 && dk < 9; if (!pool.visible) { this.under = 0; bubbles.visible = false; }
       if (pool.visible) {
         const press = ease((dk - 1.0) / 1.6);                                    // the arms arrive over ~1.6 s

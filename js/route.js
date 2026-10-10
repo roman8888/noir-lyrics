@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010223100';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261010223100';
+import { clamp } from './util.js?v=20261010224707';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261010224707';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0], A2 = ALLEYS[1];
@@ -130,7 +130,8 @@ export function createRoute(timing) {
     if (kind !== 'room' && kind !== 'facadeL' && kind !== 'facadeR') {
       pos.y += b.lift ?? 0;
       if (b.lateral) pos.addScaledVector(new THREE.Vector3(fwd.z, 0, -fwd.x), (idx % 2 ? 1 : -1) * b.lateral);   // beside the walk, not in it
-      const al = b.alley;
+      // the alley the line is headed into, whether or not the beat declares one (a street beat turning into an alley)
+      const al = b.alley || ALLEYS.find(A => Math.sign(pos.x) === A.side && Math.abs(pos.z - A.z) < A.w / 2 + 3 && Math.abs(cam.pos.z - A.z) < A.w / 2 + 3);
       if (al && Math.abs(pos.x) > FACADE - 1) {                              // inside the alley: between its walls, short of its end
         pos.z = Math.min(al.z + al.w / 2 - 0.5, Math.max(al.z - al.w / 2 + 0.5, pos.z));
         if (Math.abs(pos.x) > ROW2 - 1.5) pos.x = Math.sign(pos.x) * (ROW2 - 1.5);
