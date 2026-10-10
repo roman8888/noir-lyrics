@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010211412';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH } from './layout.js?v=20261010211412';
+import { clamp } from './util.js?v=20261010211903';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH } from './layout.js?v=20261010211903';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0];
@@ -44,10 +44,10 @@ const BEATS = {
   // "free": the city parts and the door opens; the walk slows to a stop before it and the eyes drop to the road,
   // where KARMA IS NEAR is painted: that is the last image
   // ...then the camera lifts off backwards into the air, the text staying centred below while the whole city opens up around it
-  // ...through the open door into the dark; then a crane shot straight up the church's front, past the RS and the floodlit R,
-  // over the top, and the eyes drop down the avenue: the parted city, and KARMA IS NEAR in red on the road at the church's feet
-  End:     { sky: 'storm', keys: [[0, 0, EYE, -300], [0.2, 0, EYE, -322], [0.28, 0, EYE, -326], [0.36, 0, 6, -320.5], [0.5, 0, 34, -320.5], [0.64, 0, 62, -320.5], [1, 0, 80, -317]], place: ['ahead'],
-             looks: [[0, 0, 2.3, CHURCH.z + 7, 0.95], [0.2, 0, 2.0, CHURCH.z - 2, 0.95], [0.28, 0, 2.5, CHURCH.z - 6, 0.95], [0.36, 0, 12, CHURCH.z - 1, 1], [0.5, 0, 40, CHURCH.z - 2, 1], [0.64, 0, 50, CHURCH.z - 2, 1], [0.8, 0, 2, -290, 1], [1, 0, 0, -278, 1]] },
+  // "free": the door opens and we rush through it; then up and out to the tower, settling in front of the red R,
+  // where the letters K A · M A land either side of it until the spire reads KARMA
+  End:     { sky: 'storm', keys: [[0, 0, EYE, -300], [0.12, 0, EYE, -322], [0.18, 0, EYE, -328], [0.3, 0, 30, -318], [0.46, 0, 52, -290], [1, 0, 54, -283]], place: ['ahead'],
+             looks: [[0, 0, 2.3, CHURCH.z + 7, 0.95], [0.12, 0, 2.0, CHURCH.z - 2, 0.95], [0.18, 0, 2.5, CHURCH.z - 6, 0.95], [0.3, 0, 42, CHURCH.z - 2, 1], [0.46, 0, 54.5, CHURCH.z - 2, 1], [1, 0, 54.5, CHURCH.z - 2, 1]] },
 };
 const ORDER = ['Pre', 'Intro', 'Verse 1', 'Rap 1', 'Pre-Chorus', 'Chorus', 'Verse 2', 'Rap 2', 'Bridge', 'Final Chorus', 'Outro', 'End'];
 const smooth = x => { x = clamp(x); return x * x * (3 - 2 * x); };
@@ -157,7 +157,7 @@ export function createRoute(timing) {
     return out;
   }
   return {
-    beats, pose, anchorFor, beatAt, fade, T_DOOR, T_VOID: 1e9,
+    beats, pose, anchorFor, beatAt, fade, T_DOOR, T_VOID: 1e9, T_TOWER: endBeat.t0 + 0.47 * (endBeat.t1 - endBeat.t0),
     skyAt(t) { return beatAt(t).sky; },
     // how far the hands have pushed the viewer under the water (metres below the path), gasping back up after the line
     dive(t) { if (T_DROWN < 0) return 0; const down = smooth((t - T_DROWN - 1.2) / 1.6), up = smooth((t - T_DROWN - 3.6) / 1.3); return -0.72 * down * (1 - up); },
