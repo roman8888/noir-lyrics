@@ -2,9 +2,9 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261010195658';
-import { fxFor, applyFx } from './fx.js?v=20261010195658';
-import { LOOKS } from './songs.js?v=20261010195658';
+import { clamp, easeOutExpo } from './util.js?v=20261010200603';
+import { fxFor, applyFx } from './fx.js?v=20261010200603';
+import { LOOKS } from './songs.js?v=20261010200603';
 
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607);
@@ -117,14 +117,14 @@ export function createSong(fonts, scene, route, occluders = []) {
         const home = new THREE.Vector3(x + tk.wd / 2, y - (rowH[ri] / LINE_H - tk.ws) * SIZE * 0.4, 0);
         const seed = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
         mesh.userData = { home, seed, reveal: tk.t ?? (L.t + wi * step), acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : fxFor(tk.w), hl: 0, hov: 0 };
-        if (mesh.userData.fx === 'tight') {                        // built letter by letter, so the letters can squeeze together when sung
+        if (mesh.userData.fx === 'tight' || mesh.userData.fx === 'home') {   // built letter by letter: these words move as letters
           const chars = [...tk.w], geos = chars.map(ch => wordGeo(ch, tk.acc)), gap = SIZE * 0.1;
           const natW = geos.reduce((s2, g) => s2 + g.width, 0) + gap * (chars.length - 1), sqW = geos.reduce((s2, g) => s2 + g.width * 0.86, 0);
           let nx = -natW / 2, sx = -sqW / 2;
           chars.forEach((ch, k) => {
             const lm = new THREE.Mesh(geos[k].g, mat.clone()); lm.castShadow = true;
             const lh = home.clone(); lh.x += (nx + geos[k].width / 2) * tk.ws;
-            lm.userData = { ...mesh.userData, home: lh, sqX: home.x + (sx + geos[k].width * 0.86 / 2) * tk.ws, seed: seed.clone(), hl: 0, hov: 0 };
+            lm.userData = { ...mesh.userData, home: lh, sqX: home.x + (sx + geos[k].width * 0.86 / 2) * tk.ws, letter: k, seed: seed.clone(), hl: 0, hov: 0 };
             lm.visible = false; group.add(lm); words.push(lm);
             nx += geos[k].width + gap; sx += geos[k].width * 0.86;
           });

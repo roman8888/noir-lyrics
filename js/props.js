@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010195658';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H } from './layout.js?v=20261010195658';
+import { rng, clamp } from './util.js?v=20261010200603';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H, HERO } from './layout.js?v=20261010200603';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -26,6 +26,7 @@ function figure(s = 1, mat = INK(), umbrella = false) {
 export function createProps(scene, city, timing, fonts, route) {
   const font = fonts.italic;
   const solid = [];
+  let karmaSplats, karmaDrops, karmaPts = [], karmaSeed = [];
   const r = rng(99);
   const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), V = new THREE.Vector3();
   const add = (geo, mat, x, y, z, parent = scene) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); parent.add(m); return m; };
@@ -53,7 +54,8 @@ export function createProps(scene, city, timing, fonts, route) {
   const tubeCols = [[0.9, 0.2, 0.18], [0.3, 0.5, 0.9], [0.7, 0.75, 0.85], [0.6, 0.12, 0.1]];
   for (let i = 0; i < 20; i++) hyd.setMatrixAt(i, M.makeTranslation((i % 2 ? 1 : -1) * (FACADE - 1.3), 0.4, 25 - i * 18 - r() * 8));
   for (let i = 0; i < 24; i++) bin.setMatrixAt(i, M.makeTranslation((i % 2 ? -1 : 1) * (FACADE - 1.1), 0.48, 15 - i * 15 - r() * 9));
-  for (let i = 0; i < 22; i++) { const s = i % 2 ? 1 : -1; M.compose(V.set(s * (FACADE - 0.9), 3.1, 10 - i * 16 - r() * 8), Q.setFromEuler(new THREE.Euler(s * 0.25, 0, 0)), new THREE.Vector3(1, 1, 1)); awn.setMatrixAt(i, M); }
+  for (let i = 0; i < 22; i++) { const s = i % 2 ? 1 : -1; let az = 10 - i * 16 - r() * 8; if (s > 0 && Math.abs(az - HERO.z) < 14) az -= 30;   // not over the apartment window
+    M.compose(V.set(s * (FACADE - 0.9), 3.1, az), Q.setFromEuler(new THREE.Euler(s * 0.25, 0, 0)), new THREE.Vector3(1, 1, 1)); awn.setMatrixAt(i, M); }
   for (let i = 0; i < 16; i++) { const s = i % 2 ? 1 : -1; const c = tubeCols[i % 4];
     M.compose(V.set(s * (FACADE - 0.1), 3.6 + (i % 3) * 0.3, 0 - i * 22 - r() * 10), Q.setFromEuler(new THREE.Euler(0, Math.PI / 2, 0)), new THREE.Vector3(1, 1, 1)); tube.setMatrixAt(i, M);
     tube.setColorAt(i, new THREE.Color(c[0], c[1], c[2])); }
@@ -135,8 +137,10 @@ export function createProps(scene, city, timing, fonts, route) {
   for (const sx of [-5, 5]) { const sp = new THREE.SpotLight(0xdfe6ff, 1700, 45, 0.33, 0.5, 1.3); sp.position.set(sx, 44, CHURCH.z + 5); sp.target = R; scene.add(sp); }
   const rRim = new THREE.PointLight(0xff2a2a, 60, 30, 1.5); rRim.position.set(0, 56, CHURCH.z - 7); scene.add(rRim);
   const rose = add(new THREE.CircleGeometry(3.2, 48), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.16, 0.03, 0.03) }), 0, 14, CHURCH.z + 7.05);
-  for (let i = 0; i < 8; i++) { const spoke = add(new THREE.BoxGeometry(0.12, 6.3, 0.05), stone, 0, 14, CHURCH.z + 7.08); spoke.rotation.z = i * Math.PI / 8; }
   add(new THREE.RingGeometry(3.1, 3.4, 48), stone, 0, 14, CHURCH.z + 7.08);
+  { const g = new TextGeometry('RS', { font: fonts.roman, size: 3.0, height: 0.12, curveSegments: 12, bevelEnabled: false }); g.computeBoundingBox(); const b = g.boundingBox;
+    g.translate(-(b.max.x + b.min.x) / 2, -(b.max.y + b.min.y) / 2, 0);
+    const rs = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x3a0609, roughness: 0.4, metalness: 0.5, emissive: 0x2a0406, emissiveIntensity: 0.5 })); rs.position.set(0, 14, CHURCH.z + 7.1); scene.add(rs); }
   const doorL = add(new THREE.PlaneGeometry(2.4, 4.2), EMIT(0.7, 0.42, 0.2), 0, 2.1, CHURCH.z + 7.05);
   for (let i = -3; i <= 3; i++) add(new THREE.BoxGeometry(0.4, 2.2, 0.4), stone, i * 3.4, 1.1, CHURCH.z + 10);   // steps' bollards
 
@@ -216,6 +220,7 @@ export function createProps(scene, city, timing, fonts, route) {
   for (let i = 0; i < 11; i++) { const f = figure(0.95 + r() * 0.2); f.position.set(-(FACADE + 11.5) - (i % 2) * 1.3 - r() * 0.5, 0, A.z - A.w / 2 + 0.6 + (i / 11) * (A.w - 1.2)); f.rotation.y = Math.PI / 2; f.userData.ph = r(); scene.add(f); crowd.push(f); }
   // ---- two walking together (Pre-Chorus, "you were walking with me there")
   const T_TWO = lineT('walking with me');
+  let twoZ = 0;
   const two = [figure(0.95), figure(0.95, new THREE.MeshStandardMaterial({ color: 0x2a2418, roughness: 0.6, emissive: 0xffc070, emissiveIntensity: 0.35 }))];
   two.forEach((f, i) => { f.position.set(-0.6 + i * 1.2, 0, -120); f.visible = false; scene.add(f); });
 
@@ -318,6 +323,41 @@ export function createProps(scene, city, timing, fonts, route) {
   let heartPlaced = false;
   solid.push(hBody);
 
+  // ---- easter egg: east of the city a small lit street grid spells KARMA IS NEAR, readable only from the sky
+  {
+    const G = {
+      K: [[[0, 0], [0, 1]], [[0, 0.5], [1, 1]], [[0, 0.5], [1, 0]]],
+      A: [[[0, 0], [0.5, 1], [1, 0]], [[0.2, 0.4], [0.8, 0.4]]],
+      R: [[[0, 0], [0, 1], [0.8, 1], [0.95, 0.85], [0.95, 0.65], [0.8, 0.5], [0, 0.5]], [[0.45, 0.5], [1, 0]]],
+      M: [[[0, 0], [0, 1], [0.5, 0.45], [1, 1], [1, 0]]],
+      I: [[[0.5, 0], [0.5, 1]]],
+      S: [[[1, 0.9], [0.6, 1], [0.2, 0.95], [0, 0.8], [0.1, 0.6], [0.5, 0.5], [0.9, 0.4], [1, 0.2], [0.8, 0.02], [0.3, 0], [0, 0.1]]],
+      N: [[[0, 0], [0, 1], [1, 0], [1, 1]]],
+      E: [[[1, 1], [0, 1], [0, 0], [1, 0]], [[0, 0.5], [0.7, 0.5]]],
+    };
+    const LW = 11, LH = 16, GAP = 4.5, X0 = 56, rows = [['KARMA', -270], ['IS NEAR', -246]];
+    const pts = [], strips = [];
+    for (const [word, zBase] of rows) {
+      let x = X0;
+      for (const ch of word) {
+        if (ch !== ' ') for (const stroke of G[ch]) for (let i = 0; i < stroke.length - 1; i++) {
+          const [ax, ay] = stroke[i], [bx, by] = stroke[i + 1];
+          const A2 = new THREE.Vector3(x + ax * LW, 0, zBase - ay * LH), B2 = new THREE.Vector3(x + bx * LW, 0, zBase - by * LH);
+          const len = A2.distanceTo(B2); strips.push([A2, B2, len]);
+          for (let d = 0; d <= len; d += 2.3) pts.push(A2.clone().lerp(B2, d / len));
+        }
+        x += LW + GAP;
+      }
+    }
+    // written by the rain: red drops fall along the strokes and splash into red splats; the splats are the text
+    const BLOODC = new THREE.Color(0.85, 0.05, 0.04);
+    karmaSplats = new THREE.InstancedMesh(new THREE.CircleGeometry(0.62, 10), new THREE.MeshBasicMaterial({ color: BLOODC }), pts.length);
+    karmaDrops = new THREE.InstancedMesh(new THREE.SphereGeometry(0.2, 6, 5), new THREE.MeshBasicMaterial({ color: BLOODC }), pts.length);
+    karmaPts = pts; karmaSeed = pts.map(() => r());
+    pts.forEach((p, i) => { M.compose(V.set(p.x, 0.04, p.z), Q.setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0)), new THREE.Vector3(1, 1, 1)); karmaSplats.setMatrixAt(i, M); });
+    scene.add(karmaSplats, karmaDrops);
+  }
+
   // ---- birds at dawn
   const wing = new THREE.BufferGeometry();
   wing.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, -0.6, 0.14, 0.12, -0.12, 0, -0.18, 0, 0, 0, 0.6, 0.14, 0.12, 0.12, 0, -0.18], 3));
@@ -344,7 +384,8 @@ export function createProps(scene, city, timing, fonts, route) {
       }
       // the two walking
       const tw = T_TWO > 0 ? t - T_TWO + 1.5 : -1;
-      two.forEach((f, i) => { f.visible = tw > 0 && tw < 14; f.position.set(-0.6 + i * 1.2, Math.abs(Math.sin(time * 4.8 + i)) * 0.04, -118 - tw * 1.1); f.rotation.y = 0; });
+      if (tw > 0 && !twoZ && route) twoZ = route.pose(T_TWO).pos.z - 9;             // start a few steps ahead of the walker
+      two.forEach((f, i) => { f.visible = tw > 0 && tw < 14; f.position.set(-0.6 + i * 1.2, Math.abs(Math.sin(time * 4.8 + i)) * 0.04, twoZ - tw * 1.0); f.rotation.y = 0; });
       // the heart
       const hk = T_HEART > 0 ? t - T_HEART : -99;
       heart.visible = hWire.visible = hPool.visible = hk > -2.5 && hk < 11;
@@ -439,6 +480,17 @@ export function createProps(scene, city, timing, fonts, route) {
         s.pos.set([s.x + Math.sin(i * 7 + time * 0.5) * L * 1.2, 0.2 + L * 4.5, s.z + Math.cos(i * 5) * L * 1.0], i * 3); } s.p.geometry.attributes.position.needsUpdate = true; }
       // puddle rings
       for (const m of rings) { const k = (time * 0.5 + m.userData.p) % 1; m.scale.setScalar(1 + k * 5); m.material.opacity = (1 - k) * 0.5; }
+      // the red rain writing KARMA IS NEAR: each drop falls, lands, and the splat it leaves swells with the rain
+      if (karmaDrops) {
+        for (let i = 0; i < karmaPts.length; i++) {
+          const ph = (time * 0.22 + karmaSeed[i]) % 1, p = karmaPts[i];
+          const y = ph < 0.72 ? 36 * Math.pow(1 - ph / 0.72, 2) + 0.3 : -5;                   // falling, then gone (it has landed)
+          karmaDrops.setMatrixAt(i, M.makeTranslation(p.x, y, p.z));
+          const sw = 0.85 + 0.3 * Math.max(0, Math.sin((ph - 0.72) * 14));
+          M.compose(V.set(p.x, 0.04, p.z), Q.setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0)), new THREE.Vector3(sw, sw, 1)); karmaSplats.setMatrixAt(i, M);
+        }
+        karmaDrops.instanceMatrix.needsUpdate = true; karmaSplats.instanceMatrix.needsUpdate = true;
+      }
       // birds at dawn
       birds.visible = t > T_DAWN;
       if (birds.visible) { const cz = camera.position.z - 40; bSeed.forEach((b, i) => { const a = b.a + time * b.v;

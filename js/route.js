@@ -2,12 +2,12 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010195658';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH } from './layout.js?v=20261010195658';
+import { clamp } from './util.js?v=20261010200603';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH } from './layout.js?v=20261010200603';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0];
-const W = ROOM.win, BY = BRIDGE.y + 2.0;        // on the deck, eyes above the railing
+const W = ROOM.win;
 
 // place kinds: banner (across the way, a little high), ahead (eye level), sky (big and far), room (inside the apartment)
 const BEATS = {
@@ -18,27 +18,31 @@ const BEATS = {
   'Verse 1': { sky: 'verse', keys: [[0, 0, EYE, -41], [0.3, 0, EYE, -47], [0.55, -1.5, EYE, -54], [0.75, -6.5, EYE, -61], [1, -12.5, EYE, -62]],
              place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 12 },
   // the crowd stands at the end of this alley and turns its back; then the alley floods and the hands come down
-  'Rap 1': { sky: 'storm', keys: [[0, -12.5, EYE, -62], [0.12, -14.5, EYE, -62.1], [0.22, -15.8, 1.5, -62], [0.3, -14.5, 0.9, -62.2], [0.47, -14.2, 0.75, -62.2], [0.6, -13, 1.2, -62], [0.8, -9.5, EYE, -62], [1, -6.5, EYE, -66]],
+  'Rap 1': { sky: 'storm', keys: [[0, -12.5, EYE, -62], [0.12, -14.5, EYE, -62.1], [0.22, -15.8, 1.5, -62], [0.3, -14.5, 0.9, -62.2], [0.47, -14.2, 0.75, -62.2], [0.6, -13, 1.2, -62], [0.78, -7, EYE, -63], [1, -3, EYE, -74]], stride: 1,
              place: ['ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], alley: A1,
              lookAt: new THREE.Vector3(-(ROW2 - 1.5), 1.0, A1.z), lookMix: 1 },   // eyes on the end of the alley: the crowd, then the water
-  'Pre-Chorus': { sky: 'breaking', keys: [[0, -6.5, EYE, -66], [0.25, -5, 5, -85], [0.5, -5, 10, -112], [0.75, -6, 14, -140], [1, -7, 15.4, -156]],
-             place: ['ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead'], lookAt: new THREE.Vector3(FACADE, W.y, W.z), lookMix: 0.6, dist: 18 },
-  // the apartment: approach the window for four lines, inside only for "forget to breathe / what I believe", then back out
-  Chorus:  { sky: 'moon', keys: [[0, -7, 15.4, -156], [0.25, -2, 15.2, -159], [0.46, FACADE - 1.2, W.y, W.z], [0.53, FACADE + 1.6, W.y - 0.1, W.z], [0.77, FACADE + 1.6, W.y - 0.15, W.z + 0.05], [0.86, FACADE - 1.5, W.y - 0.2, W.z], [1, 2, 12, -166]],
-             place: ['ahead', 'ahead', 'ahead', 'ahead', 'room', 'room', 'ahead', 'ahead'], dist: 9,
-             looks: [[0, FACADE, W.y, W.z, 0.8], [0.46, FACADE, W.y, W.z, 0.8], [0.53, ROOM.x1, ROOM.y0 + 2.4, W.z, 1], [0.9, ROOM.x1, ROOM.y0 + 2.4, W.z, 1], [1, 0, 5, -178, 0.9]] },
-  'Verse 2': { sky: 'drizzle', keys: [[0, 2, 12, -166], [0.4, 0.8, 7, -172], [1, 0, EYE, -182]],
+  // lights back on; walk out of the alley and down the avenue toward the lit ground-floor window
+  'Pre-Chorus': { sky: 'breaking', keys: [[0, -3, EYE, -74], [1, 3, EYE, -104]],
+             place: ['ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead'], lookAt: new THREE.Vector3(FACADE, W.y, W.z), lookMix: 0.35, dist: 12 },
+  // the apartment: up to the window for four lines, step in only for "forget to breathe / what I believe", step back out
+  Chorus:  { sky: 'moon', keys: [[0, 3, EYE, -104], [0.25, 4.5, EYE, -108.5], [0.46, FACADE - 1.0, 1.65, W.z], [0.53, FACADE + 1.6, 1.65, W.z], [0.77, FACADE + 1.6, 1.65, W.z + 0.05], [0.86, FACADE - 1.6, 1.7, W.z], [1, 3, EYE, -115]],
+             place: ['facadeL', 'facadeL', 'facadeL', 'facadeL', 'room', 'room', 'ahead', 'ahead'], dist: 9,
+             looks: [[0, FACADE, W.y, W.z, 0.8], [0.46, FACADE, W.y, W.z, 0.8], [0.53, ROOM.x1, ROOM.y0 + 2.4, W.z, 1], [0.9, ROOM.x1, ROOM.y0 + 2.4, W.z, 1], [1, 0, 2.5, -128, 0.9]] },
+  'Verse 2': { sky: 'drizzle', keys: [[0, 3, EYE, -115], [0.5, 1.2, EYE, -117], [1, 0, EYE, -119]],
              place: ['ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner'], dist: 12 },
-  'Rap 2': { sky: 'storm', keys: [[0, 0, EYE, -182], [0.3, 0, EYE, -200], [0.55, 0, EYE, -214], [0.7, 0, 3.5, -221], [0.85, 0, 10.4, -226], [1, 0, BY, -231]],
+  'Rap 2': { sky: 'storm', keys: [[0, 0, EYE, -119], [0.5, 0, EYE, -146], [1, 0, EYE, -172]], stride: 1,
              place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 12 },
-  Bridge:  { sky: 'fog', keys: [[0, 0, BY, -231], [0.5, -5, BY, -232], [1, -9, BY, -232.5]],
-             place: ['ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner'], lookAt: new THREE.Vector3(FACADE, W.y, W.z), lookMix: 0.6, dist: 11 },
-  'Final Chorus': { sky: 'breaking', keys: [[0, -9, BY, -232.5], [0.3, 0, 18, -250], [0.6, -5, 36, -272], [0.85, -2, 52, -296], [1, 0, 56, -312]],
-             place: ['sky', 'sky', 'sky', 'sky', 'sky', 'sky', 'sky', 'sky'] },
-  Outro:   { sky: 'moon', keys: [[0, 0, 56, -312], [0.35, 0, 22, -300], [0.6, 0, 6, -306], [0.78, 0, EYE, -316], [0.84, 0, EYE, -321], [1, 0, 14, -322]],
+  // under the overpass: stop, and turn to look back up the avenue at the lit window far behind
+  Bridge:  { sky: 'fog', keys: [[0, 0, EYE, -172], [0.3, 0, EYE, -177], [1, 0.3, EYE, -178.5]],
+             place: ['ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner'], dist: 11,
+             looks: [[0, 0, 3, -200, 0.9], [0.22, 0, 3, -200, 0.9], [0.45, 2.5, 2.8, -118, 1], [1, 2.5, 2.8, -118, 1]] },
+  // on toward the church, the R ahead the whole way
+  'Final Chorus': { sky: 'breaking', keys: [[0, 0.3, EYE, -178.5], [0.15, 0, EYE, -184], [1, 0, EYE, -235]],
+             place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 12, lookAt: new THREE.Vector3(0, 30, CHURCH.z), lookMix: 0.25 },
+  Outro:   { sky: 'moon', keys: [[0, 0, EYE, -235], [0.5, 0, EYE, -255], [1, 0, EYE, -270]],
              place: ['banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner'], lookAt: new THREE.Vector3(0, 20, CHURCH.z), lookMix: 0.3, dist: 12 },
   // "set me free": the camera leaves the street and climbs until the city is tiny below, the R never leaving the frame
-  End:     { sky: 'night', keys: [[0, 0, 14, -322], [0.3, 0, 70, -316], [0.65, 14, 160, -322], [1, 0, 240, -338]], place: ['ahead'], lookAt: new THREE.Vector3(0, 54, CHURCH.z - 2), lookMix: 0.92 },
+  End:     { sky: 'night', keys: [[0, 0, EYE, -270], [0.3, 0, 60, -268], [0.65, 14, 160, -272], [1, 0, 240, -290]], place: ['ahead'], lookAt: new THREE.Vector3(0, 54, CHURCH.z - 2), lookMix: 0.92 },
 };
 const ORDER = ['Pre', 'Intro', 'Verse 1', 'Rap 1', 'Pre-Chorus', 'Chorus', 'Verse 2', 'Rap 2', 'Bridge', 'Final Chorus', 'Outro', 'End'];
 const smooth = x => { x = clamp(x); return x * x * (3 - 2 * x); };
@@ -79,7 +83,7 @@ export function createRoute(timing) {
     const b = beatAt(t); out.beat = b;
     const u = uOf(b, t); out.u = u;
     b.curve.getPointAt(u, out.pos);
-    if (out.pos.y < 3) out.pos.y += Math.abs(Math.sin(t * 5.2)) * 0.03;          // footsteps at street level
+    if (out.pos.y < 3) out.pos.y += Math.abs(Math.sin(t * (b.stride ? 7.6 : 5.2))) * (b.stride ? 0.05 : 0.03);   // footsteps; a harder stride in the raps
     b.curve.getPointAt(Math.min(1, u + 0.03), tmp).sub(out.pos);
     if (tmp.lengthSq() < 0.0004) { b.curve.getPointAt(Math.max(0, u - 0.03), tmp2); tmp.subVectors(out.pos, tmp2); }
     if (tmp.lengthSq() > 0.0004) lastDir.copy(tmp).normalize();
@@ -109,10 +113,12 @@ export function createRoute(timing) {
       case 'banner': pos.copy(cam.pos).addScaledVector(fwd, b.dist ?? 9); pos.y = cam.pos.y + (b.alley ? 1.8 : 0.9); break;   // in the alley: above the figures' heads       // same height every time: no hopping between lines
       case 'ahead':  pos.copy(cam.pos).addScaledVector(fwd, (b.dist ?? 9) - 0.5); pos.y = cam.pos.y + (b.alley ? 1.7 : 0.8); break;
       case 'sky':    pos.copy(cam.pos).addScaledVector(fwd, 22); pos.y = cam.pos.y + 1.5; scale = 2.6; break;
+      case 'facadeL': case 'facadeR':                           // written on the wall beside the apartment window
+        pos.set(FACADE - 0.12, 2.3, W.z + (kind === 'facadeL' ? 3.6 : -3.6)); q.setFromEuler(E.set(0, -Math.PI / 2, 0)); scale = 0.6; break;
       case 'room':                                              // every line on the back wall, high, above the man: the camera never turns
         pos.set(ROOM.x1 - 0.12, ROOM.y0 + 2.5, (ROOM.z0 + ROOM.z1) / 2); q.setFromEuler(E.set(0, -Math.PI / 2, 0)); scale = 0.5; break;
     }
-    if (kind !== 'room') {
+    if (kind !== 'room' && kind !== 'facadeL' && kind !== 'facadeR') {
       pos.y += b.lift ?? 0;
       if (b.lateral) pos.addScaledVector(new THREE.Vector3(fwd.z, 0, -fwd.x), (idx % 2 ? 1 : -1) * b.lateral);   // beside the walk, not in it
       const al = b.alley;

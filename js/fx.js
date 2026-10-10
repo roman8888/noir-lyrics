@@ -1,7 +1,7 @@
 // Words that act out what they mean: "fade" fades, "fall" falls, "fly" flies away, "drown" sinks...
 // Each effect runs after the word is sung. age = seconds since it was sung.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010195658';
+import { clamp } from './util.js?v=20261010200603';
 
 const RED = new THREE.Color(0.36, 0.015, 0.03), EMBER = new THREE.Color(0.8, 0.12, 0.05), GOLD = new THREE.Color(0.85, 0.88, 1.0);   // 'GOLD' is now a pale cold light: no yellow in this film
 const BLUE = new THREE.Color(0.25, 0.4, 0.6), ASH = new THREE.Color(0.2, 0.19, 0.18);
@@ -53,7 +53,14 @@ const FX = {
   weak(m, u, a) { FX.tremble(m, u, a); m.scale.multiplyScalar(0.92); },
   chain(m, u, a, x) { m.position.y += Math.sin(x.now * 1.4 + u.seed.y * 6) * 0.06; },
   heard(m, u, a, x) { FX.echo(m, u, a, x); },
-  home(m, u, a, x) { x.glow(0.5 * ease(a / 1.5), GOLD); },
+  home(m, u, a, x) {                           // the word breaks: its letters fly to the four sides
+    if (u.letter == null) { x.glow(0.3 * ease(a / 1.5), GOLD); return; }
+    const k = ease((a - 0.35) / 1.3), d = [[-1, 0], [0, 1], [1, 0], [0, -1]][u.letter % 4];
+    m.position.x += d[0] * k * 1.6; m.position.y += d[1] * k * 1.1;
+    if (a > 0.3 && a < 0.5) { m.position.x += (Math.random() - 0.5) * 0.05; m.position.y += (Math.random() - 0.5) * 0.05; }
+    m.material.opacity *= 1 - k * 0.35; },
+  ahead(m, u, a) {                             // far ahead: the word shrinks into the distance
+    const k = ease(a / 2.4); m.position.z -= k * 7; m.scale.multiplyScalar(1 - k * 0.72); m.material.opacity *= 1 - k * 0.3; },
   shame(m, u, a, x) {                          // enlarged, and knocked: three hard knocks as it lands
     m.scale.multiplyScalar(u.dup ? 1.0 : 1.55);
     for (const tk of [0, 0.32, 0.64]) { const e = a - tk; if (e > 0 && e < 0.22) { const j = Math.sin(e / 0.22 * Math.PI); m.position.z += 0.3 * j; m.scale.multiplyScalar(1 + 0.22 * j); m.position.x += (Math.random() - 0.5) * 0.04 * j; } }
@@ -67,7 +74,7 @@ const MAP = [
   [/^(bleed|bleeding|bled)$/, 'bleed'], [/^(pain|hell|cursed)$/, 'pain'],
   [/^(break|broke|broken|cracks|wounds|scars|shatter)$/, 'break'], [/^(burn|burned|burns|flame)$/, 'burn'],
   [/^light$/, 'light'], [/^(silence|silent|quiet|sleep)$/, 'silence'],
-  [/^(away|lost|nowhere|retreat|gone)$/, 'away'], [/^(turn|turned|backs)$/, 'turn'], [/^(slammed|shut|door)$/, 'slam'],
+  [/^ahead$/, 'ahead'], [/^(away|lost|nowhere|retreat|gone)$/, 'away'], [/^(turn|turned|backs)$/, 'turn'], [/^(slammed|shut|door)$/, 'slam'],
   [/^(beats|beat|heart)$/, 'beat'], [/^breathe$/, 'breathe'], [/^deep$/, 'deep'], [/^long$/, 'long'], [/^near$/, 'near'],
   [/^(tight|held|holding|hold)$/, 'tight'], [/^(fears|afraid)$/, 'tremble'], [/^weak$/, 'weak'], [/^crawl$/, 'crawl'],
   [/^lies$/, 'lies'], [/^pretend$/, 'pretend'], [/^rain$/, 'rain'], [/^(sun|morning|hope)$/, 'sun'],
