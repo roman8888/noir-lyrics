@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010211903';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH } from './layout.js?v=20261010211903';
+import { clamp } from './util.js?v=20261010213038';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH } from './layout.js?v=20261010213038';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0];
@@ -46,8 +46,10 @@ const BEATS = {
   // ...then the camera lifts off backwards into the air, the text staying centred below while the whole city opens up around it
   // "free": the door opens and we rush through it; then up and out to the tower, settling in front of the red R,
   // where the letters K A · M A land either side of it until the spire reads KARMA
-  End:     { sky: 'storm', keys: [[0, 0, EYE, -300], [0.12, 0, EYE, -322], [0.18, 0, EYE, -328], [0.3, 0, 30, -318], [0.46, 0, 52, -290], [1, 0, 54, -283]], place: ['ahead'],
-             looks: [[0, 0, 2.3, CHURCH.z + 7, 0.95], [0.12, 0, 2.0, CHURCH.z - 2, 0.95], [0.18, 0, 2.5, CHURCH.z - 6, 0.95], [0.3, 0, 42, CHURCH.z - 2, 1], [0.46, 0, 54.5, CHURCH.z - 2, 1], [1, 0, 54.5, CHURCH.z - 2, 1]] },
+  // "free": the door opens and we rush through the gateway; beyond it, a long shallow flight to the tower in the dark,
+  // where the letters slide out of the R until it reads KARMA. The whole way stays on screen.
+  End:     { sky: 'storm', keys: [[0, 0, EYE, -300], [0.12, 0, EYE, -322], [0.2, 0, EYE + 0.4, -342], [0.45, 0, 26, -372], [0.74, 0, 58, -404], [1, 0, 59, -401]], place: ['ahead'],
+             looks: [[0, 0, 2.3, CHURCH.z + 7, 0.95], [0.12, 0, 2.6, CHURCH.z - 12, 0.95], [0.2, 0, 30, -425, 0.9], [0.45, 0, 62, -425, 1], [1, 0, 62.5, -425, 1]] },
 };
 const ORDER = ['Pre', 'Intro', 'Verse 1', 'Rap 1', 'Pre-Chorus', 'Chorus', 'Verse 2', 'Rap 2', 'Bridge', 'Final Chorus', 'Outro', 'End'];
 const smooth = x => { x = clamp(x); return x * x * (3 - 2 * x); };
@@ -144,20 +146,23 @@ export function createRoute(timing) {
   const T_ALONE = lines.find(l => /wonder why you're left alone/i.test(l.text))?.t ?? -1;
   const T_CALL = lines.find(l => /i heard you call/i.test(l.text))?.t ?? -1;
   const endBeat = beats.find(b => b.name === 'End');
-  const T_DOOR = endBeat.t0 + 0.5 * (endBeat.t1 - endBeat.t0);
-  // the cut through the light: white, then red, then black, which lifts onto the void
+  const endDur = endBeat.t1 - endBeat.t0;
+  const T_DOOR = endBeat.t0 + 0.12 * endDur;
+  // the door: fade to black as the rush reaches the threshold, hold while the camera climbs inside the tower unseen,
+  // fade back in with the camera already in the air facing the spire
   function fade(t, out) {
-    out.k = 0; return out;                                   // (the cut to the void was removed: the film ends on the road)
-    const sd = t - T_DOOR;
-    if (sd < 0) { out.k = 0; return out; }
-    if (sd < 0.35) { out.k = 1; out.r = 1; out.g = 1 - sd / 0.35 * 0.95; out.b = 1 - sd / 0.35 * 0.95; }
-    else if (sd < 0.75) { const q = (sd - 0.35) / 0.4; out.k = 1; out.r = 1 - q; out.g = 0.05 * (1 - q); out.b = 0.05 * (1 - q); }
-    else if (sd < 1.2) { out.k = 1; out.r = out.g = out.b = 0; }
-    else { out.k = Math.max(0, 1 - (sd - 1.2) / 1.0); out.r = out.g = out.b = 0; }
+    out.k = 0; return out;                                   // (no fade: the whole way to the tower stays on screen)
+    const f = (t - endBeat.t0) / endDur;
+    out.r = out.g = out.b = 0;
+    if (f < 0.095) out.k = 0;
+    else if (f < 0.13) out.k = smooth((f - 0.095) / 0.035);
+    else if (f < 0.265) out.k = 1;
+    else if (f < 0.315) out.k = 1 - smooth((f - 0.265) / 0.05);
+    else out.k = 0;
     return out;
   }
   return {
-    beats, pose, anchorFor, beatAt, fade, T_DOOR, T_VOID: 1e9, T_TOWER: endBeat.t0 + 0.47 * (endBeat.t1 - endBeat.t0),
+    beats, pose, anchorFor, beatAt, fade, T_DOOR, T_VOID: 1e9, T_TOWER: endBeat.t0 + 0.74 * (endBeat.t1 - endBeat.t0),
     skyAt(t) { return beatAt(t).sky; },
     // how far the hands have pushed the viewer under the water (metres below the path), gasping back up after the line
     dive(t) { if (T_DROWN < 0) return 0; const down = smooth((t - T_DROWN - 1.2) / 1.6), up = smooth((t - T_DROWN - 3.6) / 1.3); return -0.72 * down * (1 - up); },

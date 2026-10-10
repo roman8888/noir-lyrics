@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010211903';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H, HERO } from './layout.js?v=20261010211903';
+import { rng, clamp } from './util.js?v=20261010213038';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H, HERO } from './layout.js?v=20261010213038';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -123,27 +123,32 @@ export function createProps(scene, city, timing, fonts, route) {
 
   // ---- the church closing the street (the sun rises behind it)
   const stone = new THREE.MeshStandardMaterial({ color: 0x15151a, roughness: 0.95 });
-  solid.push(add(new THREE.BoxGeometry(26, 22, 14), stone, 0, 11, CHURCH.z));
-  add(new THREE.BoxGeometry(7, 40, 7), stone, 0, 20, CHURCH.z - 2);
-  add(new THREE.ConeGeometry(4.2, 12, 4), stone, 0, 46, CHURCH.z - 2).rotation.y = Math.PI / 4;
+  // the church is a gateway: a passage runs straight through it under the tower
+  solid.push(add(new THREE.BoxGeometry(10, 22, 14), stone, -8, 11, CHURCH.z), add(new THREE.BoxGeometry(10, 22, 14), stone, 8, 11, CHURCH.z));
+  solid.push(add(new THREE.BoxGeometry(6.4, 10, 14), stone, 0, 17, CHURCH.z));
+  add(new THREE.BoxGeometry(7, 26, 7), stone, 0, 35, CHURCH.z - 2);
+  add(new THREE.ConeGeometry(4.2, 12, 4), stone, 0, 54, CHURCH.z - 2).rotation.y = Math.PI / 4;
+  // the tower beyond the gateway: the same stone spire as before, only further and taller, the R on its tip
+  solid.push(add(new THREE.BoxGeometry(7, 50, 7), stone, 0, 25, -425));
+  add(new THREE.ConeGeometry(4.2, 12, 4), stone, 0, 56, -425).rotation.y = Math.PI / 4;
   // the letter R crowns the spire: a monument in blood-dark steel, lit from below like a landmark, turning slowly
   const rGeo = new TextGeometry('R', { font: fonts.roman, size: 6.5, height: 1.4, curveSegments: 16, bevelEnabled: true, bevelThickness: 0.25, bevelSize: 0.15, bevelSegments: 4 });
   rGeo.computeBoundingBox(); const rb = rGeo.boundingBox; rGeo.translate(-(rb.max.x + rb.min.x) / 2, -rb.min.y, -(rb.max.z + rb.min.z) / 2);
   const steel = new THREE.MeshStandardMaterial({ color: 0x6a0c12, roughness: 0.34, metalness: 0.6, emissive: 0x3a0408, emissiveIntensity: 0.4 });
   const R = new THREE.Mesh(rGeo, steel);
-  R.position.set(0, 51.6, CHURCH.z - 2); scene.add(R);
-  add(new THREE.CylinderGeometry(1.1, 1.4, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x111115, roughness: 0.5, metalness: 0.7 }), 0, 51.6, CHURCH.z - 2);
+  R.position.set(0, 63.2, -425); scene.add(R);
+  add(new THREE.CylinderGeometry(1.1, 1.4, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x111115, roughness: 0.5, metalness: 0.7 }), 0, 63.2, -425);
   // the capitals that complete KARMA around the R on the spire, in the same steel; they land one by one at the end
   const karmaLetters = [];
   [['K', -14.6], ['A', -7.6], ['M', 7.4], ['A', 15.2]].forEach(([ch, x], i) => {
     const g = new TextGeometry(ch, { font: fonts.roman, size: 6.0, height: 1.3, curveSegments: 16, bevelEnabled: true, bevelThickness: 0.22, bevelSize: 0.14, bevelSegments: 4 });
     g.computeBoundingBox(); const b = g.boundingBox; g.translate(-(b.max.x + b.min.x) / 2, -b.min.y, -(b.max.z + b.min.z) / 2);
-    const m = new THREE.Mesh(g, steel); m.position.set(x, 51.8, CHURCH.z - 2); m.visible = false; m.userData.order = i; scene.add(m); karmaLetters.push(m);
+    const m = new THREE.Mesh(g, steel); m.position.set(x, 63.4, -425); m.visible = false; m.userData = { x, order: i === 1 || i === 2 ? 0 : 1 }; scene.add(m); karmaLetters.push(m);   // inner pair first, then the outer
   });
   const rSpots = [];
-  for (const sx of [-5, 5]) { const sp = new THREE.SpotLight(0xdfe6ff, 1700, 45, 0.33, 0.5, 1.3); sp.position.set(sx, 44, CHURCH.z + 5); sp.target = R; scene.add(sp); rSpots.push(sp); }
-  for (const sx of [-12, 12]) { const sp = new THREE.SpotLight(0xdfe6ff, 1400, 45, 0.4, 0.5, 1.3); sp.position.set(sx * 1.4, 42, CHURCH.z + 8); sp.target.position.set(sx, 54, CHURCH.z - 2); scene.add(sp, sp.target); rSpots.push(sp); }
-  const rRim = new THREE.PointLight(0xff2a2a, 60, 30, 1.5); rRim.position.set(0, 56, CHURCH.z - 7); scene.add(rRim);
+  for (const sx of [-5, 5]) { const sp = new THREE.SpotLight(0xdfe6ff, 1700, 45, 0.33, 0.5, 1.3); sp.position.set(sx, 55.6, -425 + 7); sp.target = R; scene.add(sp); rSpots.push(sp); }
+  for (const sx of [-12, 12]) { const sp = new THREE.SpotLight(0xdfe6ff, 1400, 45, 0.4, 0.5, 1.3); sp.position.set(sx * 1.4, 53.6, -425 + 10); sp.target.position.set(sx, 65.6, -425); scene.add(sp, sp.target); rSpots.push(sp); }
+  const rRim = new THREE.PointLight(0xff2a2a, 60, 30, 1.5); rRim.position.set(0, 68, -425 - 6); scene.add(rRim);
   const rose = add(new THREE.CircleGeometry(3.2, 48), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.16, 0.03, 0.03) }), 0, 14, CHURCH.z + 7.05);
   add(new THREE.RingGeometry(3.1, 3.4, 48), stone, 0, 14, CHURCH.z + 7.08);
   { const g = new TextGeometry('RS', { font: fonts.roman, size: 3.0, height: 0.12, curveSegments: 12, bevelEnabled: false }); g.computeBoundingBox(); const b = g.boundingBox;
@@ -498,12 +503,14 @@ export function createProps(scene, city, timing, fonts, route) {
       if (roadPaint) roadPaint.visible = camera.position.y > 14;
       // the letters of KARMA land around the R once the camera has reached the tower, and swivel with it
       const tk = route ? t - route.T_TOWER : -99;
-      karmaLetters.forEach(m => { const k = ease((tk - m.userData.order * 0.7) / 0.6); m.visible = k > 0; m.scale.set(k, k, k); m.position.y = 51.8 + (1 - k) * 6; m.rotation.y = R.rotation.y; });                 // KARMA IS NEAR shows only from the sky
+      karmaLetters.forEach(m => { const q = Math.max(0, Math.min(1, (tk - m.userData.order * 1.6) / 2.6)), k = q * q * (3 - 2 * q);   // each letter slides out of the R, slow and smooth
+        m.visible = k > 0.01; const sc = 0.55 + 0.45 * k; m.scale.set(sc, sc, sc);
+        m.position.set(m.userData.x * k, 63.4, -425 - (1 - k) * 1.6); m.rotation.y = R.rotation.y; });                 // KARMA IS NEAR shows only from the sky
       // "free": the city slides apart to both sides and the church door opens outward into the light
       const fk = ease((t - T_FREE) / 5), dk2 = ease((t - T_FREE - 0.6) / 2.6);
       city.part(fk * 34);
       leaves.forEach(h => { h.rotation.y = h.userData.sx * 1.9 * dk2; });
-      doorLight.material.color.setRGB(0.35, 0.37, 0.4).lerp(new THREE.Color(0.5, 0.53, 0.6), dk2);   // a lit doorway, never a white-out
+      doorLight.material.color.setRGB(0.35, 0.37, 0.4).lerp(new THREE.Color(0.5, 0.53, 0.6), dk2); doorLight.visible = dk2 < 0.5;   // once open, the passage is clear
       glow.intensity = dk2 * 22; inside.visible = false;
       // the void: once the black lifts, drops fall from GOD and ROMAN and write the words, letter by letter
       const vt = route ? t - route.T_VOID : -99;
