@@ -2,9 +2,9 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261010221425';
-import { fxFor, applyFx } from './fx.js?v=20261010221425';
-import { LOOKS } from './songs.js?v=20261010221425';
+import { clamp, easeOutExpo } from './util.js?v=20261010222625';
+import { fxFor, applyFx } from './fx.js?v=20261010222625';
+import { LOOKS } from './songs.js?v=20261010222625';
 
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607);
@@ -101,7 +101,7 @@ export function createSong(fonts, scene, route, occluders = []) {
       for (const off of [new THREE.Vector3(), right.clone().multiplyScalar(halfW), right.clone().multiplyScalar(-halfW), down]) {
         const target = a.pos.clone().add(off), d2 = new THREE.Vector3().subVectors(target, a.camPos), L2 = d2.length(); d2.normalize();
         occ.set(a.camPos, d2); occ.far = L2;
-        const hit = occ.intersectObjects(occluders, true)[0];
+        const hit = occ.intersectObjects(occluders, true).find(h => { for (let o = h.object; o; o = o.parent) if (!o.visible) return false; return true; });   // hidden set pieces (the hands between scenes) never occlude
         if (hit && hit.distance < L2 - 0.4) nearest = Math.min(nearest, hit.distance * (dist / L2));
       }
       if (nearest < Infinity) group.position.copy(a.camPos).addScaledVector(dir, Math.max(1.5, nearest - 0.8));
@@ -201,10 +201,12 @@ export function createSong(fonts, scene, route, occluders = []) {
         if (want && !live.has(i)) build(i); else if (!want && live.has(i)) drop(i);
       }
 
-      for (const [i, { words, a }] of live) {
+      for (const [i, { group, words, a }] of live) {
         const end = lineEnd(i), isActive = i === active, cut = actAt(lines[i].t).cut;
         const nx = lines[i + 1];                                               // a line steps aside when the next one starts
-        const leave = nx ? clamp((t - nx.t + 0.15) / (cut ? 0.35 : 0.9)) : clamp((t - end) / 3);
+        let leave = nx ? clamp((t - nx.t + 0.15) / (cut ? 0.35 : 0.9)) : clamp((t - end) / 3);
+        // a street line also steps aside as the walk reaches it: never a wall of giant letters at the lens
+        if (a.kind === 'banner' || a.kind === 'ahead' || a.kind === 'sky') { const dx = camera.position.x - group.position.x, dz = camera.position.z - group.position.z; const near = (a.beat?.dist ?? 9) > 12 ? 12 : 7.5; leave = Math.max(leave, clamp((near - Math.hypot(dx, dz)) / (near * 0.5))); }
         let newest = null;
         for (const m of words) if (m.userData.reveal <= t) newest = m;
         if (isActive && newest) { newest.getWorldPosition(spotAt); spotOn = 1; }

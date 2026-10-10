@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010221425';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261010221425';
+import { clamp } from './util.js?v=20261010222625';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261010222625';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0], A2 = ALLEYS[1];
@@ -19,9 +19,9 @@ const BEATS = {
   'Verse 1': { sky: 'verse', keys: [[0, 0, EYE, Z(-41)], [0.3, 0, EYE, Z(-48)], [0.55, -1.5, EYE, Z(-55)], [0.75, -6.5, EYE, A1.z + 1], [1, -12.5, EYE, A1.z]], walk: 1,
              place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 26 },
   // the crowd stands at the end of this alley and turns its back; then the alley floods and the hands come down
-  'Rap 1': { sky: 'storm', keys: [[0, -12.5, EYE, A1.z], [0.12, -14.5, EYE, A1.z - 0.1], [0.22, -15.8, 1.5, A1.z], [0.3, -14.5, 0.9, A1.z - 0.2], [0.47, -14.2, 0.75, A1.z - 0.2], [0.6, -13, 1.2, A1.z], [0.78, -7, EYE, A1.z - 1], [1, -3, EYE, A1.z - 36]], stride: 1,
+  'Rap 1': { sky: 'storm', keys: [[0, -12.5, EYE, A1.z], [0.12, -14.5, EYE, A1.z - 0.1], [0.22, -15.8, 1.5, A1.z], [0.3, -14.5, 0.9, A1.z - 0.2], [0.47, -14.2, 0.75, A1.z - 0.2], [0.6, -13, 1.2, A1.z], [0.72, -9.5, EYE, A1.z - 0.2], [0.78, -6.5, EYE, A1.z - 2.5], [0.84, -4.5, EYE, A1.z - 9], [1, -3, EYE, A1.z - 36]], stride: 1, dist: 9, dist2: [0.7, 26],   // 9 m in the alley; once out, the lines wait further down the avenue
              place: ['ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], alley: A1,
-             lookAt: new THREE.Vector3(-(ROW2 - 1.5), 1.0, A1.z), lookMix: 1 },   // eyes on the end of the alley: the crowd, then the water
+             looks: [[0, -(ROW2 - 1.5), 1.0, A1.z, 1], [0.70, -(ROW2 - 1.5), 1.0, A1.z, 1], [0.82, -2, 1.6, A1.z - 40, 0.95], [1, 0, 1.6, A1.z - 80, 0.95]] },   // eyes on the end of the alley (the crowd, the water), then round to the avenue ahead as we leave
   // lights back on; walk out of the alley and down the avenue toward the lit ground-floor window
   'Pre-Chorus': { sky: 'breaking', keys: [[0, -3, EYE, A1.z - 36], [1, 3, EYE, W.z + 18]], walk: 1,
              place: ['ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead'], lookAt: new THREE.Vector3(FACADE, W.y, W.z), lookMix: 0.35, dist: 30 },
@@ -110,9 +110,10 @@ export function createRoute(timing) {
   const anchors = new Map();
   function anchorFor(i) {
     if (anchors.has(i)) return anchors.get(i);
-    const L = lines[i], b = beatAt(L.t), idx = Math.max(0, b.lines.indexOf(i));
+    const L = lines[i]; let b = beatAt(L.t); const idx = Math.max(0, b.lines.indexOf(i));
     const kind = b.place[idx % b.place.length];
     const cam = pose(L.t + 0.9);
+    const fb = clamp((L.t - b.t0) / (b.t1 - b.t0)); if (b.dist2 && fb >= b.dist2[0]) b = { ...b, dist: b.dist2[1] };   // a beat may change its distance partway (out of the alley)
     const camPos = cam.pos.clone();
     const fwd = tmp.copy(cam.look).sub(cam.pos); fwd.y = 0; if (fwd.lengthSq() < 1e-4) fwd.set(0, 0, -1); fwd.normalize();
     const yawTo = (from, to) => Math.atan2(from.x - to.x, from.z - to.z);
