@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010213038';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H, HERO } from './layout.js?v=20261010213038';
+import { rng, clamp } from './util.js?v=20261010220721';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261010220721';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -97,7 +97,7 @@ export function createProps(scene, city, timing, fonts, route) {
   const puffTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
     const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,0.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
     return new THREE.CanvasTexture(c); })();
-  const vents = [[-8.7, -22], [8.7, -88], [-8.7, -158], [8.7, -244]], NP = 60;   // against the facades, well off the walking line
+  const vents = [[-8.7, -22 * ZS], [8.7, -88 * ZS], [-8.7, -158 * ZS], [8.7, -244 * ZS]], NP = 60;   // against the facades, well off the walking line
   const puffs = vents.map(([x, z]) => {
     const pos = new Float32Array(NP * 3), life = new Float32Array(NP).map(() => Math.random());
     const g = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(pos, 3));
@@ -129,26 +129,26 @@ export function createProps(scene, city, timing, fonts, route) {
   add(new THREE.BoxGeometry(7, 26, 7), stone, 0, 35, CHURCH.z - 2);
   add(new THREE.ConeGeometry(4.2, 12, 4), stone, 0, 54, CHURCH.z - 2).rotation.y = Math.PI / 4;
   // the tower beyond the gateway: the same stone spire as before, only further and taller, the R on its tip
-  solid.push(add(new THREE.BoxGeometry(7, 50, 7), stone, 0, 25, -425));
-  add(new THREE.ConeGeometry(4.2, 12, 4), stone, 0, 56, -425).rotation.y = Math.PI / 4;
+  solid.push(add(new THREE.BoxGeometry(7, 50, 7), stone, 0, 25, TOWER.z));
+  add(new THREE.ConeGeometry(4.2, 12, 4), stone, 0, 56, TOWER.z).rotation.y = Math.PI / 4;
   // the letter R crowns the spire: a monument in blood-dark steel, lit from below like a landmark, turning slowly
   const rGeo = new TextGeometry('R', { font: fonts.roman, size: 6.5, height: 1.4, curveSegments: 16, bevelEnabled: true, bevelThickness: 0.25, bevelSize: 0.15, bevelSegments: 4 });
   rGeo.computeBoundingBox(); const rb = rGeo.boundingBox; rGeo.translate(-(rb.max.x + rb.min.x) / 2, -rb.min.y, -(rb.max.z + rb.min.z) / 2);
   const steel = new THREE.MeshStandardMaterial({ color: 0x6a0c12, roughness: 0.34, metalness: 0.6, emissive: 0x3a0408, emissiveIntensity: 0.4 });
   const R = new THREE.Mesh(rGeo, steel);
-  R.position.set(0, 63.2, -425); scene.add(R);
-  add(new THREE.CylinderGeometry(1.1, 1.4, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x111115, roughness: 0.5, metalness: 0.7 }), 0, 63.2, -425);
+  R.position.set(0, 63.2, TOWER.z); scene.add(R);
+  add(new THREE.CylinderGeometry(1.1, 1.4, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x111115, roughness: 0.5, metalness: 0.7 }), 0, 63.2, TOWER.z);
   // the capitals that complete KARMA around the R on the spire, in the same steel; they land one by one at the end
   const karmaLetters = [];
   [['K', -14.6], ['A', -7.6], ['M', 7.4], ['A', 15.2]].forEach(([ch, x], i) => {
     const g = new TextGeometry(ch, { font: fonts.roman, size: 6.0, height: 1.3, curveSegments: 16, bevelEnabled: true, bevelThickness: 0.22, bevelSize: 0.14, bevelSegments: 4 });
     g.computeBoundingBox(); const b = g.boundingBox; g.translate(-(b.max.x + b.min.x) / 2, -b.min.y, -(b.max.z + b.min.z) / 2);
-    const m = new THREE.Mesh(g, steel); m.position.set(x, 63.4, -425); m.visible = false; m.userData = { x, order: i === 1 || i === 2 ? 0 : 1 }; scene.add(m); karmaLetters.push(m);   // inner pair first, then the outer
+    const m = new THREE.Mesh(g, steel); m.position.set(x, 63.4, TOWER.z); m.visible = false; m.userData = { x, order: i === 1 || i === 2 ? 0 : 1 }; scene.add(m); karmaLetters.push(m);   // inner pair first, then the outer
   });
   const rSpots = [];
-  for (const sx of [-5, 5]) { const sp = new THREE.SpotLight(0xdfe6ff, 1700, 45, 0.33, 0.5, 1.3); sp.position.set(sx, 55.6, -425 + 7); sp.target = R; scene.add(sp); rSpots.push(sp); }
-  for (const sx of [-12, 12]) { const sp = new THREE.SpotLight(0xdfe6ff, 1400, 45, 0.4, 0.5, 1.3); sp.position.set(sx * 1.4, 53.6, -425 + 10); sp.target.position.set(sx, 65.6, -425); scene.add(sp, sp.target); rSpots.push(sp); }
-  const rRim = new THREE.PointLight(0xff2a2a, 60, 30, 1.5); rRim.position.set(0, 68, -425 - 6); scene.add(rRim);
+  for (const sx of [-5, 5]) { const sp = new THREE.SpotLight(0xdfe6ff, 1700, 45, 0.33, 0.5, 1.3); sp.position.set(sx, 55.6, TOWER.z + 7); sp.target = R; scene.add(sp); rSpots.push(sp); }
+  for (const sx of [-12, 12]) { const sp = new THREE.SpotLight(0xdfe6ff, 1400, 45, 0.4, 0.5, 1.3); sp.position.set(sx * 1.4, 53.6, TOWER.z + 10); sp.target.position.set(sx, 65.6, TOWER.z); scene.add(sp, sp.target); rSpots.push(sp); }
+  const rRim = new THREE.PointLight(0xff2a2a, 60, 30, 1.5); rRim.position.set(0, 68, TOWER.z - 6); scene.add(rRim);
   const rose = add(new THREE.CircleGeometry(3.2, 48), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.16, 0.03, 0.03) }), 0, 14, CHURCH.z + 7.05);
   add(new THREE.RingGeometry(3.1, 3.4, 48), stone, 0, 14, CHURCH.z + 7.08);
   { const g = new TextGeometry('RS', { font: fonts.roman, size: 3.0, height: 0.12, curveSegments: 12, bevelEnabled: false }); g.computeBoundingBox(); const b = g.boundingBox;
@@ -188,7 +188,7 @@ export function createProps(scene, city, timing, fonts, route) {
   add(new THREE.BoxGeometry(0.12, W.h + 0.2, 0.12), frameMat, ROOM.x0 + 0.3, W.y, W.z + W.w / 2 + 0.02, room);
   add(new THREE.BoxGeometry(0.12, 0.12, W.w + 0.3), frameMat, ROOM.x0 + 0.3, W.y - W.h / 2 - 0.02, W.z, room);
   add(new THREE.BoxGeometry(0.12, 0.12, W.w + 0.3), frameMat, ROOM.x0 + 0.3, W.y + W.h / 2 + 0.02, W.z, room);
-  add(new THREE.BoxGeometry(0.06, W.h, 0.06), frameMat, ROOM.x0 + 0.3, W.y, W.z, room);
+  // (no centre mullion: the camera climbs in through the middle of the window)
   const curtain = add(new THREE.BoxGeometry(0.1, W.h + 0.6, 0.7), new THREE.MeshStandardMaterial({ color: 0x3a1a16, roughness: 1 }), RX0 + 0.35, W.y + 0.1, W.z + W.w / 2 + 0.3, room);
   // furniture: bed, chair at the window, table with a bottle and a glass, a picture, a floor lamp
   add(new THREE.BoxGeometry(2.2, 0.5, 1.5), new THREE.MeshStandardMaterial({ color: 0x2b2a30, roughness: 1 }), RX1 - 1.3, RY0 + 0.25, RZ1 - 1.0, room);
@@ -212,10 +212,10 @@ export function createProps(scene, city, timing, fonts, route) {
   const signMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(1.1, 0.14, 0.1) });
   const signGeo = new TextGeometry("ROMAN'S", { font, size: 0.62, height: 0.05, curveSegments: 10 });
   signGeo.computeBoundingBox(); signGeo.translate(-(signGeo.boundingBox.max.x + signGeo.boundingBox.min.x) / 2, 0, 0);
-  const sign = new THREE.Mesh(signGeo, signMat); sign.position.set(-FACADE + 0.12, 4.3, -37); sign.rotation.y = Math.PI / 2; scene.add(sign);
-  add(new THREE.BoxGeometry(0.1, 0.9, 3.4), new THREE.MeshStandardMaterial({ color: 0x0b0b0d, roughness: 0.9 }), -FACADE + 0.05, 4.55, -37);
-  const signLight = new THREE.PointLight(0xff2a1a, 4, 9, 1.8); signLight.position.set(-FACADE + 1.2, 4.2, -37); scene.add(signLight);
-  add(new THREE.PlaneGeometry(1.1, 2.3), EMIT(1.2, 0.8, 0.45), -FACADE + 0.03, 1.15, -37.2).rotation.y = Math.PI / 2;   // the bar door, lit
+  const sign = new THREE.Mesh(signGeo, signMat); sign.position.set(-FACADE + 0.12, 4.3, -37 * ZS); sign.rotation.y = Math.PI / 2; scene.add(sign);
+  add(new THREE.BoxGeometry(0.1, 0.9, 3.4), new THREE.MeshStandardMaterial({ color: 0x0b0b0d, roughness: 0.9 }), -FACADE + 0.05, 4.55, -37 * ZS);
+  const signLight = new THREE.PointLight(0xff2a1a, 4, 9, 1.8); signLight.position.set(-FACADE + 1.2, 4.2, -37 * ZS); scene.add(signLight);
+  add(new THREE.PlaneGeometry(1.1, 2.3), EMIT(1.2, 0.8, 0.45), -FACADE + 0.03, 1.15, -37 * ZS - 0.2).rotation.y = Math.PI / 2;   // the bar door, lit
 
   // ---- the opening credits: ROMAN in the same blood-steel as the R, hanging over the street as the camera descends
   const credits = new THREE.Group(); scene.add(credits);
@@ -235,7 +235,7 @@ export function createProps(scene, city, timing, fonts, route) {
   const walkers = [];
   for (let i = 0; i < 7; i++) {
     const f = figure(0.9 + r() * 0.2, INK(), true); const s = i % 2 ? 1 : -1;
-    f.userData.w = { x: s * (FACADE - 1.6 - r() * 0.8), z: 30 - r() * 330, v: (r() < 0.5 ? 1 : -1) * (0.8 + r() * 0.6) };
+    f.userData.w = { x: s * (FACADE - 1.6 - r() * 0.8), z: Z_START - r() * (Z_START - Z_END), v: (r() < 0.5 ? 1 : -1) * (0.8 + r() * 0.6) };
     f.rotation.y = f.userData.w.v < 0 ? 0 : Math.PI; scene.add(f); walkers.push(f);
   }
   // ---- the crowd that turns its back (Rap 1, "they watched me fall and turned their backs")
@@ -252,6 +252,7 @@ export function createProps(scene, city, timing, fonts, route) {
 
   // ---- the drowning (Rap 1, "they watched me drown"): a flooded alley, a head at the surface, twenty hands pushing down
   const T_DROWN = lineT('watched me drown');
+  const ringAt = new THREE.Vector3();
   const pool = new THREE.Group(); scene.add(pool);
   const PX = -(FACADE + 10), PZ = A.z;                           // the flooded end of the first alley
   const waterGeo = new THREE.PlaneGeometry(14, A.w + 1, 70, 24);
@@ -266,7 +267,7 @@ export function createProps(scene, city, timing, fonts, route) {
   const hands = [];
   const handMat = new THREE.MeshStandardMaterial({ color: 0x17100f, roughness: 0.75 });
   const HR = 0.5 + r() * 0.0;                                             // all arms are built around the victim's head
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 12; i++) {
     // shoulder → upper arm → elbow → forearm → wrist → palm → fingers, each a child of the one before
     const arm = new THREE.Group();
     const upper = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 1.25, 4, 10), handMat); upper.position.y = -0.62; arm.add(upper);
@@ -284,7 +285,7 @@ export function createProps(scene, city, timing, fonts, route) {
     }
     const thumb = new THREE.Group(); thumb.position.set(0.15, -0.06, 0.02); thumb.rotation.y = -0.9; thumb.rotation.z = 0.5; wrist.add(thumb);
     const tp = new THREE.Mesh(new THREE.CapsuleGeometry(0.028, 0.16, 3, 6), handMat); tp.rotation.x = Math.PI / 2; tp.position.z = 0.1; thumb.add(tp);
-    const ang = (i / 20) * Math.PI * 2 + (r() - 0.5) * 0.35, radius = 0.22 + (i % 4) * 0.09, tilt = 0.55 + r() * 0.5;
+    const ang = (i / 12) * Math.PI * 2 + (r() - 0.5) * 0.3, radius = 0.16 + (i % 3) * 0.07, tilt = 0.55 + r() * 0.5;   // a ring of hands around the lens, the centre stays clear
     arm.userData = { ang, radius, tilt, delay: r(), ph: r() * 6, elbow, wrist, fingers, thumb, sway: (r() - 0.5) * 0.4 };
     pool.add(arm); hands.push(arm);
   }
@@ -357,7 +358,7 @@ export function createProps(scene, city, timing, fonts, route) {
     draw();
     const tex = new THREE.CanvasTexture(c); tex.anisotropy = 8;
     const paint = new THREE.Mesh(new THREE.PlaneGeometry(28, 28), new THREE.MeshStandardMaterial({ map: tex, alphaMap: tex, transparent: true, opacity: 0.94, color: 0xa01c16, emissive: 0x5a0a08, emissiveIntensity: 0.9, roughness: 0.95, metalness: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
-    paint.rotation.x = -Math.PI / 2; paint.rotation.z = Math.PI; paint.position.set(0, 0.045, -300); paint.visible = false; scene.add(paint); roadPaint = paint;   // reads from the air, above the church
+    paint.rotation.x = -Math.PI / 2; paint.rotation.z = Math.PI; paint.position.set(0, 0.045, CHURCH.z + 30); paint.visible = false; scene.add(paint); roadPaint = paint;   // reads from the air, above the church
     document.fonts?.ready.then(() => { draw(); tex.needsUpdate = true; });
   }
 
@@ -382,7 +383,7 @@ export function createProps(scene, city, timing, fonts, route) {
     room, pool, hands, alleyLights, solid, under: 0,
     update(dt, t, time, env, camera) {
       // walkers
-      for (const f of walkers) { const w = f.userData.w; w.z += w.v * dt; if (w.z < -330) w.z = 40; if (w.z > 40) w.z = -330; f.position.set(w.x, Math.abs(Math.sin(time * 5 + w.x)) * 0.03, w.z);
+      for (const f of walkers) { const w = f.userData.w; w.z += w.v * dt; if (w.z < Z_END) w.z = Z_START; if (w.z > Z_START) w.z = Z_END; f.position.set(w.x, Math.abs(Math.sin(time * 5 + w.x)) * 0.03, w.z);
         const dz = camera.position.z - w.z; f.visible = !(camera.position.y < 6 && dz > -6 && dz < 42); }   // only far down the street, never near the lens
       // crowd: faces the camera until the line, then turns its back and walks away
       const ct = T_CROWD > 0 ? t - T_CROWD : -99;
@@ -434,14 +435,15 @@ export function createProps(scene, city, timing, fonts, route) {
       } else eyesPlaced = eyesPlaced && ek < 6.5;
       // the drowning
       const dk = T_DROWN > 0 ? t - T_DROWN : -1;
-      if (dk > -0.9 && dk < 5.5) {                                           // they stand around the water and watch
+      if (dk > -2.8 && dk < 9) {                                             // from "I held them up": they stand around the water and watch
         const cf = new THREE.Vector3(); camera.getWorldDirection(cf); cf.y = 0; cf.normalize();
-        crowd.forEach((f, i) => { const a = (i / (crowd.length - 1) - 0.5) * 2.3, cs = Math.cos(a), sn = Math.sin(a);
-          const dx = cf.x * cs - cf.z * sn, dz = cf.x * sn + cf.z * cs, rad = 3.2 + (i % 3) * 0.4;
-          f.visible = true; f.position.set(camera.position.x + dx * rad, 0, camera.position.z + dz * rad);
+        if (dk < 0.5) ringAt.copy(camera.position);                              // the ring gathers around where you stand, then stays put as you leave
+        crowd.forEach((f, i) => { const a = (i / (crowd.length - 1) - 0.5) * 3.3, cs = Math.cos(a), sn = Math.sin(a);
+          const dx = cf.x * cs - cf.z * sn, dz = cf.x * sn + cf.z * cs, rad = 4.6 + (i % 3) * 0.6;   // a wide ring at the water's edge, gaps between them
+          f.visible = true; f.position.set(ringAt.x + dx * rad, 0, ringAt.z + dz * rad);
           f.rotation.y = Math.atan2(camera.position.x - f.position.x, camera.position.z - f.position.z) + Math.PI + Math.sin(time * 0.5 + i) * 0.03;
-          f.rotation.z = 0; f.userData.head.rotation.set(0.42, 0, 0); });
-      } else if (dk >= 5.5 && dk < 60) crowd.forEach(f => (f.visible = false));
+          f.rotation.z = 0; f.userData.head.rotation.set(0.42 + 0.25 * ease((dk - 1.0) / 1.6), 0, 0); });   // heads bow further as they press
+      } else if (dk >= 9 && dk < 60) crowd.forEach(f => (f.visible = false));
       pool.visible = dk > -1.5 && dk < 9; if (!pool.visible) { this.under = 0; bubbles.visible = false; }
       if (pool.visible) {
         const press = ease((dk - 1.0) / 1.6);                                    // the arms arrive over ~1.6 s
@@ -458,10 +460,12 @@ export function createProps(scene, city, timing, fonts, route) {
         const lens = camera.position.clone().addScaledVector(camF, 0.42);
         const hx = lens.x, hz = lens.z, hy = lens.y;
         hands.forEach(g => { const u = g.userData;
-          const k = ease((dk - u.delay * 0.9 - 0.7) / 1.5);                        // this arm's descent (after you have seen them watching)
+          const k = ease((dk - u.delay * 1.2 - 0.5) / 1.4) * (1 - ease((dk - 4.4) / 2.2));   // this arm comes in, presses, and lets go once you are under
+          g.visible = k > 0.01; if (!g.visible) return;
           const ca = Math.cos(u.ang), sa = Math.sin(u.ang);
           // shoulders in a ring above and around the viewer, hands aiming at the lens
-          const sh = camera.position.clone().addScaledVector(camR, ca * (1.9 + u.radius * 2)).addScaledVector(camU, 1.6 + Math.max(0, sa) * 1.2 + (u.ph % 1) * 0.4).addScaledVector(camF, 0.9 + u.radius);
+          // shoulders out in front, above the water: the crowd leans over you, the arms reach toward the lens foreshortened
+          const sh = camera.position.clone().addScaledVector(camR, ca * (1.5 + u.radius * 2)).addScaledVector(camU, 1.5 + Math.max(0, sa) * 1.0 + (u.ph % 1) * 0.3).addScaledVector(camF, 2.4 + u.radius);
           const tgt = lens.clone().addScaledVector(camR, ca * u.radius * 0.9).addScaledVector(camU, sa * u.radius * 0.6 + 0.05).addScaledVector(camF, (1 - k) * 2.5 - press * pulse * 0.06 * k);
           g.position.copy(sh).addScaledVector(camR, Math.sin(time * 1.3 + u.ph) * 0.05 * u.sway);
           const L = g.position.distanceTo(tgt);
@@ -505,7 +509,7 @@ export function createProps(scene, city, timing, fonts, route) {
       const tk = route ? t - route.T_TOWER : -99;
       karmaLetters.forEach(m => { const q = Math.max(0, Math.min(1, (tk - m.userData.order * 1.6) / 2.6)), k = q * q * (3 - 2 * q);   // each letter slides out of the R, slow and smooth
         m.visible = k > 0.01; const sc = 0.55 + 0.45 * k; m.scale.set(sc, sc, sc);
-        m.position.set(m.userData.x * k, 63.4, -425 - (1 - k) * 1.6); m.rotation.y = R.rotation.y; });                 // KARMA IS NEAR shows only from the sky
+        m.position.set(m.userData.x * k, 63.4, TOWER.z - (1 - k) * 1.6); m.rotation.y = R.rotation.y; });                 // KARMA IS NEAR shows only from the sky
       // "free": the city slides apart to both sides and the church door opens outward into the light
       const fk = ease((t - T_FREE) / 5), dk2 = ease((t - T_FREE - 0.6) / 2.6);
       city.part(fk * 34);

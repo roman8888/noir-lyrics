@@ -2,45 +2,46 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010213038';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH } from './layout.js?v=20261010213038';
+import { clamp } from './util.js?v=20261010220721';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261010220721';
 
 const EYE = 1.7;
-const A1 = ALLEYS[0];
+const A1 = ALLEYS[0], A2 = ALLEYS[1];
 const W = ROOM.win;
+const Z = z => z * ZS, CZ = CHURCH.z, TZ = TOWER.z;   // street positions scale with the stretched city; the gateway and tower keep their own distances
 
 // place kinds: banner (across the way, a little high), ahead (eye level), sky (big and far), room (inside the apartment)
 const BEATS = {
   Pre:     { sky: 'night', keys: [[0, 0, 92, 120], [0.5, 0, 40, 70], [0.85, 0, 8, 40], [1, 0, EYE + 0.3, 30]], place: ['sky'], lookAt: new THREE.Vector3(0, 55, -62), lookMix: 0.85 },
-  Intro:   { sky: 'night', keys: [[0, 0, EYE, 30], [0.5, 0, EYE, -6], [1, 0, EYE, -41]], walk: 1,
-             place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 22 },
+  Intro:   { sky: 'night', keys: [[0, 0, EYE, 30], [0.5, 0, EYE, Z(-6)], [1, 0, EYE, Z(-41)]], walk: 1,
+             place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 30 },
   // the avenue goes dark around the walker: windows switch off, then the lamps, one lamp left at the alley mouth
-  'Verse 1': { sky: 'verse', keys: [[0, 0, EYE, -41], [0.3, 0, EYE, -48], [0.55, -1.5, EYE, -55], [0.75, -6.5, EYE, -61], [1, -12.5, EYE, -62]], walk: 1,
-             place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 18 },
+  'Verse 1': { sky: 'verse', keys: [[0, 0, EYE, Z(-41)], [0.3, 0, EYE, Z(-48)], [0.55, -1.5, EYE, Z(-55)], [0.75, -6.5, EYE, A1.z + 1], [1, -12.5, EYE, A1.z]], walk: 1,
+             place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 26 },
   // the crowd stands at the end of this alley and turns its back; then the alley floods and the hands come down
-  'Rap 1': { sky: 'storm', keys: [[0, -12.5, EYE, -62], [0.12, -14.5, EYE, -62.1], [0.22, -15.8, 1.5, -62], [0.3, -14.5, 0.9, -62.2], [0.47, -14.2, 0.75, -62.2], [0.6, -13, 1.2, -62], [0.78, -7, EYE, -63], [1, -3, EYE, -74]], stride: 1,
+  'Rap 1': { sky: 'storm', keys: [[0, -12.5, EYE, A1.z], [0.12, -14.5, EYE, A1.z - 0.1], [0.22, -15.8, 1.5, A1.z], [0.3, -14.5, 0.9, A1.z - 0.2], [0.47, -14.2, 0.75, A1.z - 0.2], [0.6, -13, 1.2, A1.z], [0.78, -7, EYE, A1.z - 1], [1, -3, EYE, A1.z - 36]], stride: 1,
              place: ['ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], alley: A1,
              lookAt: new THREE.Vector3(-(ROW2 - 1.5), 1.0, A1.z), lookMix: 1 },   // eyes on the end of the alley: the crowd, then the water
   // lights back on; walk out of the alley and down the avenue toward the lit ground-floor window
-  'Pre-Chorus': { sky: 'breaking', keys: [[0, -3, EYE, -74], [1, 3, EYE, -104]], walk: 1,
-             place: ['ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead'], lookAt: new THREE.Vector3(FACADE, W.y, W.z), lookMix: 0.35, dist: 22 },
+  'Pre-Chorus': { sky: 'breaking', keys: [[0, -3, EYE, A1.z - 36], [1, 3, EYE, W.z + 18]], walk: 1,
+             place: ['ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead'], lookAt: new THREE.Vector3(FACADE, W.y, W.z), lookMix: 0.35, dist: 30 },
   // the apartment: up to the window for four lines, step in only for "forget to breathe / what I believe", step back out
-  Chorus:  { sky: 'moon', keys: [[0, 3, EYE, -104], [0.25, 4.5, EYE, -108.5], [0.46, FACADE - 1.0, 1.65, W.z], [0.53, FACADE + 1.6, 1.65, W.z], [0.77, FACADE + 1.6, 1.65, W.z + 0.05], [0.86, FACADE - 1.6, 1.7, W.z], [1, 3, EYE, -115]],
+  Chorus:  { sky: 'moon', keys: [[0, 3, EYE, W.z + 18], [0.25, 4.5, EYE, W.z + 4.5], [0.46, FACADE - 1.0, 1.65, W.z], [0.53, FACADE + 1.6, 1.65, W.z], [0.70, FACADE + 1.6, 1.65, W.z + 0.05], [0.78, FACADE - 1.6, 1.7, W.z], [1, 3, EYE, W.z - 15]],
              place: ['facadeL', 'facadeL', 'facadeL', 'facadeL', 'room', 'room', 'ahead', 'ahead'], dist: 9,
-             looks: [[0, FACADE, W.y, W.z, 0.8], [0.46, FACADE, W.y, W.z, 0.8], [0.53, ROOM.x1, ROOM.y0 + 2.4, W.z, 1], [0.9, ROOM.x1, ROOM.y0 + 2.4, W.z, 1], [1, 0, 2.5, -128, 0.9]] },
-  'Verse 2': { sky: 'drizzle', keys: [[0, 3, EYE, -115], [0.3, 1, EYE, -122], [1, 0, EYE, -140]], walk: 1,
-             place: ['ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner'], dist: 20 },
-  'Rap 2': { sky: 'storm', keys: [[0, 0, EYE, -140], [0.5, 0, EYE, -167], [1, 0, EYE, -194]], stride: 1,
-             place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 18 },
+             looks: [[0, FACADE, W.y, W.z, 0.8], [0.46, FACADE, W.y, W.z, 0.8], [0.53, ROOM.x1, ROOM.y0 + 2.4, W.z, 1], [0.72, ROOM.x1, ROOM.y0 + 2.4, W.z, 1], [0.86, 0, 2.5, W.z - 54, 0.9], [1, 0, 2.5, W.z - 54, 0.9]] },   // out of the window and facing the street before the last two lines, so they stand clear of the wall
+  'Verse 2': { sky: 'drizzle', keys: [[0, 3, EYE, W.z - 15], [0.3, 1, EYE, W.z - 36], [1, 0, EYE, A2.z]], walk: 1,
+             place: ['ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner'], dist: 28 },
+  'Rap 2': { sky: 'storm', keys: [[0, 0, EYE, A2.z], [0.5, 0, EYE, (A2.z + BRIDGE.z + 18) / 2], [1, 0, EYE, BRIDGE.z + 18]], stride: 1,
+             place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 26 },
   // under the overpass: stop, and turn to look back up the avenue at the lit window far behind
-  Bridge:  { sky: 'fog', keys: [[0, 0, EYE, -194], [0.3, 0, EYE, -199], [1, 0.3, EYE, -200.5]],
+  Bridge:  { sky: 'fog', keys: [[0, 0, EYE, BRIDGE.z + 18], [0.3, 0, EYE, BRIDGE.z + 1], [1, 0.3, EYE, BRIDGE.z - 0.5]],
              place: ['ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner'], dist: 11,
-             looks: [[0, 0, 3, -222, 0.9], [0.22, 0, 3, -222, 0.9], [0.45, 2.5, 2.8, -140, 1], [1, 2.5, 2.8, -140, 1]] },
+             looks: [[0, 0, 3, BRIDGE.z - 22, 0.9], [0.22, 0, 3, BRIDGE.z - 22, 0.9], [0.45, 2.5, 2.8, W.z - 30, 1], [1, 2.5, 2.8, W.z - 30, 1]] },
   // on toward the church, the R ahead the whole way
-  'Final Chorus': { sky: 'breaking', keys: [[0, 0.3, EYE, -200.5], [0.15, 0, EYE, -207], [1, 0, EYE, -262]], walk: 1,
-             place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 22, lookAt: new THREE.Vector3(0, 30, CHURCH.z), lookMix: 0.25 },
-  Outro:   { sky: 'moon', keys: [[0, 0, EYE, -262], [0.5, 0, EYE, -282], [0.84, 0, EYE, -295], [1, 0, EYE, -300]], walk: 1,
-             place: ['banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner'], lookAt: new THREE.Vector3(0, 12, CHURCH.z), lookMix: 0.3, dist: 20 },
+  'Final Chorus': { sky: 'breaking', keys: [[0, 0.3, EYE, BRIDGE.z - 0.5], [0.15, 0, EYE, BRIDGE.z - 7], [1, 0, EYE, Z(-262)]], walk: 1,
+             place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 30, lookAt: new THREE.Vector3(0, 30, CHURCH.z), lookMix: 0.25 },
+  Outro:   { sky: 'moon', keys: [[0, 0, EYE, Z(-262)], [0.5, 0, EYE, CZ + 118], [0.84, 0, EYE, CZ + 50], [1, 0, EYE, CZ + 30]], walk: 1,
+             place: ['banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner'], lookAt: new THREE.Vector3(0, 12, CHURCH.z), lookMix: 0.3, dist: 28 },
   // "free": the city parts and the door opens; the walk slows to a stop before it and the eyes drop to the road,
   // where KARMA IS NEAR is painted: that is the last image
   // ...then the camera lifts off backwards into the air, the text staying centred below while the whole city opens up around it
@@ -48,8 +49,8 @@ const BEATS = {
   // where the letters K A · M A land either side of it until the spire reads KARMA
   // "free": the door opens and we rush through the gateway; beyond it, a long shallow flight to the tower in the dark,
   // where the letters slide out of the R until it reads KARMA. The whole way stays on screen.
-  End:     { sky: 'storm', keys: [[0, 0, EYE, -300], [0.12, 0, EYE, -322], [0.2, 0, EYE + 0.4, -342], [0.45, 0, 26, -372], [0.74, 0, 58, -404], [1, 0, 59, -401]], place: ['ahead'],
-             looks: [[0, 0, 2.3, CHURCH.z + 7, 0.95], [0.12, 0, 2.6, CHURCH.z - 12, 0.95], [0.2, 0, 30, -425, 0.9], [0.45, 0, 62, -425, 1], [1, 0, 62.5, -425, 1]] },
+  End:     { sky: 'night', keys: [[0, 0, EYE, CZ + 30], [0.12, 0, EYE, CZ + 8], [0.2, 0, EYE + 0.4, CZ - 12], [0.45, 0, 26, CZ - 42], [0.74, 0, 56, CZ - 52], [1, 0, 56.5, CZ - 48]], place: ['ahead'],
+             looks: [[0, 0, 2.3, CZ + 7, 0.95], [0.12, 0, 2.6, CZ - 12, 0.95], [0.2, 0, 30, TZ, 0.9], [0.45, 0, 62, TZ, 1], [1, 0, 62.5, TZ, 1]] },
 };
 const ORDER = ['Pre', 'Intro', 'Verse 1', 'Rap 1', 'Pre-Chorus', 'Chorus', 'Verse 2', 'Rap 2', 'Bridge', 'Final Chorus', 'Outro', 'End'];
 const smooth = x => { x = clamp(x); return x * x * (3 - 2 * x); };
@@ -90,7 +91,7 @@ export function createRoute(timing) {
     const b = beatAt(t); out.beat = b;
     const u = uOf(b, t); out.u = u;
     b.curve.getPointAt(u, out.pos);
-    if (out.pos.y < 3) out.pos.y += Math.abs(Math.sin(t * (b.stride ? 8.0 : b.walk ? 6.6 : 5.2))) * (b.stride ? 0.055 : b.walk ? 0.042 : 0.03);   // footsteps: a brisk walk on the avenue, a harder stride in the raps
+    if (out.pos.y < 3) out.pos.y += Math.abs(Math.sin(t * (b.stride ? 11.0 : b.walk ? 9.4 : 5.2))) * (b.stride ? 0.05 : b.walk ? 0.04 : 0.03);   // footsteps: a brisk walk on the avenue, a harder stride in the raps
     b.curve.getPointAt(Math.min(1, u + 0.03), tmp).sub(out.pos);
     if (tmp.lengthSq() < 0.0004) { b.curve.getPointAt(Math.max(0, u - 0.03), tmp2); tmp.subVectors(out.pos, tmp2); }
     if (tmp.lengthSq() > 0.0004) lastDir.copy(tmp).normalize();
@@ -165,14 +166,14 @@ export function createRoute(timing) {
     beats, pose, anchorFor, beatAt, fade, T_DOOR, T_VOID: 1e9, T_TOWER: endBeat.t0 + 0.74 * (endBeat.t1 - endBeat.t0),
     skyAt(t) { return beatAt(t).sky; },
     // how far the hands have pushed the viewer under the water (metres below the path), gasping back up after the line
-    dive(t) { if (T_DROWN < 0) return 0; const down = smooth((t - T_DROWN - 1.2) / 1.6), up = smooth((t - T_DROWN - 3.6) / 1.3); return -0.72 * down * (1 - up); },
+    dive(t) { if (T_DROWN < 0) return 0; const down = smooth((t - T_DROWN - 1.2) / 1.6), up = smooth((t - T_DROWN - 3.4) / 2.8); return -0.72 * down * (1 - up); },
     cue(t, city) {
-      if (T_FADE > 0) { const k = clamp((t - T_FADE - 0.3) / 2.6); const i = city.lampAt(-46, -1); city.dimLamp(i, 1 - 0.97 * k * (1 - clamp((t - T_LIGHT) / 1.5))); }
+      if (T_FADE > 0) { const k = clamp((t - T_FADE - 0.3) / 2.6); const i = city.lampAt(Z(-46), -1); city.dimLamp(i, 1 - 0.97 * k * (1 - clamp((t - T_LIGHT) / 1.5))); }
       // "no one hears": the windows go dark in a wave; "left alone": the lamps go out, one stays at the alley mouth; back on at "I heard You call"
       if (T_HEARS > 0) {
         const on = 1 - clamp((t - T_CALL) / 3);
         const w = clamp((t - T_HEARS - 0.4) / 9);
-        city.setDark(Math.min(1, w * 1.4) * on, -40 - w * 330);
+        city.setDark(Math.min(1, w * 1.4) * on, Z(-40) - w * Z(330));
         const la = clamp((t - T_ALONE - 0.2) / 4) * on;
         city.lampPos.forEach(([x, z], i) => { if (z > -120 && z < -20) { const keep = Math.abs(z - (-53)) < 4 && x < 0; const order = clamp((la * 5 - Math.abs(z + 46) / 12)); city.dimLamp(i, keep ? 1 : 1 - 0.98 * order); } });
       }
