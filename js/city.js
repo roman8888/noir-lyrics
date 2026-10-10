@@ -2,8 +2,8 @@
 // interior-mapped windows (every lit window is a small parallax room), street lamps, traffic, rain.
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
-import { rng, makeRain } from './util.js?v=20261010200729';
-import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261010200729';
+import { rng, makeRain } from './util.js?v=20261010205504';
+import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261010205504';
 
 const buildingVS = /* glsl */`
   varying vec3 vW; varying vec3 vN; varying float vSeed;
@@ -177,9 +177,13 @@ export function createCity() {
     uniforms: { uTime: { value: 0 }, uFog: { value: 0.016 }, uFogColor: { value: fogColor }, uFlash: { value: 0 }, uDawn: { value: 0 }, uSkyTint: { value: new THREE.Color(0.05, 0.05, 0.07) }, uDark: { value: 0 }, uDarkZ: { value: 0 } },
   });
   const blds = new THREE.InstancedMesh(bGeo, bMat, boxes.length);
-  boxes.forEach(([x, z, wd, ht, d, y0 = 0], i) => {
-    M.compose(new THREE.Vector3(x, y0, z), new THREE.Quaternion(), new THREE.Vector3(wd, ht, d)); blds.setMatrixAt(i, M);
-  });
+  const placeBoxes = part => {                                   // part: how far (m) the two sides have slid apart
+    boxes.forEach(([x, z, wd, ht, d, y0 = 0], i) => {
+      M.compose(new THREE.Vector3(x + Math.sign(x) * part, y0, z), new THREE.Quaternion(), new THREE.Vector3(wd, ht, d)); blds.setMatrixAt(i, M);
+    });
+    blds.instanceMatrix.needsUpdate = true;
+  };
+  placeBoxes(0);
   scene.add(blds);
 
   // street lamps with volumetric cones; each can be dimmed (the song puts one out)
@@ -246,6 +250,7 @@ export function createCity() {
   return {
     scene, fogColor, cars, lampPos, makeCar, blds,
     lampAt(z, side) { let best = 0, bd = 1e9; lampPos.forEach(([x, zz], i) => { const d = Math.abs(zz - z) + (Math.sign(x) === side ? 0 : 100); if (d < bd) { bd = d; best = i; } }); return best; },
+    part(m) { placeBoxes(m); },
     setDark(amount, z) { bMat.uniforms.uDark.value = amount; bMat.uniforms.uDarkZ.value = z; },
     dimLamp(i, v) { dim[i] = v; cones.geometry.attributes.aDim.needsUpdate = true; bulbColor.setRGB(v, v, v); bulbs.setColorAt(i, bulbColor); bulbs.instanceColor.needsUpdate = true; },
     update(dt, time, camera, sky) {

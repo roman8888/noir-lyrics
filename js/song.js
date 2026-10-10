@@ -2,9 +2,9 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261010200729';
-import { fxFor, applyFx } from './fx.js?v=20261010200729';
-import { LOOKS } from './songs.js?v=20261010200729';
+import { clamp, easeOutExpo } from './util.js?v=20261010205504';
+import { fxFor, applyFx } from './fx.js?v=20261010205504';
+import { LOOKS } from './songs.js?v=20261010205504';
 
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607);
@@ -14,6 +14,7 @@ const KEYS = ['rain', 'warm', 'red', 'beam', 'dawn', 'cut', 'fog'];
 export function createSong(fonts, scene, route, occluders = []) {
   const occ = new THREE.Raycaster();
   const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 1200);
+  camera.layers.enable(1);                                   // the lyrics live on layer 1: the wet street's mirror never reflects them
   // a soft key that travels with the camera, plus the follow-spot on the sung word
   const key = new THREE.DirectionalLight(0xdfe6ff, 1.6); scene.add(key, key.target);
   key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.03;
@@ -149,6 +150,7 @@ export function createSong(fonts, scene, route, occluders = []) {
       const fit = Math.min(1, maxW / lineW, maxH / lineH);
       if (fit < 1) group.scale.multiplyScalar(fit);
     }
+    for (const m of words) m.layers.set(1);
     scene.add(group); live.set(i, { group, words, a });
   }
   function drop(i) { const e = live.get(i); if (!e) return; e.words.forEach(m => m.material.dispose()); scene.remove(e.group); live.delete(i); }

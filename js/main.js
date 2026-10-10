@@ -7,14 +7,14 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261010200729';
-import { createProps } from './props.js?v=20261010200729';
-import { createSky } from './sky.js?v=20261010200729';
-import { createRoute } from './route.js?v=20261010200729';
-import { createSong } from './song.js?v=20261010200729';
-import { SONGS } from './songs.js?v=20261010200729';
-import { clamp, fmt, toLRC } from './util.js?v=20261010200729';
-import { createDrops } from './drops.js?v=20261010200729';
+import { createCity } from './city.js?v=20261010205504';
+import { createProps } from './props.js?v=20261010205504';
+import { createSky } from './sky.js?v=20261010205504';
+import { createRoute } from './route.js?v=20261010205504';
+import { createSong } from './song.js?v=20261010205504';
+import { SONGS } from './songs.js?v=20261010205504';
+import { clamp, fmt, toLRC } from './util.js?v=20261010205504';
+import { createDrops } from './drops.js?v=20261010205504';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -28,9 +28,9 @@ renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadow
 
 // film look: faint chromatic aberration on the kick, mono with surviving reds/golds, grain, vignette (no flicker)
 const NoirShader = {
-  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uBass: { value: 0 }, uAspect: { value: 1 }, uColor: { value: 0.0 }, uWater: { value: 0.0 } },
+  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uBass: { value: 0 }, uAspect: { value: 1 }, uColor: { value: 0.0 }, uWater: { value: 0.0 }, uFade: { value: 0.0 }, uFadeCol: { value: new THREE.Color(0, 0, 0) } },
   vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-  fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime, uBass, uAspect, uColor, uWater; varying vec2 vUv;
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime, uBass, uAspect, uColor, uWater, uFade; uniform vec3 uFadeCol; varying vec2 vUv;
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
     void main(){
       vec2 uv = vUv, c = uv - 0.5;
@@ -43,6 +43,7 @@ const NoirShader = {
       col = mix(col, col * vec3(0.55, 0.78, 0.9) + vec3(0.01, 0.035, 0.045), uWater * 0.85);
       col *= smoothstep(1.05, 0.3 + uWater * 0.35, length(c * vec2(uAspect * 0.78, 1.0)));
       col += (h(gl_FragCoord.xy + fract(uTime) * 91.) - 0.5) * 0.028;
+      col = mix(col, uFadeCol, uFade);
       gl_FragColor = vec4(col, 1.);
     }`,
 };
@@ -159,6 +160,7 @@ addEventListener('pointermove', e => { $('player').classList.remove('idle'); idl
 
 // ---------- loop ----------
 let skyName = '';
+const fadeOut = { k: 0, r: 0, g: 0, b: 0 };
 function frame() {
   const dt = Math.min(clock.getDelta(), 0.05), now = clock.elapsedTime;
   const t = audio.currentTime;
@@ -180,6 +182,7 @@ function frame() {
   noir.uniforms.uColor.value = (sky.sun || 0) * 0.7 + (sky.moon || 0) * 0.1;
   noir.uniforms.uTime.value = now;
   bokeh.uniforms.focus.value = song.focus;
+  const fd = route.fade(t, fadeOut); noir.uniforms.uFade.value = fd.k; noir.uniforms.uFadeCol.value.setRGB(fd.r || 0, fd.g || 0, fd.b || 0);
   noir.uniforms.uWater.value = props.under; bokeh.uniforms.maxblur.value = 0.0022 + props.under * 0.012;
   composer.render(dt);
   drops.update(dt); drops.fade(clamp((t - DROP_AT[4] - 1.5) / 2.5));                   // the blood runs for a moment after the last drop, then is gone

@@ -1,6 +1,6 @@
 // The sky: a dome with drifting clouds, moon, stars, a sunrise and lightning. Presets blend per section.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010200729';
+import { clamp } from './util.js?v=20261010205504';
 
 const VS = `varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`;
 const FS = /* glsl */`
@@ -42,6 +42,7 @@ const FS = /* glsl */`
 const C = (r, g, b) => new THREE.Color(r, g, b);
 // one look per section (blended on section change)
 export const SKIES = {
+  black:    { horizon: C(0, 0, 0), zenith: C(0, 0, 0), cloud: C(0, 0, 0), cover: 0.0, soft: 0.1, moon: 0, sun: 0, stars: 0, haze: 0, rain: 0.4 },
   night:    { horizon: C(0.019, 0.021, 0.029), zenith: C(0.003, 0.003, 0.006), cloud: C(0.05, 0.055, 0.07), cover: 0.78, soft: 0.22, moon: 0.0, sun: 0, stars: 0.0, haze: 0.55, rain: 1.0 },
   verse:    { horizon: C(0.021, 0.021, 0.027), zenith: C(0.003, 0.004, 0.007), cloud: C(0.06, 0.06, 0.075), cover: 0.7, soft: 0.25, moon: 0.15, sun: 0, stars: 0.1, haze: 0.5, rain: 1.1 },
   storm:    { horizon: C(0.015, 0.015, 0.019), zenith: C(0.002, 0.002, 0.004), cloud: C(0.04, 0.04, 0.05), cover: 0.95, soft: 0.15, moon: 0.0, sun: 0, stars: 0.0, haze: 0.65, rain: 1.5, lightning: 1 },

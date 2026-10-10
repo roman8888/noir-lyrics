@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010200729';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH } from './layout.js?v=20261010200729';
+import { clamp } from './util.js?v=20261010205504';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH } from './layout.js?v=20261010205504';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0];
@@ -39,10 +39,12 @@ const BEATS = {
   // on toward the church, the R ahead the whole way
   'Final Chorus': { sky: 'breaking', keys: [[0, 0.3, EYE, -178.5], [0.15, 0, EYE, -184], [1, 0, EYE, -235]],
              place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 12, lookAt: new THREE.Vector3(0, 30, CHURCH.z), lookMix: 0.25 },
-  Outro:   { sky: 'moon', keys: [[0, 0, EYE, -235], [0.5, 0, EYE, -255], [1, 0, EYE, -270]],
-             place: ['banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner'], lookAt: new THREE.Vector3(0, 20, CHURCH.z), lookMix: 0.3, dist: 12 },
-  // "set me free": the camera leaves the street and climbs until the city is tiny below, the R never leaving the frame
-  End:     { sky: 'night', keys: [[0, 0, EYE, -270], [0.3, 0, 60, -268], [0.65, 14, 160, -272], [1, 0, 240, -290]], place: ['ahead'], lookAt: new THREE.Vector3(0, 54, CHURCH.z - 2), lookMix: 0.92 },
+  Outro:   { sky: 'moon', keys: [[0, 0, EYE, -235], [0.5, 0, EYE, -256], [0.84, 0, EYE, -272], [1, 0, EYE, -279]],
+             place: ['banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner'], lookAt: new THREE.Vector3(0, 12, CHURCH.z), lookMix: 0.3, dist: 12 },
+  // "free": the city parts, the door opens; walk through it into the light; white → red → black; then the void where
+  // GOD and ROMAN bleed and the drips write KARMA IS NEAR
+  End:     { sky: 'black', keys: [[0, 0, EYE, -279], [0.3, 0, EYE, -291.5], [0.5, 0, EYE, -298], [0.53, 0, 500, 26], [1, 0, 500, 25.4]], place: ['ahead'],
+             looks: [[0, 0, 2.3, CHURCH.z + 7, 0.95], [0.3, 0, 2.3, CHURCH.z + 7, 0.95], [0.5, 0, 2.3, CHURCH.z - 10, 0.95], [0.53, 0, 503.5, 0, 1], [1, 0, 503.5, 0, 1]] },
 };
 const ORDER = ['Pre', 'Intro', 'Verse 1', 'Rap 1', 'Pre-Chorus', 'Chorus', 'Verse 2', 'Rap 2', 'Bridge', 'Final Chorus', 'Outro', 'End'];
 const smooth = x => { x = clamp(x); return x * x * (3 - 2 * x); };
@@ -138,11 +140,23 @@ export function createRoute(timing) {
   const T_DROWN = lines.find(l => /watched me drown/i.test(l.text))?.t ?? -1;
   const T_ALONE = lines.find(l => /wonder why you're left alone/i.test(l.text))?.t ?? -1;
   const T_CALL = lines.find(l => /i heard you call/i.test(l.text))?.t ?? -1;
+  const endBeat = beats.find(b => b.name === 'End');
+  const T_DOOR = endBeat.t0 + 0.5 * (endBeat.t1 - endBeat.t0);
+  // the cut through the light: white, then red, then black, which lifts onto the void
+  function fade(t, out) {
+    const sd = t - T_DOOR;
+    if (sd < 0) { out.k = 0; return out; }
+    if (sd < 0.35) { out.k = 1; out.r = 1; out.g = 1 - sd / 0.35 * 0.95; out.b = 1 - sd / 0.35 * 0.95; }
+    else if (sd < 0.75) { const q = (sd - 0.35) / 0.4; out.k = 1; out.r = 1 - q; out.g = 0.05 * (1 - q); out.b = 0.05 * (1 - q); }
+    else if (sd < 1.2) { out.k = 1; out.r = out.g = out.b = 0; }
+    else { out.k = Math.max(0, 1 - (sd - 1.2) / 1.0); out.r = out.g = out.b = 0; }
+    return out;
+  }
   return {
-    beats, pose, anchorFor, beatAt,
+    beats, pose, anchorFor, beatAt, fade, T_DOOR, T_VOID: T_DOOR + 1.2,
     skyAt(t) { return beatAt(t).sky; },
     // how far the hands have pushed the viewer under the water (metres below the path), gasping back up after the line
-    dive(t) { if (T_DROWN < 0) return 0; const down = smooth((t - T_DROWN - 0.5) / 1.7), up = smooth((t - T_DROWN - 3.3) / 1.4); return -0.72 * down * (1 - up); },
+    dive(t) { if (T_DROWN < 0) return 0; const down = smooth((t - T_DROWN - 1.2) / 1.6), up = smooth((t - T_DROWN - 3.6) / 1.3); return -0.72 * down * (1 - up); },
     cue(t, city) {
       if (T_FADE > 0) { const k = clamp((t - T_FADE - 0.3) / 2.6); const i = city.lampAt(-46, -1); city.dimLamp(i, 1 - 0.97 * k * (1 - clamp((t - T_LIGHT) / 1.5))); }
       // "no one hears": the windows go dark in a wave; "left alone": the lamps go out, one stays at the alley mouth; back on at "I heard You call"

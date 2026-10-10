@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010200729';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H, HERO } from './layout.js?v=20261010200729';
+import { rng, clamp } from './util.js?v=20261010205504';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H, HERO } from './layout.js?v=20261010205504';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -98,7 +98,7 @@ export function createProps(scene, city, timing, fonts, route) {
   const puffTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
     const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,0.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
     return new THREE.CanvasTexture(c); })();
-  const vents = [[-3, -35], [4, -95], [-5, -175], [3, -250]], NP = 60;
+  const vents = [[-6.6, -35], [6.4, -95], [-6.6, -175], [6.4, -250]], NP = 60;   // at the kerbs, never on the walking line
   const puffs = vents.map(([x, z]) => {
     const pos = new Float32Array(NP * 3), life = new Float32Array(NP).map(() => Math.random());
     const g = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(pos, 3));
@@ -141,7 +141,19 @@ export function createProps(scene, city, timing, fonts, route) {
   { const g = new TextGeometry('RS', { font: fonts.roman, size: 3.0, height: 0.12, curveSegments: 12, bevelEnabled: false }); g.computeBoundingBox(); const b = g.boundingBox;
     g.translate(-(b.max.x + b.min.x) / 2, -(b.max.y + b.min.y) / 2, 0);
     const rs = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x3a0609, roughness: 0.4, metalness: 0.5, emissive: 0x2a0406, emissiveIntensity: 0.5 })); rs.position.set(0, 14, CHURCH.z + 7.1); scene.add(rs); }
-  const doorL = add(new THREE.PlaneGeometry(2.4, 4.2), EMIT(0.7, 0.42, 0.2), 0, 2.1, CHURCH.z + 7.05);
+  // the door: two leaves that swing outward on "free", and the light beyond them
+  const doorW = 3.4, doorH = 4.6, DZ = CHURCH.z + 7.0;
+  const doorLight = add(new THREE.PlaneGeometry(doorW, doorH), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.35, 0.37, 0.4) }), 0, doorH / 2, DZ + 0.02);
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0x2a0d10, roughness: 0.6, metalness: 0.2 });
+  const leaves = [];
+  for (const sx of [-1, 1]) { const hinge = new THREE.Group(); hinge.position.set(sx * doorW / 2, 0, DZ + 0.1); scene.add(hinge);
+    const leaf = new THREE.Mesh(new THREE.BoxGeometry(doorW / 2, doorH, 0.16), leafMat); leaf.position.set(-sx * doorW / 4, doorH / 2, 0); hinge.add(leaf);
+    for (let k = 0; k < 3; k++) { const stud = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.06), new THREE.MeshStandardMaterial({ color: 0x6a6660, metalness: 0.8, roughness: 0.3 })); stud.position.set(-sx * doorW / 4, 0.8 + k * 1.5, 0.1); hinge.add(stud); }
+    hinge.userData.sx = sx; leaves.push(hinge); }
+  const glow = new THREE.PointLight(0xe8eeff, 0, 40, 1.3); glow.position.set(0, 2.5, DZ + 2); scene.add(glow);
+  const inside = new THREE.Mesh(new THREE.SphereGeometry(9.5, 24, 16), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.2, 1.25, 1.35), side: THREE.BackSide, fog: false })); inside.position.set(0, 4, CHURCH.z - 1.5); inside.visible = false; scene.add(inside);
+  const lastLine = timing.lines[timing.lines.length - 1];
+  const T_FREE = (lastLine.words || []).find(w => /free/i.test(w.w))?.t ?? lastLine.t + 2.4;
   for (let i = -3; i <= 3; i++) add(new THREE.BoxGeometry(0.4, 2.2, 0.4), stone, i * 3.4, 1.1, CHURCH.z + 10);   // steps' bollards
 
   // ---- the hero apartment behind the real window hole
@@ -217,7 +229,8 @@ export function createProps(scene, city, timing, fonts, route) {
   const T_CROWD = lineT('turned their backs');
   const crowd = [];
   const A = ALLEYS[0];
-  for (let i = 0; i < 11; i++) { const f = figure(0.95 + r() * 0.2); f.position.set(-(FACADE + 11.5) - (i % 2) * 1.3 - r() * 0.5, 0, A.z - A.w / 2 + 0.6 + (i / 11) * (A.w - 1.2)); f.rotation.y = Math.PI / 2; f.userData.ph = r(); scene.add(f); crowd.push(f); }
+  const crowdMat = new THREE.MeshStandardMaterial({ color: 0x16131a, roughness: 0.85 });
+  for (let i = 0; i < 11; i++) { const f = figure(0.95 + r() * 0.2, crowdMat); f.position.set(-(FACADE + 11.5) - (i % 2) * 1.3 - r() * 0.5, 0, A.z - A.w / 2 + 0.6 + (i / 11) * (A.w - 1.2)); f.rotation.y = Math.PI / 2; f.userData.ph = r(); scene.add(f); crowd.push(f); }
   // ---- two walking together (Pre-Chorus, "you were walking with me there")
   const T_TWO = lineT('walking with me');
   let twoZ = 0;
@@ -358,6 +371,44 @@ export function createProps(scene, city, timing, fonts, route) {
     scene.add(karmaSplats, karmaDrops);
   }
 
+  // ---- the void after the door: GOD and ROMAN in blood-steel; blood drips from their letters and writes KARMA IS NEAR
+  const voidG = new THREE.Group(); voidG.position.set(0, 500, 0); voidG.visible = false; scene.add(voidG);
+  const vSteel = new THREE.MeshStandardMaterial({ color: 0x6a0c12, roughness: 0.34, metalness: 0.6, emissive: 0x3a0408, emissiveIntensity: 0.45 });
+  const mkWord = (txt, size, y) => { const g = new TextGeometry(txt, { font: fonts.roman, size, height: size * 0.22, curveSegments: 14, bevelEnabled: true, bevelThickness: size * 0.03, bevelSize: size * 0.02, bevelSegments: 3 });
+    g.computeBoundingBox(); const b = g.boundingBox; g.translate(-(b.max.x + b.min.x) / 2, 0, -(b.max.z + b.min.z) / 2); const m = new THREE.Mesh(g, vSteel); m.position.y = y; voidG.add(m); return { m, w: b.max.x - b.min.x }; };
+  const GOD = mkWord('GOD', 4.6, 14.5), ROMANW = { m: { position: { y: 10.2 } }, w: 13 };   // ROMAN below GOD is the credits object itself
+  const vKey = new THREE.PointLight(0xdfe6ff, 900, 80, 1.2); vKey.position.set(-8, 20, 16); voidG.add(vKey);
+  const vKey2 = new THREE.PointLight(0xff3a3a, 300, 60, 1.3); vKey2.position.set(10, 0, 10); voidG.add(vKey2);
+  const vFill = new THREE.AmbientLight(0x404048, 0.4); voidG.add(vFill);
+  // hanging droplets under the letters
+  const dropMat = new THREE.MeshStandardMaterial({ color: 0x5a060a, roughness: 0.25, metalness: 0.1 });
+  for (let i = 0; i < 26; i++) { const d = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 0.18 + r() * 0.3, 4, 8), dropMat); const under = i < 10 ? GOD : ROMANW;
+    d.position.set((r() - 0.5) * under.w * 0.9, under.m.position.y - 0.1 - r() * 0.25, 0.3); voidG.add(d); }
+  // the text, as splats on a vertical plane under the words, written in order by falling drops
+  const VG = { K: [[[0, 0], [0, 1]], [[0, 0.5], [1, 1]], [[0, 0.5], [1, 0]]], A: [[[0, 0], [0.5, 1], [1, 0]], [[0.2, 0.4], [0.8, 0.4]]],
+    R: [[[0, 0], [0, 1], [0.8, 1], [0.95, 0.85], [0.95, 0.65], [0.8, 0.5], [0, 0.5]], [[0.45, 0.5], [1, 0]]], M: [[[0, 0], [0, 1], [0.5, 0.45], [1, 1], [1, 0]]],
+    I: [[[0.5, 0], [0.5, 1]]], S: [[[1, 0.9], [0.6, 1], [0.2, 0.95], [0, 0.8], [0.1, 0.6], [0.5, 0.5], [0.9, 0.4], [1, 0.2], [0.8, 0.02], [0.3, 0], [0, 0.1]]],
+    N: [[[0, 0], [0, 1], [1, 0], [1, 1]]], E: [[[1, 1], [0, 1], [0, 0], [1, 0]], [[0, 0.5], [0.7, 0.5]]] };
+  const vPts = [];
+  { const LW2 = 2.3, LH2 = 3.4, GAP2 = 0.9, rows2 = [['KARMA', 0.4], ['IS NEAR', -4.8]];
+    for (const [word, yBase] of rows2) { const total = [...word].length * (LW2 + GAP2) - GAP2; let x = -total / 2;
+      for (const ch of word) { if (ch !== ' ') for (const st of VG[ch]) for (let i = 0; i < st.length - 1; i++) { const [ax, ay] = st[i], [bx, by] = st[i + 1];
+          const len = Math.hypot((bx - ax) * LW2, (by - ay) * LH2); for (let d = 0; d <= len; d += 0.42) { const q = d / len; vPts.push([x + (ax + (bx - ax) * q) * LW2, yBase + (ay + (by - ay) * q) * LH2]); } }
+        x += LW2 + GAP2; } } }
+  // every drop is a small letter out of ROMAN or GOD, in blood: they fall from the two words and settle into the text
+  const LET = 'ROMANGOD', vLetterMat = new THREE.MeshStandardMaterial({ color: 0x7a0a10, roughness: 0.35, metalness: 0.3, emissive: 0x4a0408, emissiveIntensity: 0.7 });
+  const vWhich = vPts.map(() => Math.floor(r() * LET.length)), vSlot = new Array(vPts.length), vMeshes = [];
+  for (let li = 0; li < LET.length; li++) {
+    const idx = vWhich.map((w, i) => (w === li ? i : -1)).filter(i => i >= 0);
+    const g = new TextGeometry(LET[li], { font: fonts.roman, size: 0.5, height: 0.1, curveSegments: 8, bevelEnabled: false }); g.computeBoundingBox(); const b = g.boundingBox; g.translate(-(b.max.x + b.min.x) / 2, -(b.max.y + b.min.y) / 2, 0);
+    const im = new THREE.InstancedMesh(g, vLetterMat, Math.max(1, idx.length)); voidG.add(im); vMeshes.push(im);
+    idx.forEach((pi, k) => { vSlot[pi] = [im, k]; });
+  }
+  const vRuns = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.12, 1), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.55, 0.02, 0.02) }), vPts.length);
+  voidG.add(vRuns);
+  const vSeed = vPts.map(() => r());
+  const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+
   // ---- birds at dawn
   const wing = new THREE.BufferGeometry();
   wing.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, -0.6, 0.14, 0.12, -0.12, 0, -0.18, 0, 0, 0, 0.6, 0.14, 0.12, 0.12, 0, -0.18], 3));
@@ -411,7 +462,7 @@ export function createProps(scene, city, timing, fonts, route) {
       } else heartPlaced = heartPlaced && hk < 11;
       // the eyes
       const ek = T_EYES > 0 ? t - T_EYES : -99;
-      eyes.visible = ek > -0.6 && ek < 6.5;
+      eyes.visible = false;                                                   // (the eyes were cut)
       if (eyes.visible) {
         if (!eyesPlaced && route) { const cam = route.pose(T_EYES + 0.5); const f = cam.look.clone().sub(cam.pos); f.y = 0; f.normalize();
           eyes.position.copy(cam.pos).addScaledVector(f, 5.5); eyes.position.y = cam.pos.y + 2.7; eyes.rotation.y = Math.atan2(cam.pos.x - eyes.position.x, cam.pos.z - eyes.position.z); eyesPlaced = true; }
@@ -422,10 +473,18 @@ export function createProps(scene, city, timing, fonts, route) {
       } else eyesPlaced = eyesPlaced && ek < 6.5;
       // the drowning
       const dk = T_DROWN > 0 ? t - T_DROWN : -1;
+      if (dk > -0.9 && dk < 5.5) {                                           // they stand around the water and watch
+        const cf = new THREE.Vector3(); camera.getWorldDirection(cf); cf.y = 0; cf.normalize();
+        crowd.forEach((f, i) => { const a = (i / (crowd.length - 1) - 0.5) * 2.3, cs = Math.cos(a), sn = Math.sin(a);
+          const dx = cf.x * cs - cf.z * sn, dz = cf.x * sn + cf.z * cs, rad = 3.2 + (i % 3) * 0.4;
+          f.visible = true; f.position.set(camera.position.x + dx * rad, 0, camera.position.z + dz * rad);
+          f.rotation.y = Math.atan2(camera.position.x - f.position.x, camera.position.z - f.position.z) + Math.PI + Math.sin(time * 0.5 + i) * 0.03;
+          f.rotation.z = 0; f.userData.head.rotation.set(0.42, 0, 0); });
+      } else if (dk >= 5.5 && dk < 60) crowd.forEach(f => (f.visible = false));
       pool.visible = dk > -1.5 && dk < 9; if (!pool.visible) { this.under = 0; bubbles.visible = false; }
       if (pool.visible) {
-        const press = ease((dk - 0.4) / 1.6);                                    // the arms arrive over ~1.6 s
-        const sink = ease((dk - 1.9) / 3.2);                                     // the head goes under, push by push
+        const press = ease((dk - 1.0) / 1.6);                                    // the arms arrive over ~1.6 s
+        const sink = ease((dk - 2.3) / 3.0);                                     // the head goes under, push by push
         const pulse = Math.pow(Math.max(0, Math.sin(time * 5.2)), 3);            // the pressing rhythm
         victim.position.y = 0.42 - sink * 0.85 - press * pulse * 0.08 + Math.sin(time * 6) * 0.03 * (1 - sink);
         victim.rotation.z = Math.sin(time * 3.1) * 0.14 * (1 - sink);
@@ -438,7 +497,7 @@ export function createProps(scene, city, timing, fonts, route) {
         const lens = camera.position.clone().addScaledVector(camF, 0.42);
         const hx = lens.x, hz = lens.z, hy = lens.y;
         hands.forEach(g => { const u = g.userData;
-          const k = ease((dk - u.delay * 0.9 - 0.1) / 1.5);                        // this arm's descent
+          const k = ease((dk - u.delay * 0.9 - 0.7) / 1.5);                        // this arm's descent (after you have seen them watching)
           const ca = Math.cos(u.ang), sa = Math.sin(u.ang);
           // shoulders in a ring above and around the viewer, hands aiming at the lens
           const sh = camera.position.clone().addScaledVector(camR, ca * (1.9 + u.radius * 2)).addScaledVector(camU, 1.6 + Math.max(0, sa) * 1.2 + (u.ph % 1) * 0.4).addScaledVector(camF, 0.9 + u.radius);
@@ -480,6 +539,33 @@ export function createProps(scene, city, timing, fonts, route) {
         s.pos.set([s.x + Math.sin(i * 7 + time * 0.5) * L * 1.2, 0.2 + L * 4.5, s.z + Math.cos(i * 5) * L * 1.0], i * 3); } s.p.geometry.attributes.position.needsUpdate = true; }
       // puddle rings
       for (const m of rings) { const k = (time * 0.5 + m.userData.p) % 1; m.scale.setScalar(1 + k * 5); m.material.opacity = (1 - k) * 0.5; }
+      // "free": the city slides apart to both sides and the church door opens outward into the light
+      const fk = ease((t - T_FREE) / 5), dk2 = ease((t - T_FREE - 0.6) / 2.6);
+      city.part(fk * 34);
+      leaves.forEach(h => { h.rotation.y = h.userData.sx * 1.9 * dk2; });
+      doorLight.material.color.setRGB(0.35, 0.37, 0.4).lerp(new THREE.Color(2.2, 2.3, 2.5), dk2);
+      glow.intensity = dk2 * 60; inside.visible = dk2 > 0.5 && camera.position.y < 35;
+      // the void: once the black lifts, drops fall from GOD and ROMAN and write the words, letter by letter
+      const vt = route ? t - route.T_VOID : -99;
+      voidG.visible = vt > -0.2;
+      // the credits come back for the end: the same red ROMAN and the title, hanging in the dark
+      if (vt > -0.2) { credits.visible = true; credits.position.set(0, 500 + 10.2 + 1.6, 0); credits.scale.setScalar(0.42); nameMesh.rotation.y = Math.sin(time * 0.15 + 1) * 0.1;
+        credits.traverse(o => { if (o.isSpotLight) o.intensity = 500; else if (o.isPointLight) o.intensity = o === cRim ? 60 : 40; }); }
+      if (voidG.visible) {
+        const N = vPts.length, WRITE = 11;                                   // seconds to write it all
+        for (let i = 0; i < N; i++) {
+          const start = 0.4 + (i / N) * WRITE, fallFrom = vPts[i][1] < -3 ? ROMANW.m.position.y - 0.3 : GOD.m.position.y - 0.3, dist = fallFrom - vPts[i][1];
+          const fall = Math.min(1, Math.max(0, (vt - start) / 0.55)), landed = vt - start - 0.55;
+          const [px, py] = vPts[i], [im, k] = vSlot[i];
+          if (vt < start) im.setMatrixAt(k, ZERO);
+          else if (landed <= 0) im.setMatrixAt(k, M.makeTranslation(px + (vSeed[i] - 0.5) * 0.15, fallFrom - dist * fall * fall, 0.3));   // falling
+          else { const sw = (0.8 + vSeed[i] * 0.4) * Math.min(1, 0.6 + landed * 1.6); M.compose(V.set(px, py, 0.3), Q.identity(), new THREE.Vector3(sw, sw, 1)); im.setMatrixAt(k, M); }
+          if (landed > 0) { const run = Math.min(0.9, landed * 0.25) * (vSeed[i] > 0.6 ? 1 : 0); M.compose(V.set(px + 0.04, py - 0.25 - run / 2, 0.29), Q.identity(), new THREE.Vector3(1, run, 1)); vRuns.setMatrixAt(i, M); }
+          else vRuns.setMatrixAt(i, ZERO);
+        }
+        for (const im of vMeshes) im.instanceMatrix.needsUpdate = true; vRuns.instanceMatrix.needsUpdate = true;
+        GOD.m.rotation.y = Math.sin(time * 0.15) * 0.12;
+      }
       // the red rain writing KARMA IS NEAR: each drop falls, lands, and the splat it leaves swells with the rain
       if (karmaDrops) {
         for (let i = 0; i < karmaPts.length; i++) {
@@ -499,9 +585,8 @@ export function createProps(scene, city, timing, fonts, route) {
       R.rotation.y = Math.sin(time * 0.12) * 0.55;
       // the credits hang over the street for the intro, then sink back into the fog before the first line
       const ck2 = clamp((t - (T_FIRST - 3.5)) / 3);
-      credits.visible = t < T_FIRST;
-      credits.position.set(0, 30 - ck2 * 6, -62 - ck2 * 140); nameMesh.rotation.y = Math.sin(time * 0.1) * 0.25;
-      credits.scale.setScalar(1 - ck2 * 0.6); nameMesh.material.opacity = 1;
+      if (t < T_FIRST + 1) { credits.visible = t < T_FIRST; credits.position.set(0, 30 - ck2 * 6, -62 - ck2 * 140); nameMesh.rotation.y = Math.sin(time * 0.1) * 0.25; credits.scale.setScalar(1 - ck2 * 0.6); }
+      else if (!(route && t - route.T_VOID > -0.2)) credits.visible = false;
       rose.material.color.setRGB(0.16, 0.03, 0.03);
       const sk = Math.random() < 0.02 ? 0.25 : 1; signMat.color.setRGB(1.1 * sk, 0.14 * sk, 0.1 * sk); signLight.intensity = 4 * sk;
     },
