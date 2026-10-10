@@ -2,9 +2,9 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js';
-import { fxFor, applyFx } from './fx.js';
-import { LOOKS } from './songs.js';
+import { clamp, easeOutExpo } from './util.js?v=20261010193950';
+import { fxFor, applyFx } from './fx.js?v=20261010193950';
+import { LOOKS } from './songs.js?v=20261010193950';
 
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607);
@@ -118,6 +118,14 @@ export function createSong(fonts, scene, route, occluders = []) {
         const seed = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
         mesh.userData = { home, seed, reveal: tk.t ?? (L.t + wi * step), acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : fxFor(tk.w), hl: 0, hov: 0 };
         mesh.visible = false; group.add(mesh); words.push(mesh);
+        if (mesh.userData.fx === 'shame') {                      // shame shame shame: copies knock in around the word
+          const offs = [[-1.9, 0.9], [1.8, 1.0], [-2.1, -0.8], [2.0, -0.85], [-0.3, 1.5], [0.5, -1.45]];
+          offs.forEach(([ox, oy], k) => {
+            const d = new THREE.Mesh(tk.geo.g, mesh.material.clone()); d.castShadow = true;
+            d.userData = { ...mesh.userData, home: home.clone().add(new THREE.Vector3(ox, oy, -0.4 - k * 0.1)), reveal: mesh.userData.reveal + 0.12 + k * 0.14, ws: tk.ws * (0.8 + (k % 3) * 0.12), dup: true, seed: seed.clone() };
+            d.visible = false; group.add(d); words.push(d);
+          });
+        }
         x += tk.wd + SPACE; wi++;
       }
     });
@@ -228,8 +236,8 @@ export function createSong(fonts, scene, route, occluders = []) {
       look.lerp(tmp, 1 - Math.exp(-dt * kl));
       ptrS.lerp(pointer, 1 - Math.exp(-dt * 3));
       camera.position.copy(camBase);
-      camera.position.x += ptrS.x * 0.25 + Math.sin(now * 0.37) * 0.05;
-      camera.position.y += ptrS.y * 0.15 + Math.sin(now * 0.29 + 1) * 0.035;
+      camera.position.x += Math.sin(now * 0.37) * 0.015;                 // the faintest breathing, nothing more
+      camera.position.y += Math.sin(now * 0.29 + 1) * 0.01;
       camera.lookAt(look);                                                  // level horizon, always
       spot.position.lerp(tmp.copy(spotAt).add(new THREE.Vector3(0, 0.5, 0)).addScaledVector(tmp.subVectors(camera.position, spotAt).normalize(), 1.1), 1 - Math.exp(-dt * 14));
       spot.intensity += ((spotOn ? 7 : 0) - spot.intensity) * (1 - Math.exp(-dt * 8)); spotOn = 0;

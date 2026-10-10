@@ -7,14 +7,14 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js';
-import { createProps } from './props.js';
-import { createSky } from './sky.js';
-import { createRoute } from './route.js';
-import { createSong } from './song.js';
-import { SONGS } from './songs.js';
-import { clamp, fmt, toLRC } from './util.js';
-import { createDrops } from './drops.js';
+import { createCity } from './city.js?v=20261010193950';
+import { createProps } from './props.js?v=20261010193950';
+import { createSky } from './sky.js?v=20261010193950';
+import { createRoute } from './route.js?v=20261010193950';
+import { createSong } from './song.js?v=20261010193950';
+import { SONGS } from './songs.js?v=20261010193950';
+import { clamp, fmt, toLRC } from './util.js?v=20261010193950';
+import { createDrops } from './drops.js?v=20261010193950';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -130,6 +130,28 @@ addEventListener('keydown', e => {
   else if (e.code === 'ArrowLeft') audio.currentTime = Math.max(0, audio.currentTime - 5);
   else if (e.code === 'Enter' && tapping) { const L = tapLines()[tapIdx]; if (L) { L.t = audio.currentTime; tapIdx++; showTapHint(); } }
 });
+// ---------- lyrics panel: every line with its time; click to jump; the sung line is marked
+const lyList = $('lylist'), lyItems = [];
+{
+  let sec = -1;
+  timing.lines.forEach((L, i) => {
+    if (L.section !== sec) { sec = L.section; const h = document.createElement('li'); h.className = 'sec'; h.textContent = timing.sections[sec].name; lyList.appendChild(h); }
+    const li = document.createElement('li'); li.innerHTML = `<time>${fmt(L.t)}</time><span>${L.text}</span>`;
+    li.addEventListener('click', () => { audio.currentTime = Math.max(0, L.t - 0.4); if (audio.paused) { userPaused = false; audio.play().catch(() => {}); } });
+    lyList.appendChild(li); lyItems.push(li);
+  });
+}
+const openLyrics = v => { $('lyrics').classList.toggle('open', v); $('lyopen').hidden = v; resize(); };
+$('lytoggle').addEventListener('click', () => openLyrics(false));
+$('lyopen').addEventListener('click', () => openLyrics(true));
+setTimeout(() => openLyrics(innerWidth > 1100), 0);
+let lyNow = -1;
+function markLyrics(t) {
+  let n = -1; for (let i = 0; i < timing.lines.length; i++) if (timing.lines[i].t <= t) n = i;
+  if (n === lyNow) return;
+  if (lyNow >= 0) lyItems[lyNow].classList.remove('now');
+  lyNow = n; if (n >= 0) { lyItems[n].classList.add('now'); lyItems[n].scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+}
 let idleTimer = 0;
 addEventListener('pointermove', e => { $('player').classList.remove('idle'); idleTimer = 0; song.setPointer((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); });
 
@@ -141,6 +163,7 @@ function frame() {
   if (audio.duration) $('fill').style.width = `${(t / audio.duration) * 100}%`;
   $('clock').textContent = `${fmt(t)} / ${fmt(audio.duration || 0)}`;
   idleTimer += dt; if (idleTimer > 2.5 && !audio.paused && !tapping) $('player').classList.add('idle');
+  markLyrics(t);
   while (dropsFallen < 5 && t >= DROP_AT[dropsFallen]) { drops.drop(5 - dropsFallen); dropsFallen++; }
   if (t < 0.5) dropsFallen = 0;
   const sName = route.skyAt(t); if (sName !== skyName) { skyName = sName; sky.set(sName, skyName ? 7 : 0.1); }
@@ -162,7 +185,11 @@ function frame() {
 function resize() {
   const w = innerWidth, h = innerHeight;
   renderer.setSize(w, h, false); composer.setSize(w, h); bloom.setSize(w, h);
-  song.camera.aspect = w / h; song.camera.updateProjectionMatrix();
+  song.camera.aspect = w / h;
+  // with the lyrics panel open, frame the scene in the visible part of the screen
+  const panel = $('lyrics').classList.contains('open') ? $('lyrics').offsetWidth : 0;
+  if (panel) song.camera.setViewOffset(w, h, -panel / 2, 0, w, h); else song.camera.clearViewOffset();
+  song.camera.updateProjectionMatrix();
   noir.uniforms.uAspect.value = w / h; city.resize(w, h);
 }
 addEventListener('resize', resize); new ResizeObserver(resize).observe(document.documentElement); resize();

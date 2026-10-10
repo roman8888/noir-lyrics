@@ -1,7 +1,7 @@
 // Words that act out what they mean: "fade" fades, "fall" falls, "fly" flies away, "drown" sinks...
 // Each effect runs after the word is sung. age = seconds since it was sung.
 import * as THREE from 'three';
-import { clamp } from './util.js';
+import { clamp } from './util.js?v=20261010193950';
 
 const RED = new THREE.Color(0.36, 0.015, 0.03), EMBER = new THREE.Color(0.8, 0.12, 0.05), GOLD = new THREE.Color(0.85, 0.88, 1.0);   // 'GOLD' is now a pale cold light: no yellow in this film
 const BLUE = new THREE.Color(0.25, 0.4, 0.6), ASH = new THREE.Color(0.2, 0.19, 0.18);
@@ -51,12 +51,17 @@ const FX = {
   chain(m, u, a, x) { m.position.y += Math.sin(x.now * 1.4 + u.seed.y * 6) * 0.06; },
   heard(m, u, a, x) { FX.echo(m, u, a, x); },
   home(m, u, a, x) { x.glow(0.5 * ease(a / 1.5), GOLD); },
+  shame(m, u, a, x) {                          // enlarged, and knocked: three hard knocks as it lands
+    m.scale.multiplyScalar(u.dup ? 1.0 : 1.55);
+    for (const tk of [0, 0.32, 0.64]) { const e = a - tk; if (e > 0 && e < 0.22) { const j = Math.sin(e / 0.22 * Math.PI); m.position.z += 0.3 * j; m.scale.multiplyScalar(1 + 0.22 * j); m.position.x += (Math.random() - 0.5) * 0.04 * j; } }
+    x.tint(RED, 1); x.glow(0.2, RED);
+  },
 };
 
 const MAP = [
   [/^fad(e|es|ed|ing)$/, 'fade'], [/^(fall|falls|fell|fallen|falling)$/, 'fall'], [/^(rise|rises|rising|risen)$/, 'rise'],
   [/^(fly|flies|flying)$/, 'fly'], [/^free$/, 'free'], [/^decay(s|ed)?$/, 'decay'], [/^drown(s|ed|ing)?$/, 'drown'],
-  [/^(bleed|bleeding|bled)$/, 'bleed'], [/^(pain|hell|cursed|shame)$/, 'pain'],
+  [/^(bleed|bleeding|bled)$/, 'bleed'], [/^(pain|hell|cursed)$/, 'pain'],
   [/^(break|broke|broken|cracks|wounds|scars|shatter)$/, 'break'], [/^(burn|burned|burns|flame)$/, 'burn'],
   [/^light$/, 'light'], [/^(silence|silent|quiet|sleep)$/, 'silence'],
   [/^(away|lost|nowhere|retreat|gone)$/, 'away'], [/^(turn|turned|backs)$/, 'turn'], [/^(slammed|shut|door)$/, 'slam'],
@@ -64,7 +69,7 @@ const MAP = [
   [/^(tight|held|holding|hold)$/, 'tight'], [/^(fears|afraid)$/, 'tremble'], [/^weak$/, 'weak'], [/^crawl$/, 'crawl'],
   [/^lies$/, 'lies'], [/^pretend$/, 'pretend'], [/^rain$/, 'rain'], [/^(sun|morning|hope)$/, 'sun'],
   [/^(call|hears|hear|heard|voice|speak|said)$/, 'echo'], [/^(pray|prayer)$/, 'pray'], [/^(walk|walking)$/, 'walk'],
-  [/^stay$/, 'stay'], [/^alone$/, 'alone'], [/^standing$/, 'stand'], [/^chain$/, 'chain'], [/^home$/, 'home'],
+  [/^shame$/, 'shame'], [/^stay$/, 'stay'], [/^alone$/, 'alone'], [/^standing$/, 'stand'], [/^chain$/, 'chain'], [/^home$/, 'home'],
 ];
 export function fxFor(word) {
   const w = word.toLowerCase().replace(/[^a-z']/g, '');

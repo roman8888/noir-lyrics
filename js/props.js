@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H } from './layout.js';
+import { rng, clamp } from './util.js?v=20261010193950';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H } from './layout.js?v=20261010193950';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -50,7 +50,7 @@ export function createProps(scene, city, timing, fonts, route) {
   const awn = new THREE.InstancedMesh(new THREE.BoxGeometry(5, 0.08, 1.6), new THREE.MeshStandardMaterial({ color: 0x2a1c1a, roughness: 0.9 }), 22);
   const tube = new THREE.InstancedMesh(new THREE.BoxGeometry(2.4, 0.08, 0.08), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.9, 0.3, 0.25) }), 16);
   tube.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(16 * 3), 3);
-  const tubeCols = [[0.9, 0.3, 0.25], [0.3, 0.55, 0.9], [0.9, 0.65, 0.2], [0.35, 0.8, 0.5]];
+  const tubeCols = [[0.9, 0.2, 0.18], [0.3, 0.5, 0.9], [0.7, 0.75, 0.85], [0.6, 0.12, 0.1]];
   for (let i = 0; i < 20; i++) hyd.setMatrixAt(i, M.makeTranslation((i % 2 ? 1 : -1) * (FACADE - 1.3), 0.4, 25 - i * 18 - r() * 8));
   for (let i = 0; i < 24; i++) bin.setMatrixAt(i, M.makeTranslation((i % 2 ? -1 : 1) * (FACADE - 1.1), 0.48, 15 - i * 15 - r() * 9));
   for (let i = 0; i < 22; i++) { const s = i % 2 ? 1 : -1; M.compose(V.set(s * (FACADE - 0.9), 3.1, 10 - i * 16 - r() * 8), Q.setFromEuler(new THREE.Euler(s * 0.25, 0, 0)), new THREE.Vector3(1, 1, 1)); awn.setMatrixAt(i, M); }
@@ -170,13 +170,13 @@ export function createProps(scene, city, timing, fonts, route) {
   add(new THREE.CylinderGeometry(0.03, 0.03, 0.75), wood, RX0 + 2.6, RY0 + 0.37, RZ0 + 0.9, room);
   add(new THREE.CylinderGeometry(0.06, 0.07, 0.34, 10), new THREE.MeshPhysicalMaterial({ color: 0x1c2a1a, roughness: 0.15, transmission: 0.5, thickness: 0.3 }), RX0 + 2.45, RY0 + 0.95, RZ0 + 0.8, room);
   add(new THREE.CylinderGeometry(0.05, 0.04, 0.12, 10), new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.05, transmission: 0.9, thickness: 0.1 }), RX0 + 2.8, RY0 + 0.84, RZ0 + 1.05, room);
-  add(new THREE.BoxGeometry(0.03, 0.7, 0.9), new THREE.MeshStandardMaterial({ color: 0x1a1612, roughness: 0.9 }), RX1 - 0.03, RY0 + 2.2, RZ0 + 1.3, room);
+  add(new THREE.BoxGeometry(0.03, 0.6, 0.8), new THREE.MeshStandardMaterial({ color: 0x1a1612, roughness: 0.9 }), RX1 - 0.03, RY0 + 1.35, RZ0 + 0.9, room);
   add(new THREE.CylinderGeometry(0.02, 0.02, 1.5), STEEL(), RX1 - 0.7, RY0 + 0.75, RZ0 + 0.5, room);
   const shade = add(new THREE.ConeGeometry(0.32, 0.4, 16, 1, true), new THREE.MeshStandardMaterial({ color: 0xe8d4a8, roughness: 1, side: THREE.DoubleSide, emissive: 0xffc070, emissiveIntensity: 0.8 }), RX1 - 0.7, RY0 + 1.65, RZ0 + 0.5, room);
   const fill = new THREE.PointLight(0xffd9b0, 2.5, 9, 1.6); fill.position.set((RX0 + RX1) / 2, RY1 - 0.3, (RZ0 + RZ1) / 2); room.add(fill);
   const lamp = new THREE.PointLight(0xffb878, 7, 10, 1.7); lamp.position.set(RX1 - 0.7, RY0 + 1.5, RZ0 + 0.5); lamp.castShadow = false; room.add(lamp);
   // the man on the edge of the bed, facing the window
-  const man = figure(0.85, new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: 0.9 })); man.position.set(RX1 - 0.75, RY0 + 0.5, RZ1 - 0.45); man.rotation.y = Math.PI / 2 + 0.5; man.scale.y = 0.78; room.add(man);
+  const man = figure(0.85, new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: 0.9 })); man.position.set(RX1 - 0.9, RY0 + 0.5, RZ1 - 0.5); man.rotation.y = Math.PI / 2 + 0.5; man.scale.y = 0.72; room.add(man);
   const roomLightOn = 1;
 
   // ---- a bar on the left, halfway down the intro walk: ROMAN'S, in tired neon
