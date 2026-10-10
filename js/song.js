@@ -2,14 +2,15 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261010233938';
-import { fxFor, applyFx } from './fx.js?v=20261010233938';
-import { FACADE } from './layout.js?v=20261010233938';
-import { LOOKS } from './songs.js?v=20261010233938';
+import { clamp, easeOutExpo } from './util.js?v=20261011000429';
+import { fxFor, applyFx } from './fx.js?v=20261011000429';
+import { FACADE } from './layout.js?v=20261011000429';
+import { LOOKS } from './songs.js?v=20261011000429';
 
 // every word appears 0.2 s before its timestamp: Roman's ear test (the aligner marks vowel onsets a touch late); ?lead= overrides
 const LEAD_PARAM = parseFloat(new URLSearchParams(location.search).get('lead'));
 export const LEAD = Number.isFinite(LEAD_PARAM) ? Math.max(-1, Math.min(1, LEAD_PARAM)) : 0.2;
+const FLAT = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));   // text laid flat on the ground
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607);
 const SMALL = new Set(['the','a','an','to','and','of','in','on','for','by','with','as','at','or','so','but','i','i\'m','i\'ll','you','your','you\'re','me','my','he','his','they','them','their','it','is','was','be','that','what','when','then','than','though','if','all','do','don\'t','who','there','were','will','would','we']);
@@ -131,7 +132,7 @@ export function createSong(fonts, scene, route, occluders = []) {
         const home = new THREE.Vector3(x + tk.wd / 2, y - (rowH[ri] / LINE_H - tk.ws) * SIZE * 0.4, 0);
         const seed = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
         mesh.userData = { w: tk.w, home, seed, reveal: (tk.t ?? (L.t + wi * step)) - LEAD, acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : fxFor(tk.w), hl: 0, hov: 0 };
-        if (mesh.userData.fx === 'tight' || mesh.userData.fx === 'home') {   // built letter by letter: these words move as letters
+        if (mesh.userData.fx === 'tight' || mesh.userData.fx === 'home' || a.fall) {   // built letter by letter: these words move as letters
           const chars = [...tk.w], geos = chars.map(ch => wordGeo(ch, tk.acc)), gap = SIZE * 0.1;
           const natW = geos.reduce((s2, g) => s2 + g.width, 0) + gap * (chars.length - 1), sqW = geos.reduce((s2, g) => s2 + g.width * 0.86, 0);
           let nx = -natW / 2, sx = -sqW / 2;
@@ -139,6 +140,7 @@ export function createSong(fonts, scene, route, occluders = []) {
             const lm = new THREE.Mesh(geos[k].g, mat.clone()); lm.castShadow = true;
             const lh = home.clone(); lh.x += (nx + geos[k].width / 2) * tk.ws;
             lm.userData = { ...mesh.userData, home: lh, sqX: home.x + (sx + geos[k].width * 0.86 / 2) * tk.ws, letter: k, seed: seed.clone(), hl: 0, hov: 0 };
+            if (a.fall) lm.userData.scatter = { dx: (Math.random() - 0.5) * 1.6, dz: (Math.random() - 0.5) * 1.8, yaw: (Math.random() - 0.5) * 1.6, delay: Math.random() * 0.45, spin: (Math.random() - 0.5) * 2 };   // where it lands, how it tumbles
             lm.visible = false; group.add(lm); words.push(lm);
             nx += geos[k].width + gap; sx += geos[k].width * 0.86;
           });
@@ -213,17 +215,17 @@ export function createSong(fonts, scene, route, occluders = []) {
         if (lines[i].t == null) { if (live.has(i)) drop(i); continue; }
         const cut = actAt(lines[i].t).cut;
         const nxt = lines[i + 1];
-        const want = t >= lines[i].t - 0.3 && t < (nxt ? nxt.t + (cut ? 0.5 : 1.2) + (/hell/i.test(lines[i].text) ? 3.5 : 0) : lineEnd(i) + 4);
+        const want = t >= lines[i].t - 0.3 && t < (nxt ? nxt.t + (cut ? 0.5 : 1.2) + (/hell|losing all the only way/i.test(lines[i].text) ? 4.5 : 0) : lineEnd(i) + 4);
         if (want && !live.has(i)) build(i); else if (!want && live.has(i)) drop(i);
       }
 
       for (const [i, { group, words, a }] of live) {
         const end = lineEnd(i), isActive = i === active, cut = actAt(lines[i].t).cut;
         const nx = lines[i + 1];                                               // a line steps aside when the next one starts
-        const hold = words.some(m => m.userData.fx === 'hell') ? 2.4 : 0;    // a burning word stays a while after the next line starts
-        let leave = nx ? clamp((t - nx.t + 0.15 - hold) / (cut && !hold ? 0.35 : 0.9)) : clamp((t - end) / 3);
+        const hold = words.some(m => m.userData.fx === 'hell') ? 2.4 : a.fall ? 3.2 : 0;    // a burning word, or letters lying on the road, stay a while after the next line starts
+        let leave = nx ? clamp((t - nx.t + 0.15 - hold) / (cut && !hold ? 0.35 : a.kind === 'floor' ? 0.5 : 0.9)) : clamp((t - end) / 3);
         // a street line also steps aside as the walk reaches it: never a wall of giant letters at the lens
-        if (a.kind === 'banner' || a.kind === 'ahead' || a.kind === 'sky') { const dx = camera.position.x - group.position.x, dz = camera.position.z - group.position.z; const near = (a.beat?.dist ?? 9) > 12 ? 9 : 7.5; leave = Math.max(leave, clamp((near - Math.hypot(dx, dz)) / (near * 0.5))); }
+        if ((a.kind === 'banner' || a.kind === 'ahead' || a.kind === 'sky') && !a.fall) { const dx = camera.position.x - group.position.x, dz = camera.position.z - group.position.z; const near = (a.beat?.dist ?? 9) > 12 ? 9 : 7.5; leave = Math.max(leave, clamp((near - Math.hypot(dx, dz)) / (near * 0.5))); }
         let newest = null;
         for (const m of words) if (m.userData.reveal <= t) newest = m;
         if (isActive && newest) { newest.getWorldPosition(spotAt); spotOn = 1; }
@@ -240,6 +242,15 @@ export function createSong(fonts, scene, route, occluders = []) {
           m.position.y += (1 - e) * 0.35 + Math.sin(now * 0.8 + u.seed.x * 9) * 0.012;
           m.position.z += (1 - e) * -0.6 + u.hl * 0.12 + u.hov * 0.4 - leave * 0.8;
           m.rotation.set(0, 0, 0);
+          if (u.scatter && route.fallAt) {                                    // after the line: the letter drops to the road, tumbles, lands flat on its own spot
+            const q = clamp((route.fallAt(t) * 1.45 - u.scatter.delay) / 1.0), g = q * q;               // gravity: slow, then fast (each letter lets go in its own moment)
+            const floorY = (0.06 - group.position.y) / group.scale.y;                                   // the road, in the line's own frame
+            const yEnd = floorY + 0.02, bounce = q > 0.82 ? Math.sin((q - 0.82) / 0.18 * Math.PI) * 0.12 * (1 - q) : 0;
+            m.position.y = u.home.y + (yEnd - u.home.y) * g + bounce;
+            m.position.x += u.scatter.dx * q; m.position.z += u.scatter.dz * q;
+            m.rotation.x = -Math.PI / 2 * clamp(q * 1.25); m.rotation.z = u.scatter.yaw * q; m.rotation.y = u.scatter.spin * Math.sin(q * Math.PI) * 0.6;
+            m.material.opacity = Math.max(m.material.opacity, (1 - leave) * e);
+          }
           m.scale.setScalar(Math.max(0.001, u.ws * (0.82 + 0.18 * e) * (1 + u.hl * 0.06 + u.hov * 0.2)));
           m.material.opacity = e * (1 - leave);
           if (!u.acc) { m.material.color.copy(PAPER).multiplyScalar(isActive ? 0.72 + 0.28 * Math.max(u.hl, u.hov) : 0.82).lerp(INK, P.dawn * 0.9); m.material.emissive.copy(m.material.color); }
@@ -264,7 +275,8 @@ export function createSong(fonts, scene, route, occluders = []) {
         if (lead > 0) { const ln = live.get(nxI); if (ln) ln.group.getWorldPosition(nextAt); else nextAt.copy(route.anchorFor(nxI).pos);
           focusAt.lerp(nextAt, lead * lead * (3 - 2 * lead)); w = Math.max(w, 0.88 * lead); }
       }
-      if (route.prayAt) w *= 1 - route.prayAt(t);                             // eyes up for "pray": the storyboard look leads
+      if (route.prayAt) w *= 1 - route.prayAt(t);
+      if (route.floorAt) w *= 1 - route.floorAt(t);                           // eyes down to the road for the scattered line                             // eyes up for "pray": the storyboard look leads
       tmp.copy(pose.look).lerp(focusAt, w);
       const dash = route.dashAt ? route.dashAt(t) : 0;
       const kp = 1.6 + 7 * dash, kl = 1.3 + 2 * dash;                           // slow, cinematic easing: no quick turns — except the run from the car
