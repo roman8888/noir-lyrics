@@ -49,7 +49,7 @@ export function createSong(fonts, scene, route, occluders = []) {
   let song = null, lines = [], live = new Map(), lastT = 0, actIdx = -1, hovered = null;
   const P = Object.fromEntries(KEYS.map(k => [k, 0]));
   const spotAt = new THREE.Vector3(); let spotOn = 0;
-  const camBase = new THREE.Vector3(), look = new THREE.Vector3(), tmp = new THREE.Vector3(), focusAt = new THREE.Vector3();
+  const camBase = new THREE.Vector3(), look = new THREE.Vector3(), tmp = new THREE.Vector3(), focusAt = new THREE.Vector3(), nextAt = new THREE.Vector3();
   const env = { fast: 0, slow: 0, bass: 0, peak: 0.05 };
   let onAct = () => {}, lastStation = null;
   const pointer = new THREE.Vector2(), ptrS = new THREE.Vector2(), ray = new THREE.Raycaster();
@@ -210,10 +210,18 @@ export function createSong(fonts, scene, route, occluders = []) {
       // camera: the storyboard pose, eased; it looks toward the line being sung
       route.pose(t, pose);
       const snap = jumped;
+      // where to look: the line being sung — and, ahead of time, where the next line is about to appear,
+      // so the camera is already framed when the words arrive instead of correcting afterwards
       const act = active >= 0 ? live.get(active) : null;
       if (act) { act.group.getWorldPosition(focusAt); } else focusAt.copy(pose.look);
-      tmp.copy(pose.look);
-      if (act) { const w = 0.6 * (1 - clamp((t - lineEnd(active)) / 1.5)); tmp.lerp(focusAt, w); }
+      let w = act ? 0.6 * (1 - clamp((t - lineEnd(active)) / 1.5)) : 0;
+      const nxI = active + 1;
+      if (lines[nxI] && lines[nxI].t != null) {
+        const lead = clamp((t - (lines[nxI].t - 2.2)) / 1.8);
+        if (lead > 0) { const ln = live.get(nxI); if (ln) ln.group.getWorldPosition(nextAt); else nextAt.copy(route.anchorFor(nxI).pos);
+          focusAt.lerp(nextAt, lead * lead * (3 - 2 * lead)); w = Math.max(w, 0.6 * lead); }
+      }
+      tmp.copy(pose.look).lerp(focusAt, w);
       const kp = 1.6, kl = 1.3;                                                // slow, cinematic easing: no quick turns
       if (snap) { camBase.copy(pose.pos); look.copy(tmp); }
       camBase.lerp(pose.pos, 1 - Math.exp(-dt * kp));

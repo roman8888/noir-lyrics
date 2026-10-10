@@ -32,9 +32,10 @@ const BEATS = {
              place: ['ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner'], lookAt: new THREE.Vector3(FACADE, W.y, W.z), lookMix: 0.6 },
   'Final Chorus': { sky: 'breaking', keys: [[0, -9, BY, -232.5], [0.3, 0, 18, -250], [0.6, -5, 36, -272], [0.85, -2, 52, -296], [1, 0, 56, -312]],
              place: ['sky', 'sky', 'sky', 'sky', 'sky', 'sky', 'sky', 'sky'] },
-  Outro:   { sky: 'moon', keys: [[0, 0, 56, -312], [0.35, 0, 22, -300], [0.6, 0, 6, -306], [0.8, 0, EYE, -316], [1, 0, EYE, -324]],
+  Outro:   { sky: 'moon', keys: [[0, 0, 56, -312], [0.35, 0, 22, -300], [0.6, 0, 6, -306], [0.78, 0, EYE, -316], [0.84, 0, EYE, -321], [1, 0, 14, -322]],
              place: ['banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner', 'banner'], lookAt: new THREE.Vector3(0, 20, CHURCH.z), lookMix: 0.3 },
-  End:     { sky: 'night', keys: [[0, 0, EYE, -324], [0.3, 0, EYE + 0.5, -326], [0.6, 0, 12, -318], [1, 0, 48, -296]], place: ['ahead'], lookAt: new THREE.Vector3(0, 54, CHURCH.z - 2), lookMix: 0.85 },
+  // "set me free": the camera leaves the street and climbs until the city is tiny below, the R never leaving the frame
+  End:     { sky: 'night', keys: [[0, 0, 14, -322], [0.3, 0, 70, -316], [0.65, 14, 160, -322], [1, 0, 240, -338]], place: ['ahead'], lookAt: new THREE.Vector3(0, 54, CHURCH.z - 2), lookMix: 0.92 },
 };
 const ORDER = ['Pre', 'Intro', 'Verse 1', 'Rap 1', 'Pre-Chorus', 'Chorus', 'Verse 2', 'Rap 2', 'Bridge', 'Final Chorus', 'Outro', 'End'];
 const smooth = x => { x = clamp(x); return x * x * (3 - 2 * x); };

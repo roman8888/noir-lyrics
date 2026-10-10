@@ -80,7 +80,15 @@ const buildingFS = /* glsl */`
         room += uSkyTint * 0.03;
       }
       col = mix(col, room, win);
-    } else col = vec3(0.004) + uSkyTint * 0.02;
+    } else {
+      col = vec3(0.006) + uSkyTint * 0.02;
+      if (vN.y > 0.5) {                                             // rooftops: gravel, vents, a few lights so the city sparkles from above
+        vec2 rc = floor(vW.xz / 2.2); float rr = h(rc + vSeed * 3.3);
+        col += vec3(0.012) * h(rc * 0.5);
+        if (rr > 0.985) col += vec3(1.4, 0.9, 0.45) * smoothstep(0.35, 0.0, length(fract(vW.xz / 2.2) - 0.5));
+        if (rr < 0.004) col += vec3(2.2, 0.1, 0.08) * smoothstep(0.3, 0.0, length(fract(vW.xz / 2.2) - 0.5)) * (0.5 + 0.5 * sin(uTime * 2.0 + rr * 900.0));
+      }
+    }
     col += uFlash * vec3(0.35, 0.37, 0.42) * (0.5 + 0.5 * max(vN.y, 0.0));
     col += uDawn * vec3(0.5, 0.3, 0.18) * max(dot(vN, normalize(vec3(0.1, 0.25, -1.0))), 0.0);
     float d = length(vW - cameraPosition);
@@ -240,7 +248,8 @@ export function createCity() {
       bMat.uniforms.uDawn.value = sky.sun || 0; sunLight.intensity = (sky.sun || 0) * 1.4;
       bMat.uniforms.uSkyTint.value.copy(sky.uniforms.uHorizon.value);
       fogColor.copy(sky.fogColor); bMat.uniforms.uFogColor.value = fogColor;
-      scene.fog.density = 0.012 + 0.012 * (sky.uniforms.uHaze.value) + (camera.position.y > 30 ? -0.006 : 0);
+      // the fog thins with altitude so the city stays visible from the sky
+      scene.fog.density = (0.012 + 0.012 * sky.uniforms.uHaze.value) * Math.max(0.12, 1 - Math.max(0, camera.position.y - 25) / 110);
       bMat.uniforms.uFog.value = scene.fog.density;
       hemi.intensity = 0.35 + (sky.sun || 0) * 0.9 + (sky.moon || 0) * 0.15; hemi.color.setRGB(0.29, 0.35, 0.47).lerp(new THREE.Color(1, 0.75, 0.5), sky.sun || 0);
       moon.intensity = 0.3 + (sky.moon || 0) * 0.9;

@@ -128,13 +128,15 @@ export function createProps(scene, city, timing, fonts, route) {
   // the letter R crowns the spire: a monument in blood-dark steel, lit from below like a landmark, turning slowly
   const rGeo = new TextGeometry('R', { font: fonts.roman, size: 6.5, height: 1.4, curveSegments: 16, bevelEnabled: true, bevelThickness: 0.25, bevelSize: 0.15, bevelSegments: 4 });
   rGeo.computeBoundingBox(); const rb = rGeo.boundingBox; rGeo.translate(-(rb.max.x + rb.min.x) / 2, -rb.min.y, -(rb.max.z + rb.min.z) / 2);
-  const steel = new THREE.MeshStandardMaterial({ color: 0x6a0c12, roughness: 0.32, metalness: 0.6, emissive: 0x3a0408, emissiveIntensity: 0.6 });
+  const steel = new THREE.MeshStandardMaterial({ color: 0x6a0c12, roughness: 0.34, metalness: 0.6, emissive: 0x3a0408, emissiveIntensity: 0.4 });
   const R = new THREE.Mesh(rGeo, steel);
   R.position.set(0, 51.6, CHURCH.z - 2); scene.add(R);
   add(new THREE.CylinderGeometry(1.1, 1.4, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x111115, roughness: 0.5, metalness: 0.7 }), 0, 51.6, CHURCH.z - 2);
-  for (const sx of [-5, 5]) { const sp = new THREE.SpotLight(0xdfe6ff, 3200, 45, 0.33, 0.5, 1.3); sp.position.set(sx, 44, CHURCH.z + 5); sp.target = R; scene.add(sp); }
-  const rRim = new THREE.PointLight(0xff2a2a, 120, 30, 1.5); rRim.position.set(0, 56, CHURCH.z - 7); scene.add(rRim);
-  const rose = add(new THREE.CircleGeometry(3.2, 48), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.25, 0.12, 0.1) }), 0, 14, CHURCH.z + 7.05);
+  for (const sx of [-5, 5]) { const sp = new THREE.SpotLight(0xdfe6ff, 1700, 45, 0.33, 0.5, 1.3); sp.position.set(sx, 44, CHURCH.z + 5); sp.target = R; scene.add(sp); }
+  const rRim = new THREE.PointLight(0xff2a2a, 60, 30, 1.5); rRim.position.set(0, 56, CHURCH.z - 7); scene.add(rRim);
+  const rose = add(new THREE.CircleGeometry(3.2, 48), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.16, 0.03, 0.03) }), 0, 14, CHURCH.z + 7.05);
+  for (let i = 0; i < 8; i++) { const spoke = add(new THREE.BoxGeometry(0.12, 6.3, 0.05), stone, 0, 14, CHURCH.z + 7.08); spoke.rotation.z = i * Math.PI / 8; }
+  add(new THREE.RingGeometry(3.1, 3.4, 48), stone, 0, 14, CHURCH.z + 7.08);
   const doorL = add(new THREE.PlaneGeometry(2.4, 4.2), EMIT(0.7, 0.42, 0.2), 0, 2.1, CHURCH.z + 7.05);
   for (let i = -3; i <= 3; i++) add(new THREE.BoxGeometry(0.4, 2.2, 0.4), stone, i * 3.4, 1.1, CHURCH.z + 10);   // steps' bollards
 
@@ -391,7 +393,7 @@ export function createProps(scene, city, timing, fonts, route) {
       credits.visible = t < T_FIRST;
       credits.position.set(0, 30 - ck2 * 6, -62 - ck2 * 140); nameMesh.rotation.y = Math.sin(time * 0.1) * 0.25;
       credits.scale.setScalar(1 - ck2 * 0.6); nameMesh.material.opacity = 1;
-      rose.material.color.setRGB(0.25, 0.12, 0.1);
+      rose.material.color.setRGB(0.16, 0.03, 0.03);
       const sk = Math.random() < 0.02 ? 0.25 : 1; signMat.color.setRGB(1.1 * sk, 0.14 * sk, 0.1 * sk); signLight.intensity = 4 * sk;
     },
   };
