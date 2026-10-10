@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010205907';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H, HERO } from './layout.js?v=20261010205907';
+import { rng, clamp } from './util.js?v=20261010205940';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H, HERO } from './layout.js?v=20261010205940';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -208,10 +208,10 @@ export function createProps(scene, city, timing, fonts, route) {
   const nameGeo = new TextGeometry('ROMAN', { font: fonts.roman, size: 7, height: 1.6, curveSegments: 16, bevelEnabled: true, bevelThickness: 0.25, bevelSize: 0.16, bevelSegments: 4 });
   nameGeo.computeBoundingBox(); const nb = nameGeo.boundingBox; nameGeo.translate(-(nb.max.x + nb.min.x) / 2, -(nb.max.y + nb.min.y) / 2, -(nb.max.z + nb.min.z) / 2);
   const nameMesh = new THREE.Mesh(nameGeo, new THREE.MeshStandardMaterial({ color: 0x7a0e14, roughness: 0.3, metalness: 0.55, emissive: 0x4a060a, emissiveIntensity: 0.9 })); credits.add(nameMesh);
-  const titleGeo = new TextGeometry('When God Wants to Make You Stronger', { font: fonts.italic, size: 1.9, height: 0.4, curveSegments: 10, bevelEnabled: false });
+  const titleGeo = new TextGeometry('When God Wants to Make You Stronger', { font: fonts.italic, size: 1.3, height: 0.3, curveSegments: 10, bevelEnabled: false });
   titleGeo.computeBoundingBox(); const tb = titleGeo.boundingBox; titleGeo.translate(-(tb.max.x + tb.min.x) / 2, 0, 0);
-  const titleMesh = new THREE.Mesh(titleGeo, new THREE.MeshStandardMaterial({ color: 0x6a0c12, roughness: 0.4, metalness: 0.5, emissive: 0x4a060a, emissiveIntensity: 0.8 })); titleMesh.position.y = -7.0; credits.add(titleMesh);   // the song name, same blood-steel
-  credits.position.set(0, 54, -62);
+  const titleMesh = new THREE.Mesh(titleGeo, new THREE.MeshStandardMaterial({ color: 0x6a0c12, roughness: 0.4, metalness: 0.5, emissive: 0x4a060a, emissiveIntensity: 0.8 })); titleMesh.position.y = -5.4; credits.add(titleMesh);   // the song name, same blood-steel
+  credits.position.set(0, 58, -62);
   for (const sx of [-12, 12]) { const sp = new THREE.SpotLight(0xdfe6ff, 16000, 70, 0.55, 0.5, 1.1); sp.position.set(sx, -10, 26); sp.target = nameMesh; credits.add(sp); }
   const cKey = new THREE.PointLight(0xffe6e0, 900, 60, 1.3); cKey.position.set(0, 6, 22); credits.add(cKey);
   const cRim = new THREE.PointLight(0xff2a2a, 400, 50, 1.4); cRim.position.set(0, 8, -10); credits.add(cRim);
@@ -508,7 +508,7 @@ export function createProps(scene, city, timing, fonts, route) {
       R.rotation.y = Math.sin(time * 0.12) * 0.55;
       // the credits hang over the street for the intro, then sink back into the fog before the first line
       const ck2 = clamp((t - (T_FIRST - 3.5)) / 3);
-      if (t < T_FIRST + 1) { credits.visible = t < T_FIRST; credits.position.set(0, 54 - ck2 * 6, -62 - ck2 * 140); nameMesh.rotation.y = Math.sin(time * 0.1) * 0.25; credits.scale.setScalar(1 - ck2 * 0.6); }
+      if (t < T_FIRST + 1) { credits.visible = t < T_FIRST; credits.position.set(0, 58 - ck2 * 6, -62 - ck2 * 140); nameMesh.rotation.y = Math.sin(time * 0.1) * 0.25; credits.scale.setScalar(1 - ck2 * 0.6); }
       else if (!(route && t - route.T_VOID > -0.2)) credits.visible = false;
       rose.material.color.setRGB(0.16, 0.03, 0.03);
       const sk = Math.random() < 0.02 ? 0.25 : 1; signMat.color.setRGB(1.1 * sk, 0.14 * sk, 0.1 * sk); signLight.intensity = 4 * sk;
