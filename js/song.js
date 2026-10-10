@@ -23,7 +23,7 @@ const beamFS = `uniform float uA; uniform float uTime; uniform vec3 uC; varying 
   void main(){ float a = pow(vY, 1.3) * pow(vE, 2.5) * uA * (0.85 + 0.15*sin(uTime*0.7 + vY*6.0));
     gl_FragColor = vec4(uC * a, a); }`;
 
-export function createSong(font) {
+export function createSong(fonts) {
   const scene = new THREE.Scene();
   const fog = new THREE.FogExp2(0x050506, 0.07); scene.fog = fog;
 
@@ -55,15 +55,16 @@ export function createSong(font) {
   const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 900);
 
   const geoCache = new Map();
-  const wordGeo = w => {
-    if (!geoCache.has(w)) {
-      const g = new TextGeometry(w, { font, size: SIZE, height: DEPTH, curveSegments: 5,
-        bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.012, bevelSegments: 2 });
+  const wordGeo = (w, it) => {
+    const key = (it ? 'i:' : 'r:') + w;
+    if (!geoCache.has(key)) {
+      const g = new TextGeometry(w, { font: it ? fonts.italic : fonts.roman, size: SIZE, height: DEPTH, curveSegments: 14,
+        bevelEnabled: true, bevelThickness: 0.018, bevelSize: 0.008, bevelSegments: 3 });
       g.computeBoundingBox(); const b = g.boundingBox;
       g.translate(-(b.min.x + b.max.x) / 2, -SIZE * 0.36, -DEPTH / 2);
-      geoCache.set(w, { g, width: b.max.x - b.min.x });
+      geoCache.set(key, { g, width: b.max.x - b.min.x });
     }
-    return geoCache.get(w);
+    return geoCache.get(key);
   };
   const baseMat = new THREE.MeshStandardMaterial({ color: 0xf1eee8, roughness: 0.36, metalness: 0.15,
     emissive: 0xffffff, emissiveIntensity: 0.04, transparent: true });
@@ -122,7 +123,7 @@ export function createSong(font) {
     // wrap into rows
     const rows = [[]]; let rw = 0;
     for (const tk of toks) {
-      tk.geo = wordGeo(tk.w);
+      tk.geo = wordGeo(tk.w, tk.acc && !L.title);
       if (rw > 0 && rw + SPACE + tk.geo.width > MAXW) { rows.push([]); rw = 0; }
       rows.at(-1).push(tk); rw += (rw ? SPACE : 0) + tk.geo.width;
     }

@@ -158,8 +158,8 @@ export function createCity(renderer, font) {
   // the song's window: red neon title on the hero facade
   const neonMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 0.07, 0.05) });
   const neon = new THREE.Group();
-  [['when god wants', 1.0], ['to make you stronger', -0.8]].forEach(([txt, y]) => {
-    const g = new TextGeometry(txt, { font, size: 1.05, height: 0.06, curveSegments: 6 });
+  [['When God Wants', 1.0], ['to Make You Stronger', -0.8]].forEach(([txt, y]) => {
+    const g = new TextGeometry(txt, { font, size: 1.05, height: 0.06, curveSegments: 12 });
     g.computeBoundingBox(); const b = g.boundingBox; g.translate(-(b.min.x + b.max.x) / 2, 0, 0);
     const m = new THREE.Mesh(g, neonMat); m.position.y = y; neon.add(m);
   });

@@ -19,7 +19,7 @@ export const LOOKS = {
 export const SONGS = [
   {
     slug: 'when-god-wants-to-make-you-stronger',
-    title: 'when god wants to make you stronger',
+    title: 'When God Wants to Make You Stronger',
     accents: ['god', 'rise', 'fall', 'fly', 'rain', 'pain', 'light', 'fade', 'alone', 'strength', 'drown', 'bleed',
       'lies', 'pretend', 'trust', 'defeat', 'standing', 'silence', 'call', 'sun', 'breathe', 'cost', 'flame', 'shame',
       'break', 'scars', 'hell', 'chain', 'beats', 'home', 'broken', 'hope', 'soul', 'whole', 'morning', 'free', 'pray', 'way', 'here'],

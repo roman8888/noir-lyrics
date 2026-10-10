@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { Font } from 'three/addons/loaders/FontLoader.js';
+import { TTFLoader } from 'three/addons/loaders/TTFLoader.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
@@ -9,12 +10,14 @@ import { createCity } from './city.js';
 import { createSong } from './song.js';
 import { SONGS } from './songs.js';
 import { clamp, fmt, toLRC } from './util.js';
+import { createGlass, crackSound } from './glass.js';
 
 const $ = id => document.getElementById(id);
-const FONT_URL = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/fonts/gentilis_bold.typeface.json';
+// Playfair Display (OFL), self-hosted, turned into extrudable outlines at load time
+const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
 
 const renderer = new THREE.WebGLRenderer({ canvas: $('gl'), antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));   // full retina
 renderer.setSize(innerWidth, innerHeight, false);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
@@ -29,7 +32,7 @@ const NoirShader = {
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
     void main(){
       vec2 uv = vUv, c = uv - 0.5;
-      float ca = 0.0012 + uBass * 0.007;
+      float ca = uBass * 0.0016;
       vec3 col = vec3(texture2D(tDiffuse, uv + c*ca*2.).r, texture2D(tDiffuse, uv).g, texture2D(tDiffuse, uv - c*ca*2.).b);
       float lum = dot(col, vec3(0.299, 0.587, 0.114));
       float sat = smoothstep(0.06, 0.28, max(col.r - col.b, col.g - col.b) );
@@ -39,13 +42,14 @@ const NoirShader = {
       float bl = smoothstep(0.4, 0.6, sin(s * 44.0 + uTime * 0.12) * 0.5 + 0.5);
       col *= 1.0 - uBlinds * bl * smoothstep(0.9, 0.2, length(c + vec2(0.2, -0.15)));
       col *= smoothstep(1.0, 0.28, length(c * vec2(uAspect * 0.78, 1.0)));
-      col += (h(uv * vec2(1931., 1087.) + fract(uTime) * 91.) - 0.5) * 0.065;
+      col += (h(gl_FragCoord.xy + fract(uTime) * 91.) - 0.5) * 0.035;
       col *= 0.975 + 0.025 * h(vec2(floor(uTime * 24.0)));
       gl_FragColor = vec4(col, 1.);
     }`,
 };
 
-const composer = new EffectComposer(renderer);
+// multisampled target: real anti-aliasing for the 3D type inside the post chain
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: 4 }));
 const renderPass = new RenderPass(new THREE.Scene(), cityCam);
 const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.85, 0.55, 0.72);
 const noir = new ShaderPass(NoirShader);
@@ -63,64 +67,71 @@ function ensureAudioGraph() {
 }
 
 // ---------- boot ----------
-const font = await new FontLoader().loadAsync(FONT_URL);
-const city = createCity(renderer, font);
-const song = createSong(font);
+const ttf = new TTFLoader();
+const [roman, italic] = await Promise.all([FONTS.roman, FONTS.italic].map(u => ttf.loadAsync(u).then(j => new Font(j))));
+const current = SONGS[0];
+const timing = await fetch(`songs/${current.slug}/timing.json`).then(r => r.json());
+const city = createCity(renderer, italic);
+const song = createSong({ roman, italic });
+song.load(current, timing);
+audio.src = `songs/${current.slug}/song.mp3`;
 renderPass.scene = city.scene;
-$('loading').classList.add('gone');
+const glass = createGlass($('glass'));
+const snap = document.createElement('canvas');
+if (new URLSearchParams(location.search).has('edit')) $('tools').hidden = false;
 
-let mode = 'city';                 // city | entering | song
-let scrollP = 0, scrollTarget = 0, enterT = 0, current = null;
-const enterFrom = new THREE.Vector3(), enterLook = new THREE.Vector3();
+// ---------- opening: titles, 5-second countdown, the glass cracks on every count, then shatters ----------
+const COUNT_AT = 1.8, SHATTER_AT = COUNT_AT + 5;
+let mode = 'intro', introT = 0, lastCount = -1, crackReach = 0, crackTarget = 0, flash = 0, wantSnap = false;
 const clock = new THREE.Clock();
+setTimeout(() => { $('loading').classList.add('gone'); $('titles').classList.add('on'); }, 150);
 
-function readScroll() {
-  const max = document.documentElement.scrollHeight - innerHeight;
-  scrollTarget = max > 0 ? clamp(scrollY / max) : 0;
+function onCount(n) {                     // n = 5..1
+  const el = $('count'); el.innerHTML = `<span>${n}</span>`;
+  crackTarget = (6 - n) / 5 * 0.85; flash = 1;
+  document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake');
+  crackSound(actx);
 }
-addEventListener('scroll', readScroll, { passive: true }); readScroll();
-
-async function enterSong(idx) {
-  if (mode !== 'city') return;
-  current = SONGS[idx];
-  audio.src = `songs/${current.slug}/song.mp3`;
+const withTimeout = (p, ms) => Promise.race([p, new Promise(r => setTimeout(r, ms))]);
+async function startSong() {
   ensureAudioGraph();
-  const timing = await fetch(`songs/${current.slug}/timing.json`).then(r => r.json());
-  song.load(current, timing);
-  mode = 'entering'; enterT = 0; enterFrom.copy(cityCam.position);
-  cityCam.getWorldDirection(enterLook).multiplyScalar(10).add(cityCam.position);
-  setTimeout(() => $('fade').classList.add('on'), 1100);
-  setTimeout(() => {
-    mode = 'song'; document.body.classList.add('in-song');
-    renderPass.scene = song.scene; renderPass.camera = song.camera;
-    $('player').hidden = false; $('ptitle').textContent = current.title;
-    audio.currentTime = 0; audio.play();
-    $('fade').classList.remove('on');
-  }, 1900);
+  await withTimeout(actx.resume(), 250);
+  audio.currentTime = 0;
+  try { await audio.play(); } catch { /* blocked until the first tap */ }
+  if (audio.paused || actx.state !== 'running') { audio.pause(); $('listen').hidden = false; }
 }
-function backToCity() {
-  if (mode !== 'song') return;
-  $('fade').classList.add('on');
-  setTimeout(() => {
-    audio.pause(); song.reset(); mode = 'city'; tapping = false; $('tap').classList.remove('on'); $('taphint').textContent = '';
-    document.body.classList.remove('in-song'); $('player').hidden = true;
-    renderPass.scene = city.scene; renderPass.camera = cityCam;
-    $('fade').classList.remove('on');
-  }, 700);
+function shatter() {
+  mode = 'song';
+  $('count').innerHTML = ''; $('titles').classList.add('off');
+  crackSound(actx, true);
+  renderPass.scene = song.scene; renderPass.camera = song.camera;
+  $('player').hidden = false;
+  glass.shatter(snap).then(() => {});
+  startSong();
 }
-$('enter').addEventListener('click', e => enterSong(+e.currentTarget.dataset.song));
-$('back').addEventListener('click', backToCity);
 
-// ---------- player controls ----------
+// the first touch anywhere unlocks sound (browsers require one gesture)
+const unlock = () => {
+  ensureAudioGraph(); actx.resume();
+  if (mode === 'song' && !$('listen').hidden) { $('listen').hidden = true; audio.play(); }
+};
+addEventListener('pointerdown', unlock); addEventListener('keydown', unlock);
+$('listen').addEventListener('click', unlock);
+
+// ---------- player ----------
 const togglePlay = () => (audio.paused ? audio.play() : audio.pause());
 $('pp').addEventListener('click', togglePlay);
-audio.addEventListener('play', () => ($('pp').innerHTML = '&#10074;&#10074;'));
-audio.addEventListener('pause', () => ($('pp').innerHTML = '&#9654;'));
+audio.addEventListener('play', () => ($('pp').textContent = 'pause'));
+audio.addEventListener('pause', () => ($('pp').textContent = 'play'));
+audio.addEventListener('ended', () => { $('player').hidden = true; $('ending').hidden = false; });
+$('again').addEventListener('click', () => {
+  $('ending').hidden = true; $('player').hidden = false; song.reset(); audio.currentTime = 0; audio.play();
+});
 $('bar').addEventListener('click', e => {
   const r = e.currentTarget.getBoundingClientRect();
   if (audio.duration) audio.currentTime = clamp((e.clientX - r.left) / r.width) * audio.duration;
 });
-// tap-sync: replay the song and press Enter at the start of every line to re-time it
+// tap-sync (only with ?edit): replay the song and press Enter at the start of every line to re-time it
 let tapping = false, tapIdx = 0;
 const tapLines = () => song.lines().filter(l => !l.title);
 function showTapHint() {
@@ -139,7 +150,6 @@ $('save').addEventListener('click', () => {
 addEventListener('keydown', e => {
   if (mode !== 'song') return;
   if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
-  else if (e.code === 'Escape') backToCity();
   else if (e.code === 'ArrowRight') audio.currentTime += 5;
   else if (e.code === 'ArrowLeft') audio.currentTime = Math.max(0, audio.currentTime - 5);
   else if (e.code === 'Enter' && tapping) {
@@ -152,27 +162,20 @@ addEventListener('pointermove', e => {
   song.setPointer((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
 });
 
-// act caption (section name) — shown like a film chapter card
-let actCard = document.createElement('div'); actCard.id = 'act'; $('player').appendChild(actCard);
-song.onAct = a => {
-  actCard.innerHTML = `<span>${a.name}</span>${a.desc ? `<i>${a.desc}</i>` : ''}`;
-  actCard.classList.remove('show'); void actCard.offsetWidth; actCard.classList.add('show');
-};
-
 // ---------- loop ----------
+const easeInOut = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 function frame() {
   const dt = Math.min(clock.getDelta(), 0.05), now = clock.elapsedTime;
-  if (mode === 'city' || mode === 'entering') {
-    scrollP += (scrollTarget - scrollP) * (1 - Math.exp(-dt * 3.5));
-    if (mode === 'city') city.update(dt, now, scrollP, cityCam);
-    else {
-      enterT += dt; const k = clamp(enterT / 1.8), e = k * k * k;
-      city.update(dt, now, scrollP, new THREE.PerspectiveCamera());           // keep the city alive
-      cityCam.position.lerpVectors(enterFrom, city.entryPoint, e);
-      enterLook.lerp(city.entryPoint.clone().add(new THREE.Vector3(4, 0, 0)), 0.08);
-      cityCam.lookAt(enterLook);
-    }
-    bloom.strength = 0.9; noir.uniforms.uBass.value = 0; noir.uniforms.uBlinds.value = 0.12; noir.uniforms.uColor.value = 0;
+  if (mode === 'intro') {
+    introT += dt;
+    city.update(dt, now, easeInOut(clamp(introT / SHATTER_AT)) * 0.97, cityCam);
+    const n = Math.floor(introT - COUNT_AT);
+    if (n >= 0 && n < 5 && n !== lastCount) { lastCount = n; onCount(5 - n); }
+    crackReach += (crackTarget - crackReach) * (1 - Math.exp(-dt * 9));
+    flash *= Math.exp(-dt * 6);
+    glass.draw(crackReach, flash);
+    if (introT >= SHATTER_AT) wantSnap = true;
+    bloom.strength = 0.9; noir.uniforms.uBass.value = flash * 0.4; noir.uniforms.uBlinds.value = 0.12; noir.uniforms.uColor.value = 0;
   } else {
     song.update(dt, now, audio.currentTime, analyser, fbuf);
     const P = song.P, env = song.env;
@@ -186,14 +189,20 @@ function frame() {
   }
   noir.uniforms.uTime.value = now;
   composer.render(dt);
+  if (wantSnap) {                          // grab this exact frame (+ its cracks) for the shards, then break
+    wantSnap = false;
+    snap.width = $('glass').width; snap.height = $('glass').height;
+    const c = snap.getContext('2d'); c.drawImage(renderer.domElement, 0, 0, snap.width, snap.height); c.drawImage($('glass'), 0, 0);
+    shatter();
+  }
   requestAnimationFrame(frame);
 }
 function resize() {
   const w = innerWidth, h = innerHeight;
   renderer.setSize(w, h, false); composer.setSize(w, h); bloom.setSize(w, h);
   for (const c of [cityCam, song.camera]) { c.aspect = w / h; c.updateProjectionMatrix(); }
-  noir.uniforms.uAspect.value = w / h; city.resize(w, h); readScroll();
+  noir.uniforms.uAspect.value = w / h; city.resize(w, h);
 }
 addEventListener('resize', resize); new ResizeObserver(resize).observe(document.documentElement); resize();
 requestAnimationFrame(frame);
-window.__noir = { audio, song, city, enterSong, get mode() { return mode; } };   // handy for debugging
+window.__noir = { audio, song, city, get mode() { return mode; } };   // handy for debugging

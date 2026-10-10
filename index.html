@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Roman — Noir</title>
+<title>Roman — When God Wants to Make You Stronger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/site.css">
 <script type="importmap">
 { "imports": {
@@ -16,49 +16,38 @@
 </head>
 <body>
 <canvas id="gl"></canvas>
+<canvas id="glass"></canvas>
 
-<main id="scroll">
-  <section class="s hero">
-    <h1>ROMAN</h1>
-    <p class="sub">noir &middot; british trip-hop &middot; written &amp; produced</p>
-    <p class="cue">scroll</p>
-  </section>
-  <section class="s left">
-    <p class="line">songs from the hour<br>when the city stops <em>pretending</em>.</p>
-  </section>
-  <section class="s spacer"></section>
-  <section class="s right">
-    <p class="line">every song is a room.<br><em>every room has its own weather.</em></p>
-  </section>
-  <section class="s spacer"></section>
-  <section class="s final">
-    <div class="card">
-      <div class="k">track 01</div>
-      <h2>when god wants<br>to make you stronger</h2>
-      <div class="meta">6:03 &middot; D minor &middot; 68 bpm</div>
-      <button id="enter" data-song="0">&#9654;&nbsp; enter the song</button>
-    </div>
-  </section>
-</main>
+<header id="titles">
+  <h1>Roman</h1>
+  <p>When God Wants to Make You Stronger</p>
+</header>
+<div id="count"></div>
 
 <div id="player" hidden>
-  <button id="back" title="Esc">&larr; city</button>
-  <div id="ptitle"></div>
-  <div id="taphint"></div>
+  <div id="ptitle"><b>Roman</b> &mdash; <i>When God Wants to Make You Stronger</i></div>
   <div id="pbottom">
     <div id="bar"><div id="fill"></div></div>
     <div id="pctl">
-      <button id="pp" title="Space">&#10074;&#10074;</button>
+      <button id="pp" aria-label="Play or pause">pause</button>
       <span id="clock">0:00</span>
       <span class="grow"></span>
-      <button id="tap" title="Enter stamps the next line">tap-sync</button>
-      <button id="save">save .lrc</button>
+      <span id="tools" hidden>
+        <button id="tap" title="Enter stamps the next line">tap-sync</button>
+        <button id="save">save .lrc</button>
+      </span>
     </div>
   </div>
+  <div id="taphint"></div>
 </div>
 
-<div id="fade"></div>
-<div id="loading">lighting the city&hellip;</div>
+<button id="listen" hidden>tap to listen</button>
+<div id="ending" hidden>
+  <h2>Roman</h2>
+  <p>When God Wants to Make You Stronger</p>
+  <button id="again">play again</button>
+</div>
+<div id="loading"></div>
 
 <script type="module" src="js/main.js"></script>
 </body>
