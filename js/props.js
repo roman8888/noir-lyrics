@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010224707';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261010224707';
+import { rng, clamp } from './util.js?v=20261010225256';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261010225256';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -335,6 +335,18 @@ export function createProps(scene, city, timing, fonts, route) {
 
   // ---- "my heart still breaks, but still it beats": a heart hangs by a chain from the wires under the line, beating, dripping
   const T_HEART = lineT('heart still breaks');
+  // ---- "the years I've lost": the lost years, 1991 to 2016, burst out of the word in blood and spread across the street
+  const T_YEARS = (() => { const L = timing.lines.find(l => /years i've lost/i.test(l.text)); const w = L?.words?.find(w => /^years/i.test(w.w || '')); return w?.t ?? L?.t ?? -1; })();
+  const years = new THREE.Group(); years.visible = false; scene.add(years); let yearsPlaced = false;
+  for (let y = 1991; y <= 2016; y++) {
+    const g = new TextGeometry(String(y), { font: fonts.roman, size: 0.46, height: 0.08, curveSegments: 8, bevelEnabled: false });
+    g.computeBoundingBox(); const b = g.boundingBox; g.translate(-(b.max.x + b.min.x) / 2, -(b.max.y + b.min.y) / 2, 0);
+    const m = new THREE.Mesh(g, steel); const i = y - 1991;
+    // a fan of 26: two arcs around the word, the near arc tighter, the far arc wider, every spot its own timing
+    const row = i % 3, c = Math.floor(i / 3), k = c / 8 - 0.5;             // three rows of nine across the street, k in [-0.5, 0.5]
+    m.userData = { dir: new THREE.Vector3(k * 13 + (row - 1) * 0.5, 0.9 + row * 1.15 + (c % 2) * 0.3, 0.3 - row * 0.7), delay: Math.abs(k) * 1.0 + row * 0.3 + (c % 2) * 0.12 };
+    m.visible = false; years.add(m);
+  }
   const heart = new THREE.Group(); heart.visible = false; scene.add(heart);
   const hGeo = new THREE.SphereGeometry(0.3, 48, 36);
   { const pa = hGeo.attributes.position; const v = new THREE.Vector3();
@@ -438,6 +450,24 @@ export function createProps(scene, city, timing, fonts, route) {
       if (tw > 0 && !twoZ && route) twoZ = route.pose(T_TWO).pos.z - 9;             // start a few steps ahead of the walker
       two.forEach((f, i) => { f.visible = false; f.position.set(-0.6 + i * 1.2, Math.abs(Math.sin(time * 4.8 + i)) * 0.04, twoZ - tw * 1.0); f.rotation.y = 0; });
       // the heart
+      const yk = T_YEARS > 0 ? t - T_YEARS : -99;
+      years.visible = yk > 0 && yk < 8;
+      if (years.visible) {
+        if (!yearsPlaced && route) {
+          const idx = timing.lines.findIndex(l => /years i've lost/i.test(l.text)), a = route.anchorFor(idx);
+          years.position.copy(a.pos); years.quaternion.copy(a.q); yearsPlaced = true;
+        }
+        years.children.forEach(m => { const u = m.userData, q = clamp((yk - u.delay) / 1.4), e = 1 - Math.pow(1 - q, 3), out = clamp((yk - 5.2 - u.delay * 0.5) / 1.6);
+          m.visible = q > 0 && out < 1;
+          m.position.copy(u.dir).multiplyScalar(e).add(new THREE.Vector3(0, Math.sin(time * 0.8 + u.delay * 9) * 0.04, 0));
+          const sc = (0.2 + 0.8 * e) * (1 - out); m.scale.setScalar(Math.max(0.001, sc));
+          m.rotation.set(0, 0, 0); });
+        // keep every year inside the street and above the ground, whatever way the line faces
+        years.updateMatrixWorld(true);
+        const wp = new THREE.Vector3(); years.children.forEach(m => { if (!m.visible) return; m.getWorldPosition(wp);
+          const cx = Math.max(-FACADE + 1.6, Math.min(FACADE - 1.6, wp.x)), cy = Math.max(0.6, wp.y);
+          if (cx !== wp.x || cy !== wp.y) { const lp = years.worldToLocal(new THREE.Vector3(cx, cy, wp.z)); m.position.copy(lp); } });
+      }
       const hk = T_HEART > 0 ? t - T_HEART : -99;
       heart.visible = hWire.visible = hPool.visible = hk > -2.5 && hk < 11;
       if (heart.visible) {

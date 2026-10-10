@@ -2,10 +2,10 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261010224707';
-import { fxFor, applyFx } from './fx.js?v=20261010224707';
-import { FACADE } from './layout.js?v=20261010224707';
-import { LOOKS } from './songs.js?v=20261010224707';
+import { clamp, easeOutExpo } from './util.js?v=20261010225256';
+import { fxFor, applyFx } from './fx.js?v=20261010225256';
+import { FACADE } from './layout.js?v=20261010225256';
+import { LOOKS } from './songs.js?v=20261010225256';
 
 const LEAD = Math.max(-1, Math.min(1, parseFloat(new URLSearchParams(location.search).get('lead')) || 0));   // ?lead=0.2 shows every word 0.2 s before its timestamp (ear test)
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
