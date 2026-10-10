@@ -22,9 +22,9 @@ body { font-family: var(--serif); -webkit-font-smoothing: antialiased; text-rend
 
 /* countdown numeral */
 #count { position: fixed; inset: 0; z-index: 3; display: grid; place-items: center; pointer-events: none;
-  font-style: italic; font-weight: 400; font-size: clamp(120px, 22vw, 300px); text-shadow: 0 0 60px rgba(0,0,0,.6); }
+  font-style: italic; font-weight: 700; font-size: clamp(120px, 22vw, 300px); color: #7a0d12; text-shadow: 0 0 60px rgba(0,0,0,.8), 0 0 2px #3a0407; }
 #count span { animation: tick 1s ease-out forwards; }
-@keyframes tick { 0% { opacity: 0; transform: scale(1.25); filter: blur(6px); } 18% { opacity: .95; transform: scale(1); filter: none; } 80% { opacity: .9; } 100% { opacity: 0; transform: scale(.94); } }
+@keyframes tick { 0% { opacity: 0; transform: translateY(-14px); } 18% { opacity: .92; transform: none; } 70% { opacity: .9; } 100% { opacity: 0; transform: translateY(10px); } }
 .shake { animation: shake .22s linear; }
 @keyframes shake { 20% { transform: translate(5px,-3px); } 40% { transform: translate(-4px,3px); } 60% { transform: translate(3px,2px); } 80% { transform: translate(-2px,-1px); } }
 
