@@ -124,9 +124,12 @@ export function createCity() {
   const flashLight = new THREE.DirectionalLight(0xdfe6ff, 0); flashLight.position.set(10, 80, -100); scene.add(flashLight);
 
   // wet asphalt: a real mirror under a dark translucent skin (the skin thins when the camera is high)
-  const mirror = new Reflector(new THREE.PlaneGeometry(420, 640), { textureWidth: innerWidth * 0.5, textureHeight: innerHeight * 0.5, color: 0x6a6a6a });
+  // black ground to the horizon; the wet mirror only under the city itself
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+  ground.rotation.x = -Math.PI / 2; ground.position.set(0, -0.08, -140); scene.add(ground);
+  const mirror = new Reflector(new THREE.PlaneGeometry(110, 440), { textureWidth: innerWidth * 0.5, textureHeight: innerHeight * 0.5, color: 0x6a6a6a });
   mirror.rotation.x = -Math.PI / 2; mirror.position.set(0, 0, -140); scene.add(mirror);
-  const skin = new THREE.Mesh(new THREE.PlaneGeometry(420, 640), new THREE.MeshBasicMaterial({ color: 0x050608, transparent: true, opacity: 0.62 }));
+  const skin = new THREE.Mesh(new THREE.PlaneGeometry(110, 440), new THREE.MeshBasicMaterial({ color: 0x030406, transparent: true, opacity: 0.62 }));
   skin.rotation.x = -Math.PI / 2; skin.position.set(0, 0.02, -140); scene.add(skin);
   const dashes = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.14, 2.4), new THREE.MeshBasicMaterial({ color: 0x8a8670 }), 64);
   for (let i = 0; i < 64; i++) dashes.setMatrixAt(i, M.makeRotationX(-Math.PI / 2).setPosition(0, 0.03, 40 - i * 6));
@@ -253,7 +256,7 @@ export function createCity() {
       bMat.uniforms.uFog.value = scene.fog.density;
       hemi.intensity = 0.35 + (sky.sun || 0) * 0.9 + (sky.moon || 0) * 0.15; hemi.color.setRGB(0.29, 0.35, 0.47).lerp(new THREE.Color(1, 0.75, 0.5), sky.sun || 0);
       moon.intensity = 0.3 + (sky.moon || 0) * 0.9;
-      skin.material.opacity = 0.62 - 0.25 * (sky.sun || 0);
+      skin.material.opacity = 0.62 + 0.36 * Math.min(1, Math.max(0, (camera.position.y - 20) / 60));   // from the sky the ground reads black
       for (const c of cars) {
         const u = c.userData; u.z += u.dir * u.v * dt;
         if (u.z < Z_END) u.z = Z_START; if (u.z > Z_START) u.z = Z_END;

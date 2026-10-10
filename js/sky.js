@@ -34,6 +34,7 @@ const FS = /* glsl */`
     sky += vec3(0.85, 0.9, 1.0) * (pow(md, 2500.) * 3.0 + pow(md, 40.) * 0.12) * uMoon * (1.0 - cl * 0.85);
     // haze at the horizon
     sky = mix(sky, uHorizon, uHaze * (1.0 - smoothstep(0.0, 0.25, d.y)));
+    sky *= smoothstep(-0.35, 0.05, d.y);                               // below the horizon: black
     sky += uFlash * 0.15;
     gl_FragColor = vec4(sky, 1.0);
   }`;
@@ -41,16 +42,16 @@ const FS = /* glsl */`
 const C = (r, g, b) => new THREE.Color(r, g, b);
 // one look per section (blended on section change)
 export const SKIES = {
-  night:    { horizon: C(0.045, 0.05, 0.07), zenith: C(0.008, 0.01, 0.018), cloud: C(0.05, 0.055, 0.07), cover: 0.78, soft: 0.22, moon: 0.0, sun: 0, stars: 0.0, haze: 0.55, rain: 1.0 },
-  verse:    { horizon: C(0.05, 0.05, 0.065), zenith: C(0.01, 0.012, 0.02), cloud: C(0.06, 0.06, 0.075), cover: 0.7, soft: 0.25, moon: 0.15, sun: 0, stars: 0.1, haze: 0.5, rain: 1.1 },
-  storm:    { horizon: C(0.035, 0.035, 0.045), zenith: C(0.006, 0.006, 0.012), cloud: C(0.04, 0.04, 0.05), cover: 0.95, soft: 0.15, moon: 0.0, sun: 0, stars: 0.0, haze: 0.65, rain: 1.5, lightning: 1 },
-  breaking: { horizon: C(0.06, 0.065, 0.09), zenith: C(0.012, 0.016, 0.03), cloud: C(0.1, 0.11, 0.14), cover: 0.45, soft: 0.3, moon: 1.0, sun: 0, stars: 0.5, haze: 0.4, rain: 0.6 },
-  moon:     { horizon: C(0.07, 0.075, 0.1), zenith: C(0.015, 0.02, 0.04), cloud: C(0.14, 0.15, 0.19), cover: 0.3, soft: 0.3, moon: 1.0, sun: 0, stars: 0.8, haze: 0.3, rain: 0.25 },
-  drizzle:  { horizon: C(0.05, 0.05, 0.065), zenith: C(0.01, 0.012, 0.022), cloud: C(0.07, 0.07, 0.085), cover: 0.72, soft: 0.25, moon: 0.3, sun: 0, stars: 0.2, haze: 0.5, rain: 0.8 },
-  fog:      { horizon: C(0.09, 0.09, 0.1), zenith: C(0.03, 0.032, 0.045), cloud: C(0.12, 0.12, 0.13), cover: 0.6, soft: 0.45, moon: 0.5, sun: 0, stars: 0.1, haze: 0.9, rain: 0.2 },
-  predawn:  { horizon: C(0.28, 0.14, 0.17), zenith: C(0.04, 0.045, 0.1), cloud: C(0.22, 0.14, 0.17), cover: 0.4, soft: 0.35, moon: 0.4, sun: 0.35, stars: 0.3, haze: 0.5, rain: 0.05 },
-  sunrise:  { horizon: C(0.95, 0.5, 0.22), zenith: C(0.16, 0.2, 0.36), cloud: C(0.7, 0.42, 0.3), cover: 0.35, soft: 0.35, moon: 0.0, sun: 1.0, stars: 0.0, haze: 0.45, rain: 0.0 },
-  morning:  { horizon: C(0.98, 0.72, 0.42), zenith: C(0.3, 0.42, 0.62), cloud: C(0.9, 0.75, 0.62), cover: 0.3, soft: 0.4, moon: 0.0, sun: 1.0, stars: 0.0, haze: 0.4, rain: 0.0 },
+  night:    { horizon: C(0.019, 0.021, 0.029), zenith: C(0.003, 0.003, 0.006), cloud: C(0.05, 0.055, 0.07), cover: 0.78, soft: 0.22, moon: 0.0, sun: 0, stars: 0.0, haze: 0.55, rain: 1.0 },
+  verse:    { horizon: C(0.021, 0.021, 0.027), zenith: C(0.003, 0.004, 0.007), cloud: C(0.06, 0.06, 0.075), cover: 0.7, soft: 0.25, moon: 0.15, sun: 0, stars: 0.1, haze: 0.5, rain: 1.1 },
+  storm:    { horizon: C(0.015, 0.015, 0.019), zenith: C(0.002, 0.002, 0.004), cloud: C(0.04, 0.04, 0.05), cover: 0.95, soft: 0.15, moon: 0.0, sun: 0, stars: 0.0, haze: 0.65, rain: 1.5, lightning: 1 },
+  breaking: { horizon: C(0.025, 0.027, 0.038), zenith: C(0.004, 0.006, 0.010), cloud: C(0.1, 0.11, 0.14), cover: 0.45, soft: 0.3, moon: 1.0, sun: 0, stars: 0.5, haze: 0.4, rain: 0.6 },
+  moon:     { horizon: C(0.029, 0.032, 0.042), zenith: C(0.005, 0.007, 0.014), cloud: C(0.14, 0.15, 0.19), cover: 0.3, soft: 0.3, moon: 1.0, sun: 0, stars: 0.8, haze: 0.3, rain: 0.25 },
+  drizzle:  { horizon: C(0.021, 0.021, 0.027), zenith: C(0.003, 0.004, 0.008), cloud: C(0.07, 0.07, 0.085), cover: 0.72, soft: 0.25, moon: 0.3, sun: 0, stars: 0.2, haze: 0.5, rain: 0.8 },
+  fog:      { horizon: C(0.038, 0.038, 0.042), zenith: C(0.010, 0.011, 0.016), cloud: C(0.12, 0.12, 0.13), cover: 0.6, soft: 0.45, moon: 0.5, sun: 0, stars: 0.1, haze: 0.9, rain: 0.2 },
+  predawn:  { horizon: C(0.118, 0.059, 0.071), zenith: C(0.014, 0.016, 0.035), cloud: C(0.22, 0.14, 0.17), cover: 0.4, soft: 0.35, moon: 0.4, sun: 0.35, stars: 0.3, haze: 0.5, rain: 0.05 },
+  sunrise:  { horizon: C(0.399, 0.210, 0.092), zenith: C(0.056, 0.070, 0.126), cloud: C(0.7, 0.42, 0.3), cover: 0.35, soft: 0.35, moon: 0.0, sun: 1.0, stars: 0.0, haze: 0.45, rain: 0.0 },
+  morning:  { horizon: C(0.412, 0.302, 0.176), zenith: C(0.105, 0.147, 0.217), cloud: C(0.9, 0.75, 0.62), cover: 0.3, soft: 0.4, moon: 0.0, sun: 1.0, stars: 0.0, haze: 0.4, rain: 0.0 },
 };
 const KEYS = ['cover', 'soft', 'moon', 'sun', 'stars', 'haze', 'rain'];
 
