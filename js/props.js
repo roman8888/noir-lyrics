@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010220721';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261010220721';
+import { rng, clamp } from './util.js?v=20261010221343';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261010221343';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -219,14 +219,24 @@ export function createProps(scene, city, timing, fonts, route) {
 
   // ---- the opening credits: ROMAN in the same blood-steel as the R, hanging over the street as the camera descends
   const credits = new THREE.Group(); scene.add(credits);
-  const nameGeo = new TextGeometry('ROMAN', { font: fonts.roman, size: 7, height: 1.6, curveSegments: 16, bevelEnabled: true, bevelThickness: 0.25, bevelSize: 0.16, bevelSegments: 4 });
-  nameGeo.computeBoundingBox(); const nb = nameGeo.boundingBox; nameGeo.translate(-(nb.max.x + nb.min.x) / 2, -(nb.max.y + nb.min.y) / 2, -(nb.max.z + nb.min.z) / 2);
-  const nameMesh = new THREE.Mesh(nameGeo, new THREE.MeshStandardMaterial({ color: 0x7a0e14, roughness: 0.3, metalness: 0.55, emissive: 0x4a060a, emissiveIntensity: 0.9 })); credits.add(nameMesh);
-  const titleGeo = new TextGeometry('When God Wants to Make You Stronger', { font: fonts.italic, size: 1.3, height: 0.3, curveSegments: 10, bevelEnabled: false });
+  // the name, letter by letter, so each can swing into place during the descent
+  const nameMat = new THREE.MeshStandardMaterial({ color: 0x7a0e14, roughness: 0.3, metalness: 0.55, emissive: 0x4a060a, emissiveIntensity: 0.9 });
+  const NS = 4.4, nameLetters = [], nameMesh = new THREE.Group(); let ncx = 0;
+  for (const ch of 'ROMAN SHIKHRI') {
+    if (ch === ' ') { ncx += NS * 0.45; continue; }
+    const g = new TextGeometry(ch, { font: fonts.roman, size: NS, height: 1.3, curveSegments: 16, bevelEnabled: true, bevelThickness: 0.2, bevelSize: 0.14, bevelSegments: 4 });
+    g.computeBoundingBox(); const b = g.boundingBox, w = b.max.x - b.min.x;
+    g.translate(-(b.max.x + b.min.x) / 2, -(b.max.y + b.min.y) / 2, -(b.max.z + b.min.z) / 2);
+    const m = new THREE.Mesh(g, nameMat); m.userData = { x: ncx + w / 2, i: nameLetters.length }; nameLetters.push(m); nameMesh.add(m); ncx += w + NS * 0.1;
+  }
+  nameLetters.forEach(m => { m.userData.x -= (ncx - NS * 0.1) / 2; m.position.x = m.userData.x; });
+  credits.add(nameMesh);
+  const titleGeo = new TextGeometry('When God Wants to Make You Stronger', { font: fonts.italic, size: 1.45, height: 0.3, curveSegments: 10, bevelEnabled: false });
   titleGeo.computeBoundingBox(); const tb = titleGeo.boundingBox; titleGeo.translate(-(tb.max.x + tb.min.x) / 2, 0, 0);
-  const titleMesh = new THREE.Mesh(titleGeo, new THREE.MeshStandardMaterial({ color: 0x6a0c12, roughness: 0.4, metalness: 0.5, emissive: 0x4a060a, emissiveIntensity: 0.8 })); titleMesh.position.y = -5.4; credits.add(titleMesh);   // the song name, same blood-steel
-  credits.position.set(0, 58, -62);
-  for (const sx of [-12, 12]) { const sp = new THREE.SpotLight(0xdfe6ff, 16000, 70, 0.55, 0.5, 1.1); sp.position.set(sx, -10, 26); sp.target = nameMesh; credits.add(sp); }
+  const titleMesh = new THREE.Mesh(titleGeo, new THREE.MeshStandardMaterial({ color: 0x6a0c12, roughness: 0.4, metalness: 0.5, emissive: 0x4a060a, emissiveIntensity: 0.8 })); titleMesh.position.y = -4.1; credits.add(titleMesh);   // the song name, same blood-steel
+  const CREDITS_AT = new THREE.Vector3(0, 44, -40);                                    // above the first-row rooftops (≤36 m) and inside the second row's gap: nothing clips it                                      // close and big above the avenue, straight ahead of the landing
+  credits.position.copy(CREDITS_AT);
+  for (const sx of [-12, 12]) { const sp = new THREE.SpotLight(0xdfe6ff, 5200, 70, 0.6, 0.5, 1.1); sp.position.set(sx, -10, 26); sp.target = nameMesh; credits.add(sp); }
   const cKey = new THREE.PointLight(0xffe6e0, 900, 60, 1.3); cKey.position.set(0, 6, 22); credits.add(cKey);
   const cRim = new THREE.PointLight(0xff2a2a, 400, 50, 1.4); cRim.position.set(0, 8, -10); credits.add(cRim);
   const T_FIRST = timing.lines[0].t;
@@ -533,7 +543,11 @@ export function createProps(scene, city, timing, fonts, route) {
       R.rotation.y = Math.sin(time * 0.12) * 0.55;
       // the credits hang over the street for the intro, then sink back into the fog before the first line
       const ck2 = clamp((t - (T_FIRST - 3.5)) / 3);
-      if (t < T_FIRST + 1) { credits.visible = t < T_FIRST; credits.position.set(0, 58 - ck2 * 6, -62 - ck2 * 140); nameMesh.rotation.y = Math.sin(time * 0.1) * 0.25; credits.scale.setScalar(1 - ck2 * 0.6); }
+      if (t < T_FIRST + 1) { credits.visible = t < T_FIRST; credits.position.set(0, CREDITS_AT.y - ck2 * 6, CREDITS_AT.z - ck2 * 140); nameMesh.rotation.y = Math.sin(time * 0.1) * 0.25; credits.scale.setScalar(1 - ck2 * 0.6);
+        // the letters swing in one after another from behind, settle, then the title rises under them
+        nameLetters.forEach(m => { const a = clamp((t - 0.5 - m.userData.i * 0.2) / 1.1), e = 1 - Math.pow(1 - a, 3);
+          m.visible = a > 0; m.scale.setScalar(0.001 + e); m.rotation.y = (1 - e) * 1.5; m.position.set(m.userData.x, (1 - e) * -2.5 + Math.sin(time * 0.9 + m.userData.i * 0.7) * 0.08, (1 - e) * -16); });
+        const ta = clamp((t - 3.6) / 1.6), te = 1 - Math.pow(1 - ta, 3); titleMesh.visible = ta > 0; titleMesh.scale.setScalar(0.001 + te); titleMesh.position.y = -4.1 - (1 - te) * 2.5; }
       else if (!(route && t - route.T_VOID > -0.2)) credits.visible = false;
       rose.material.color.setRGB(0.16, 0.03, 0.03);
       const sk = Math.random() < 0.02 ? 0.25 : 1; signMat.color.setRGB(1.1 * sk, 0.14 * sk, 0.1 * sk); signLight.intensity = 4 * sk;

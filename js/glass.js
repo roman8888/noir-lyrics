@@ -1,6 +1,6 @@
 // Cracking glass over the screen: a spider-web crack grows on every count, then the pane shatters
 // into shards (cut from a snapshot of the last frame) that fall away and reveal the song.
-import { rng } from './util.js?v=20261010220721';
+import { rng } from './util.js?v=20261010221343';
 
 export function createGlass(canvas) {
   const ctx = canvas.getContext('2d');
