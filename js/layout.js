@@ -10,8 +10,8 @@ export const CELL = { w: 1.7, h: 2.6 };  // window grid (must match the building
 export const ALLEYS = [
   { z: -62,  side: -1, w: 4.6 },
   { z: -140, side: 1,  w: 4.6 },
-  { z: -200, side: -1, w: 4.6 },
-  { z: -268, side: 1,  w: 4.6 },
+  { z: -224, side: -1, w: 4.6 },
+  { z: -284, side: 1,  w: 4.6 },
 ];
 
 // the hero building (right side) holds the apartment the chorus is sung in
@@ -21,7 +21,7 @@ export const ROOM = {                  // a ground-floor apartment behind the he
   win: { y: 1.65, z: -110, w: 2.2, h: 2.0 },    // window centre + size (in the facade plane); sill at 0.65
 };
 
-export const BRIDGE = { z: -178, y: 8.6, thick: 0.9, span: 44 };   // overpass across the street
-export const CHURCH = { z: -300 };                                  // closes the street; the sun rises behind it
+export const BRIDGE = { z: -200, y: 8.6, thick: 0.9, span: 44 };   // overpass across the street
+export const CHURCH = { z: -330 };                                  // closes the street; the sun rises behind it
 export const LAMP_H = 6.6, LAMP_X = 7.6;
 export const lampZs = () => { const a = []; for (let z = 34; z > -320; z -= 18) a.push(z); return a; };

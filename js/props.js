@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010205940';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H, HERO } from './layout.js?v=20261010205940';
+import { rng, clamp } from './util.js?v=20261010211412';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H, HERO } from './layout.js?v=20261010211412';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -25,7 +25,7 @@ function figure(s = 1, mat = INK(), umbrella = false) {
 
 export function createProps(scene, city, timing, fonts, route) {
   const font = fonts.italic;
-  const solid = [];
+  const solid = []; let roadPaint = null;
   const r = rng(99);
   const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), V = new THREE.Vector3();
   const add = (geo, mat, x, y, z, parent = scene) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); parent.add(m); return m; };
@@ -97,11 +97,11 @@ export function createProps(scene, city, timing, fonts, route) {
   const puffTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
     const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,0.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
     return new THREE.CanvasTexture(c); })();
-  const vents = [[-6.6, -35], [6.4, -95], [-6.6, -175], [6.4, -250]], NP = 60;   // at the kerbs, never on the walking line
+  const vents = [[-8.7, -22], [8.7, -88], [-8.7, -158], [8.7, -244]], NP = 60;   // against the facades, well off the walking line
   const puffs = vents.map(([x, z]) => {
     const pos = new Float32Array(NP * 3), life = new Float32Array(NP).map(() => Math.random());
     const g = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const p = new THREE.Points(g, new THREE.PointsMaterial({ map: puffTex, size: 1.6, transparent: true, depthWrite: false, opacity: 0.35, color: 0x9aa0aa }));
+    const p = new THREE.Points(g, new THREE.PointsMaterial({ map: puffTex, size: 1.1, transparent: true, depthWrite: false, opacity: 0.28, color: 0x9aa0aa }));
     scene.add(p); return { p, pos, life, x, z };
   });
 
@@ -133,7 +133,8 @@ export function createProps(scene, city, timing, fonts, route) {
   const R = new THREE.Mesh(rGeo, steel);
   R.position.set(0, 51.6, CHURCH.z - 2); scene.add(R);
   add(new THREE.CylinderGeometry(1.1, 1.4, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x111115, roughness: 0.5, metalness: 0.7 }), 0, 51.6, CHURCH.z - 2);
-  for (const sx of [-5, 5]) { const sp = new THREE.SpotLight(0xdfe6ff, 1700, 45, 0.33, 0.5, 1.3); sp.position.set(sx, 44, CHURCH.z + 5); sp.target = R; scene.add(sp); }
+  const rSpots = [];
+  for (const sx of [-5, 5]) { const sp = new THREE.SpotLight(0xdfe6ff, 1700, 45, 0.33, 0.5, 1.3); sp.position.set(sx, 44, CHURCH.z + 5); sp.target = R; scene.add(sp); rSpots.push(sp); }
   const rRim = new THREE.PointLight(0xff2a2a, 60, 30, 1.5); rRim.position.set(0, 56, CHURCH.z - 7); scene.add(rRim);
   const rose = add(new THREE.CircleGeometry(3.2, 48), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.16, 0.03, 0.03) }), 0, 14, CHURCH.z + 7.05);
   add(new THREE.RingGeometry(3.1, 3.4, 48), stone, 0, 14, CHURCH.z + 7.08);
@@ -153,7 +154,7 @@ export function createProps(scene, city, timing, fonts, route) {
   const inside = new THREE.Mesh(new THREE.SphereGeometry(9.5, 24, 16), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.2, 1.25, 1.35), side: THREE.BackSide, fog: false })); inside.position.set(0, 4, CHURCH.z - 1.5); inside.visible = false; scene.add(inside);
   const lastLine = timing.lines[timing.lines.length - 1];
   const T_FREE = (lastLine.words || []).find(w => /free/i.test(w.w))?.t ?? lastLine.t + 2.4;
-  for (let i = -3; i <= 3; i++) add(new THREE.BoxGeometry(0.4, 2.2, 0.4), stone, i * 3.4, 1.1, CHURCH.z + 10);   // steps' bollards
+  for (const i of [-3, -2, 2, 3]) add(new THREE.BoxGeometry(0.4, 2.2, 0.4), stone, i * 3.4, 1.1, CHURCH.z + 10);   // steps' bollards, clear of the road text
 
   // ---- the hero apartment behind the real window hole
   const room = new THREE.Group(); scene.add(room);
@@ -337,13 +338,14 @@ export function createProps(scene, city, timing, fonts, route) {
 
   // ---- KARMA IS NEAR, painted on the road in faint red on the last stretch of the avenue, stretched like road lettering
   {
-    const c = document.createElement('canvas'); c.width = 2048; c.height = 640; const g = c.getContext('2d');
-    g.clearRect(0, 0, 2048, 640); g.fillStyle = '#ffffff'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.font = '900 150px "Playfair Display", Georgia, serif'; g.fillText('KARMA', 1024, 180); g.fillText('IS NEAR', 1024, 470);
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 1024; const g = c.getContext('2d');
+    const draw = () => { g.clearRect(0, 0, 1024, 1024); g.fillStyle = '#ffffff'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = '900 250px "Playfair Display", Georgia, serif'; g.fillText('KARMA', 512, 300); g.fillText('IS NEAR', 512, 740); };   // from the air above the church: KARMA far, IS NEAR near
+    draw();
     const tex = new THREE.CanvasTexture(c); tex.anisotropy = 8;
-    const paint = new THREE.Mesh(new THREE.PlaneGeometry(8.6, 24), new THREE.MeshStandardMaterial({ map: tex, alphaMap: tex, transparent: true, opacity: 0.8, color: 0x8a1812, roughness: 0.95, metalness: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
-    paint.rotation.x = -Math.PI / 2; paint.position.set(0, 0.045, -266); scene.add(paint);
-    document.fonts?.ready.then(() => { g.clearRect(0, 0, 2048, 640); g.fillStyle = '#ffffff'; g.font = '900 150px "Playfair Display", Georgia, serif'; g.fillText('KARMA', 1024, 180); g.fillText('IS NEAR', 1024, 470); tex.needsUpdate = true; });
+    const paint = new THREE.Mesh(new THREE.PlaneGeometry(28, 28), new THREE.MeshStandardMaterial({ map: tex, alphaMap: tex, transparent: true, opacity: 0.94, color: 0xa01c16, emissive: 0x5a0a08, emissiveIntensity: 0.9, roughness: 0.95, metalness: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
+    paint.rotation.x = -Math.PI / 2; paint.rotation.z = Math.PI; paint.position.set(0, 0.045, -300); paint.visible = false; scene.add(paint); roadPaint = paint;   // reads from the air, above the church
+    document.fonts?.ready.then(() => { draw(); tex.needsUpdate = true; });
   }
 
   // ---- the void after the door: GOD and ROMAN in blood-steel; blood drips from their letters and writes KARMA IS NEAR
@@ -485,12 +487,14 @@ export function createProps(scene, city, timing, fonts, route) {
         s.pos.set([s.x + Math.sin(i * 7 + time * 0.5) * L * 1.2, 0.2 + L * 4.5, s.z + Math.cos(i * 5) * L * 1.0], i * 3); } s.p.geometry.attributes.position.needsUpdate = true; }
       // puddle rings
       for (const m of rings) { const k = (time * 0.5 + m.userData.p) % 1; m.scale.setScalar(1 + k * 5); m.material.opacity = (1 - k) * 0.5; }
+      if (roadPaint) roadPaint.visible = camera.position.y > 14;
+      rSpots.forEach(sp => (sp.intensity = camera.position.y > 58 ? 400 : 1700)); rRim.intensity = camera.position.y > 58 ? 15 : 60;   // once above the R it is a landmark, not a flare                 // KARMA IS NEAR shows only from the sky
       // "free": the city slides apart to both sides and the church door opens outward into the light
       const fk = ease((t - T_FREE) / 5), dk2 = ease((t - T_FREE - 0.6) / 2.6);
       city.part(fk * 34);
       leaves.forEach(h => { h.rotation.y = h.userData.sx * 1.9 * dk2; });
-      doorLight.material.color.setRGB(0.35, 0.37, 0.4).lerp(new THREE.Color(2.2, 2.3, 2.5), dk2);
-      glow.intensity = dk2 * 60; inside.visible = dk2 > 0.5 && camera.position.y < 35;
+      doorLight.material.color.setRGB(0.35, 0.37, 0.4).lerp(new THREE.Color(0.5, 0.53, 0.6), dk2);   // a lit doorway, never a white-out
+      glow.intensity = dk2 * 22; inside.visible = false;
       // the void: once the black lifts, drops fall from GOD and ROMAN and write the words, letter by letter
       const vt = route ? t - route.T_VOID : -99;
       voidG.visible = vt > -0.2;
