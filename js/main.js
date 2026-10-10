@@ -6,6 +6,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 import { createCity } from './city.js';
 import { createSong } from './song.js';
 import { SONGS } from './songs.js';
@@ -21,6 +22,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));   // full retina
 renderer.setSize(innerWidth, innerHeight, false);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const cityCam = new THREE.PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 900);
 
@@ -53,7 +55,10 @@ const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerW
 const renderPass = new RenderPass(new THREE.Scene(), cityCam);
 const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.85, 0.55, 0.72);
 const noir = new ShaderPass(NoirShader);
-composer.addPass(renderPass); composer.addPass(bloom); composer.addPass(new OutputPass()); composer.addPass(noir);
+// depth of field: focus on the line being sung, everything else falls soft
+const bokeh = new BokehPass(new THREE.Scene(), cityCam, { focus: 8, aperture: 0.0022, maxblur: 0.007 });
+bokeh.enabled = false;
+composer.addPass(renderPass); composer.addPass(bokeh); composer.addPass(bloom); composer.addPass(new OutputPass()); composer.addPass(noir);
 
 // ---------- audio ----------
 const audio = new Audio(); audio.preload = 'auto';
@@ -105,6 +110,7 @@ function shatter() {
   $('count').innerHTML = ''; $('titles').classList.add('off');
   crackSound(actx, true);
   renderPass.scene = song.scene; renderPass.camera = song.camera;
+  bokeh.scene = song.scene; bokeh.camera = song.camera; bokeh.enabled = true;
   $('player').hidden = false;
   glass.shatter(snap).then(() => {});
   startSong();
@@ -183,6 +189,7 @@ function frame() {
     noir.uniforms.uBass.value = env.bass * (0.6 + P.red);
     noir.uniforms.uBlinds.value = 0.2 * (1 - P.dawn) * (1 - P.warm * 0.5);
     noir.uniforms.uColor.value = P.dawn * 0.6;
+    bokeh.uniforms.focus.value = song.focus;
     if (audio.duration) $('fill').style.width = `${(audio.currentTime / audio.duration) * 100}%`;
     $('clock').textContent = `${fmt(audio.currentTime)} / ${fmt(audio.duration || 0)}`;
     idleTimer += dt; if (idleTimer > 2.5 && !audio.paused && !tapping) $('player').classList.add('idle');

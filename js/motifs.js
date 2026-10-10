@@ -49,7 +49,9 @@ export function buildMotif(name, color, r, text) {
     vertexShader: glowVS, fragmentShader: glowFS, uniforms: glowU, transparent: true, depthWrite: false,
     blending: THREE.AdditiveBlending, fog: false }));
   glow.position.z = -4; root.add(glow);
-  const ground = add(new THREE.PlaneGeometry(60, 30), BLACK());
+  // wet floor: catches the words' shadows and the light's sheen
+  const ground = add(new THREE.PlaneGeometry(60, 30), new THREE.MeshStandardMaterial({ color: 0x0a0a0d, roughness: 0.22, metalness: 0.5, transparent: true }));
+  ground.receiveShadow = true;
   ground.rotation.x = -Math.PI / 2; ground.position.set(0, -3.4, 4);
   let tick = () => {};
   const fig = (sc, mat) => { const g = figure(add, sc, mat); root.add(g); return g; };
@@ -165,9 +167,9 @@ export function buildMotif(name, color, r, text) {
       break;
     }
     case 'heart': {
-      const core = add(new THREE.SphereGeometry(0.7, 24, 16), EMIT(4, 0.2, 0.15)); core.position.set(0, 2.4, -2);
+      const core = add(new THREE.SphereGeometry(0.7, 24, 16), EMIT(1.3, 0.04, 0.05)); core.position.set(0, 2.4, -2);
       const rings = [];
-      for (let i = 0; i < 3; i++) { const ring = add(new THREE.RingGeometry(0.9, 0.95, 64), EMIT(3, 0.2, 0.15)); ring.position.copy(core.position); rings.push(ring); }
+      for (let i = 0; i < 3; i++) { const ring = add(new THREE.RingGeometry(0.9, 0.95, 64), EMIT(0.9, 0.03, 0.04)); ring.position.copy(core.position); rings.push(ring); }
       tick = (age, env) => { const beat = Math.pow(Math.max(0, Math.sin(age * 7.1)), 12) + env.bass * 0.6;
         core.scale.setScalar(1 + beat * 0.25);
         rings.forEach((ring, i) => { const k = ((age * 0.8 + i / 3) % 1); ring.scale.setScalar(1 + k * 6); ring.material.opacity *= 1 - k; }); };
@@ -209,7 +211,7 @@ export function buildMotif(name, color, r, text) {
       for (let c = 0; c < 9; c++) { let x = (r() - 0.5) * 12, y = 5 + r() * 2;
         for (let i = 0; i < 14; i++) { const nx = x + (r() - 0.5) * 1.4, ny = y - 0.3 - r() * 0.7; pts.push(x, y, -2, nx, ny, -2); x = nx; y = ny; } }
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-      const lm = new THREE.LineBasicMaterial({ color: new THREE.Color(4, 0.3, 0.2), transparent: true }); mats.push(lm);
+      const lm = new THREE.LineBasicMaterial({ color: new THREE.Color(1.1, 0.05, 0.05), transparent: true }); mats.push(lm);
       root.add(new THREE.LineSegments(g, lm));
       tick = (age) => { g.setDrawRange(0, Math.floor(clamp(age / 1.8) * pts.length / 3)); };
       break;

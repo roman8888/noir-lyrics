@@ -1,4 +1,5 @@
-# unreleased audio stays local
+# unreleased audio stays local, except the tracks the site plays
 *.mp3
 *.wav
+!songs/*/song.mp3
 .DS_Store
