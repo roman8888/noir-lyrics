@@ -1,0 +1,3517 @@
+{
+ "sections": [
+  {
+   "name": "Intro",
+   "desc": "sparse upright bass, distant Rhodes, intimate smoky male baritone, almost whispered",
+   "t": 11.6
+  },
+  {
+   "name": "Verse 1",
+   "desc": "gentle noir jazz groove, brushed drums, restrained baritone",
+   "t": 69.64
+  },
+  {
+   "name": "Rap 1",
+   "desc": "rapid rhythmic spoken-word, deep trip-hop beat, tight syncopated delivery, controlled anger",
+   "t": 97.14
+  },
+  {
+   "name": "Pre-Chorus",
+   "desc": "slower melodic delivery, piano opens, muted trumpet, gradual lift",
+   "t": 126.56
+  },
+  {
+   "name": "Chorus",
+   "desc": "melancholic but hopeful, melodic baritone, warm strings, soulful saxophone",
+   "t": 153.8
+  },
+  {
+   "name": "Verse 2",
+   "desc": "stripped-back noir jazz, weary conversational vocal, soft Rhodes",
+   "t": 182.12
+  },
+  {
+   "name": "Rap 2",
+   "desc": "faster rhythmic spoken-word, heavy bass, sharp percussive phrasing, defiant but never shouted",
+   "t": 197.14
+  },
+  {
+   "name": "Bridge",
+   "desc": "fragile near-whispered baritone, solitary piano, distant mournful saxophone, gradual warmth",
+   "t": 227.14
+  },
+  {
+   "name": "Final Chorus",
+   "desc": "emotional cinematic swell, full piano, warm strings, deep trip-hop drums, soulful saxophone",
+   "t": 255.98
+  },
+  {
+   "name": "Outro",
+   "desc": "instruments gradually disappear, intimate exhausted baritone, solitary piano, final line almost spoken",
+   "t": 293.66
+  },
+  {
+   "name": "End",
+   "desc": "final piano chord, long natural decay, silence",
+   "t": 328.82
+  }
+ ],
+ "lines": [
+  {
+   "text": "When God wants to see you rise,",
+   "section": 0,
+   "words": [
+    {
+     "w": "When",
+     "t": 11.6
+    },
+    {
+     "w": "God",
+     "t": 12.46
+    },
+    {
+     "w": "wants",
+     "t": 12.74
+    },
+    {
+     "w": "to",
+     "t": 13.14
+    },
+    {
+     "w": "see",
+     "t": 13.34
+    },
+    {
+     "w": "you",
+     "t": 13.72
+    },
+    {
+     "w": "rise,",
+     "t": 14.0
+    }
+   ],
+   "t": 11.6
+  },
+  {
+   "text": "He takes your comfort, hears your cries, by surprise.",
+   "section": 0,
+   "words": [
+    {
+     "w": "He",
+     "t": 18.2
+    },
+    {
+     "w": "takes",
+     "t": 19.06
+    },
+    {
+     "w": "your",
+     "t": 19.4
+    },
+    {
+     "w": "comfort,",
+     "t": 19.62
+    },
+    {
+     "w": "hears",
+     "t": 20.68
+    },
+    {
+     "w": "your",
+     "t": 21.06
+    },
+    {
+     "w": "cries,",
+     "t": 21.26
+    },
+    {
+     "w": "by",
+     "t": 22.04
+    },
+    {
+     "w": "surprise.",
+     "t": 22.7
+    }
+   ],
+   "t": 18.2
+  },
+  {
+   "text": "He lets you fall before you fly,",
+   "section": 0,
+   "words": [
+    {
+     "w": "He",
+     "t": 25.3
+    },
+    {
+     "w": "lets",
+     "t": 26.16
+    },
+    {
+     "w": "you",
+     "t": 26.4
+    },
+    {
+     "w": "fall",
+     "t": 26.62
+    },
+    {
+     "w": "before",
+     "t": 27.24
+    },
+    {
+     "w": "you",
+     "t": 27.7
+    },
+    {
+     "w": "fly,",
+     "t": 28.18
+    }
+   ],
+   "t": 25.3
+  },
+  {
+   "text": "So you can learn the reason why.",
+   "section": 0,
+   "words": [
+    {
+     "w": "So",
+     "t": 32.28
+    },
+    {
+     "w": "you",
+     "t": 33.12
+    },
+    {
+     "w": "can",
+     "t": 33.34
+    },
+    {
+     "w": "learn",
+     "t": 33.56
+    },
+    {
+     "w": "the",
+     "t": 33.98
+    },
+    {
+     "w": "reason",
+     "t": 34.52
+    },
+    {
+     "w": "why.",
+     "t": 34.96
+    }
+   ],
+   "t": 32.28
+  },
+  {
+   "text": "And when the light begins to fade,",
+   "section": 0,
+   "words": [
+    {
+     "w": "And",
+     "t": 37.26
+    },
+    {
+     "w": "when",
+     "t": 39.56
+    },
+    {
+     "w": "the",
+     "t": 40.4
+    },
+    {
+     "w": "light",
+     "t": 40.72
+    },
+    {
+     "w": "begins",
+     "t": 41.12
+    },
+    {
+     "w": "to",
+     "t": 41.82
+    },
+    {
+     "w": "fade,",
+     "t": 42.06
+    }
+   ],
+   "t": 37.26
+  },
+  {
+   "text": "You watch the dreams you built decay.",
+   "section": 0,
+   "words": [
+    {
+     "w": "You",
+     "t": 46.46
+    },
+    {
+     "w": "watch",
+     "t": 47.3
+    },
+    {
+     "w": "the",
+     "t": 47.66
+    },
+    {
+     "w": "dreams",
+     "t": 47.9
+    },
+    {
+     "w": "you",
+     "t": 48.35
+    },
+    {
+     "w": "built",
+     "t": 48.8
+    },
+    {
+     "w": "decay.",
+     "t": 49.06
+    }
+   ],
+   "t": 46.46
+  },
+  {
+   "text": "You search for signs in endless rain,",
+   "section": 0,
+   "words": [
+    {
+     "w": "You",
+     "t": 53.52
+    },
+    {
+     "w": "search",
+     "t": 54.36
+    },
+    {
+     "w": "for",
+     "t": 54.76
+    },
+    {
+     "w": "signs",
+     "t": 54.98
+    },
+    {
+     "w": "in",
+     "t": 55.76
+    },
+    {
+     "w": "endless",
+     "t": 56.02
+    },
+    {
+     "w": "rain,",
+     "t": 56.42
+    }
+   ],
+   "t": 53.52
+  },
+  {
+   "text": "While every prayer returns as pain.",
+   "section": 0,
+   "words": [
+    {
+     "w": "While",
+     "t": 60.88
+    },
+    {
+     "w": "every",
+     "t": 61.48
+    },
+    {
+     "w": "prayer",
+     "t": 61.8
+    },
+    {
+     "w": "returns",
+     "t": 62.26
+    },
+    {
+     "w": "as",
+     "t": 62.78
+    },
+    {
+     "w": "pain.",
+     "t": 63.3
+    }
+   ],
+   "t": 60.88
+  },
+  {
+   "text": "He tests your patience, day by day,",
+   "section": 1,
+   "words": [
+    {
+     "w": "He",
+     "t": 69.64
+    },
+    {
+     "w": "tests",
+     "t": 70.24
+    },
+    {
+     "w": "your",
+     "t": 70.52
+    },
+    {
+     "w": "patience,",
+     "t": 70.72
+    },
+    {
+     "w": "day",
+     "t": 71.14
+    },
+    {
+     "w": "by",
+     "t": 71.38
+    },
+    {
+     "w": "day,",
+     "t": 71.58
+    }
+   ],
+   "t": 69.64
+  },
+  {
+   "text": "And takes the ground you knew away.",
+   "section": 1,
+   "words": [
+    {
+     "w": "And",
+     "t": 73.18
+    },
+    {
+     "w": "takes",
+     "t": 73.78
+    },
+    {
+     "w": "the",
+     "t": 74.06
+    },
+    {
+     "w": "ground",
+     "t": 74.22
+    },
+    {
+     "w": "you",
+     "t": 74.54
+    },
+    {
+     "w": "knew",
+     "t": 74.76
+    },
+    {
+     "w": "away.",
+     "t": 74.96
+    }
+   ],
+   "t": 73.18
+  },
+  {
+   "text": "He leaves you lost without a sign,",
+   "section": 1,
+   "words": [
+    {
+     "w": "He",
+     "t": 76.72
+    },
+    {
+     "w": "leaves",
+     "t": 77.32
+    },
+    {
+     "w": "you",
+     "t": 77.62
+    },
+    {
+     "w": "lost",
+     "t": 77.76
+    },
+    {
+     "w": "without",
+     "t": 78.1
+    },
+    {
+     "w": "a",
+     "t": 78.38
+    },
+    {
+     "w": "sign,",
+     "t": 78.68
+    }
+   ],
+   "t": 76.72
+  },
+  {
+   "text": "And makes you question His design.",
+   "section": 1,
+   "words": [
+    {
+     "w": "And",
+     "t": 80.24
+    },
+    {
+     "w": "makes",
+     "t": 80.84
+    },
+    {
+     "w": "you",
+     "t": 81.1
+    },
+    {
+     "w": "question",
+     "t": 81.26
+    },
+    {
+     "w": "His",
+     "t": 81.74
+    },
+    {
+     "w": "design.",
+     "t": 82.04
+    }
+   ],
+   "t": 80.24
+  },
+  {
+   "text": "You call for help, but no one hears,",
+   "section": 1,
+   "words": [
+    {
+     "w": "You",
+     "t": 83.72
+    },
+    {
+     "w": "call",
+     "t": 84.32
+    },
+    {
+     "w": "for",
+     "t": 84.62
+    },
+    {
+     "w": "help,",
+     "t": 84.82
+    },
+    {
+     "w": "but",
+     "t": 85.1
+    },
+    {
+     "w": "no",
+     "t": 85.3
+    },
+    {
+     "w": "one",
+     "t": 85.5
+    },
+    {
+     "w": "hears,",
+     "t": 85.74
+    }
+   ],
+   "t": 83.72
+  },
+  {
+   "text": "You're left alone to face your fears.",
+   "section": 1,
+   "words": [
+    {
+     "w": "You're",
+     "t": 87.46
+    },
+    {
+     "w": "left",
+     "t": 87.94
+    },
+    {
+     "w": "alone",
+     "t": 88.18
+    },
+    {
+     "w": "to",
+     "t": 88.58
+    },
+    {
+     "w": "face",
+     "t": 88.82
+    },
+    {
+     "w": "your",
+     "t": 89.1
+    },
+    {
+     "w": "fears.",
+     "t": 89.36
+    }
+   ],
+   "t": 87.46
+  },
+  {
+   "text": "You wonder why you're left alone,",
+   "section": 1,
+   "words": [
+    {
+     "w": "You",
+     "t": 90.92
+    },
+    {
+     "w": "wonder",
+     "t": 91.4
+    },
+    {
+     "w": "why",
+     "t": 91.8
+    },
+    {
+     "w": "you're",
+     "t": 92.12
+    },
+    {
+     "w": "left",
+     "t": 92.4
+    },
+    {
+     "w": "alone,",
+     "t": 92.64
+    }
+   ],
+   "t": 90.92
+  },
+  {
+   "text": "Not knowing strength is born when you're on your own.",
+   "section": 1,
+   "words": [
+    {
+     "w": "Not",
+     "t": 93.16
+    },
+    {
+     "w": "knowing",
+     "t": 94.08
+    },
+    {
+     "w": "strength",
+     "t": 94.4
+    },
+    {
+     "w": "is",
+     "t": 94.9
+    },
+    {
+     "w": "born",
+     "t": 95.16
+    },
+    {
+     "w": "when",
+     "t": 95.64
+    },
+    {
+     "w": "you're",
+     "t": 96.08
+    },
+    {
+     "w": "on",
+     "t": 96.38
+    },
+    {
+     "w": "your",
+     "t": 96.58
+    },
+    {
+     "w": "own.",
+     "t": 96.76
+    }
+   ],
+   "t": 93.16
+  },
+  {
+   "text": "They watched me fall and turned their backs,",
+   "section": 2,
+   "words": [
+    {
+     "w": "They",
+     "t": 97.14
+    },
+    {
+     "w": "watched",
+     "t": 97.94
+    },
+    {
+     "w": "me",
+     "t": 98.74
+    },
+    {
+     "w": "fall",
+     "t": 98.9
+    },
+    {
+     "w": "and",
+     "t": 99.22
+    },
+    {
+     "w": "turned",
+     "t": 99.41
+    },
+    {
+     "w": "their",
+     "t": 99.6
+    },
+    {
+     "w": "backs,",
+     "t": 99.8
+    }
+   ],
+   "t": 97.14
+  },
+  {
+   "text": "Then blamed me for the wounds and cracks.",
+   "section": 2,
+   "words": [
+    {
+     "w": "Then",
+     "t": 100.12
+    },
+    {
+     "w": "blamed",
+     "t": 100.31
+    },
+    {
+     "w": "me",
+     "t": 100.5
+    },
+    {
+     "w": "for",
+     "t": 100.68
+    },
+    {
+     "w": "the",
+     "t": 100.92
+    },
+    {
+     "w": "wounds",
+     "t": 101.06
+    },
+    {
+     "w": "and",
+     "t": 101.36
+    },
+    {
+     "w": "cracks.",
+     "t": 101.56
+    }
+   ],
+   "t": 100.12
+  },
+  {
+   "text": "I gave them all, they watched me bleed,",
+   "section": 2,
+   "words": [
+    {
+     "w": "I",
+     "t": 101.84
+    },
+    {
+     "w": "gave",
+     "t": 102.02
+    },
+    {
+     "w": "them",
+     "t": 102.26
+    },
+    {
+     "w": "all,",
+     "t": 102.48
+    },
+    {
+     "w": "they",
+     "t": 102.7
+    },
+    {
+     "w": "watched",
+     "t": 102.91
+    },
+    {
+     "w": "me",
+     "t": 103.12
+    },
+    {
+     "w": "bleed,",
+     "t": 103.32
+    }
+   ],
+   "t": 101.84
+  },
+  {
+   "text": "Then turned away when I was in need.",
+   "section": 2,
+   "words": [
+    {
+     "w": "Then",
+     "t": 103.55
+    },
+    {
+     "w": "turned",
+     "t": 103.79
+    },
+    {
+     "w": "away",
+     "t": 104.02
+    },
+    {
+     "w": "when",
+     "t": 104.3
+    },
+    {
+     "w": "I",
+     "t": 104.52
+    },
+    {
+     "w": "was",
+     "t": 104.68
+    },
+    {
+     "w": "in",
+     "t": 104.88
+    },
+    {
+     "w": "need.",
+     "t": 105.08
+    }
+   ],
+   "t": 103.55
+  },
+  {
+   "text": "I held them up when they were down,",
+   "section": 2,
+   "words": [
+    {
+     "w": "I",
+     "t": 105.3
+    },
+    {
+     "w": "held",
+     "t": 105.54
+    },
+    {
+     "w": "them",
+     "t": 105.8
+    },
+    {
+     "w": "up",
+     "t": 106.04
+    },
+    {
+     "w": "when",
+     "t": 106.22
+    },
+    {
+     "w": "they",
+     "t": 106.44
+    },
+    {
+     "w": "were",
+     "t": 106.64
+    },
+    {
+     "w": "down,",
+     "t": 106.84
+    }
+   ],
+   "t": 105.3
+  },
+  {
+   "text": "But when I fell, they watched me drown.",
+   "section": 2,
+   "words": [
+    {
+     "w": "But",
+     "t": 107.16
+    },
+    {
+     "w": "when",
+     "t": 107.34
+    },
+    {
+     "w": "I",
+     "t": 107.5
+    },
+    {
+     "w": "fell,",
+     "t": 107.62
+    },
+    {
+     "w": "they",
+     "t": 108.04
+    },
+    {
+     "w": "watched",
+     "t": 108.23
+    },
+    {
+     "w": "me",
+     "t": 108.42
+    },
+    {
+     "w": "drown.",
+     "t": 108.58
+    }
+   ],
+   "t": 107.16
+  },
+  {
+   "text": "They called me family, called me friend,",
+   "section": 2,
+   "words": [
+    {
+     "w": "They",
+     "t": 108.88
+    },
+    {
+     "w": "called",
+     "t": 109.1
+    },
+    {
+     "w": "me",
+     "t": 109.32
+    },
+    {
+     "w": "family,",
+     "t": 109.46
+    },
+    {
+     "w": "called",
+     "t": 109.83
+    },
+    {
+     "w": "me",
+     "t": 110.2
+    },
+    {
+     "w": "friend,",
+     "t": 110.36
+    }
+   ],
+   "t": 108.88
+  },
+  {
+   "text": "But all their love was just pretend.",
+   "section": 2,
+   "words": [
+    {
+     "w": "But",
+     "t": 110.68
+    },
+    {
+     "w": "all",
+     "t": 110.9
+    },
+    {
+     "w": "their",
+     "t": 111.08
+    },
+    {
+     "w": "love",
+     "t": 111.28
+    },
+    {
+     "w": "was",
+     "t": 111.56
+    },
+    {
+     "w": "just",
+     "t": 111.74
+    },
+    {
+     "w": "pretend.",
+     "t": 111.96
+    }
+   ],
+   "t": 110.68
+  },
+  {
+   "text": "I saw the truth behind their eyes,",
+   "section": 2,
+   "words": [
+    {
+     "w": "I",
+     "t": 112.34
+    },
+    {
+     "w": "saw",
+     "t": 112.58
+    },
+    {
+     "w": "the",
+     "t": 112.82
+    },
+    {
+     "w": "truth",
+     "t": 113.0
+    },
+    {
+     "w": "behind",
+     "t": 113.26
+    },
+    {
+     "w": "their",
+     "t": 113.64
+    },
+    {
+     "w": "eyes,",
+     "t": 113.94
+    }
+   ],
+   "t": 112.34
+  },
+  {
+   "text": "Their sweetest words were dressed in lies.",
+   "section": 2,
+   "words": [
+    {
+     "w": "Their",
+     "t": 114.17
+    },
+    {
+     "w": "sweetest",
+     "t": 114.4
+    },
+    {
+     "w": "words",
+     "t": 114.76
+    },
+    {
+     "w": "were",
+     "t": 115.04
+    },
+    {
+     "w": "dressed",
+     "t": 115.24
+    },
+    {
+     "w": "in",
+     "t": 115.5
+    },
+    {
+     "w": "lies.",
+     "t": 115.68
+    }
+   ],
+   "t": 114.17
+  },
+  {
+   "text": "I gave them chances, one by one,",
+   "section": 2,
+   "words": [
+    {
+     "w": "I",
+     "t": 115.94
+    },
+    {
+     "w": "gave",
+     "t": 116.12
+    },
+    {
+     "w": "them",
+     "t": 116.36
+    },
+    {
+     "w": "chances,",
+     "t": 116.54
+    },
+    {
+     "w": "one",
+     "t": 116.92
+    },
+    {
+     "w": "by",
+     "t": 117.24
+    },
+    {
+     "w": "one,",
+     "t": 117.42
+    }
+   ],
+   "t": 115.94
+  },
+  {
+   "text": "But when I needed them, not one.",
+   "section": 2,
+   "words": [
+    {
+     "w": "But",
+     "t": 117.78
+    },
+    {
+     "w": "when",
+     "t": 117.88
+    },
+    {
+     "w": "I",
+     "t": 118.16
+    },
+    {
+     "w": "needed",
+     "t": 118.34
+    },
+    {
+     "w": "them,",
+     "t": 118.7
+    },
+    {
+     "w": "not",
+     "t": 119.1
+    },
+    {
+     "w": "one.",
+     "t": 119.22
+    }
+   ],
+   "t": 117.78
+  },
+  {
+   "text": "I won't forgive what they became,",
+   "section": 2,
+   "words": [
+    {
+     "w": "I",
+     "t": 119.48
+    },
+    {
+     "w": "won't",
+     "t": 119.66
+    },
+    {
+     "w": "forgive",
+     "t": 119.9
+    },
+    {
+     "w": "what",
+     "t": 120.28
+    },
+    {
+     "w": "they",
+     "t": 120.52
+    },
+    {
+     "w": "became,",
+     "t": 120.76
+    }
+   ],
+   "t": 119.48
+  },
+  {
+   "text": "They broke my trust, then cursed my name.",
+   "section": 2,
+   "words": [
+    {
+     "w": "They",
+     "t": 121.24
+    },
+    {
+     "w": "broke",
+     "t": 121.4
+    },
+    {
+     "w": "my",
+     "t": 121.64
+    },
+    {
+     "w": "trust,",
+     "t": 121.82
+    },
+    {
+     "w": "then",
+     "t": 122.05
+    },
+    {
+     "w": "cursed",
+     "t": 122.28
+    },
+    {
+     "w": "my",
+     "t": 122.56
+    },
+    {
+     "w": "name.",
+     "t": 122.74
+    }
+   ],
+   "t": 121.24
+  },
+  {
+   "text": "They thought my silence meant defeat,",
+   "section": 2,
+   "words": [
+    {
+     "w": "They",
+     "t": 122.98
+    },
+    {
+     "w": "thought",
+     "t": 123.16
+    },
+    {
+     "w": "my",
+     "t": 123.38
+    },
+    {
+     "w": "silence",
+     "t": 123.62
+    },
+    {
+     "w": "meant",
+     "t": 124.04
+    },
+    {
+     "w": "defeat,",
+     "t": 124.28
+    }
+   ],
+   "t": 122.98
+  },
+  {
+   "text": "But I'm still standing on my feet.",
+   "section": 2,
+   "words": [
+    {
+     "w": "But",
+     "t": 124.9
+    },
+    {
+     "w": "I'm",
+     "t": 124.98
+    },
+    {
+     "w": "still",
+     "t": 125.16
+    },
+    {
+     "w": "standing",
+     "t": 125.34
+    },
+    {
+     "w": "on",
+     "t": 125.76
+    },
+    {
+     "w": "my",
+     "t": 126.02
+    },
+    {
+     "w": "feet.",
+     "t": 126.24
+    }
+   ],
+   "t": 124.9
+  },
+  {
+   "text": "And in the silence, I heard You call,",
+   "section": 3,
+   "words": [
+    {
+     "w": "And",
+     "t": 126.56
+    },
+    {
+     "w": "in",
+     "t": 126.78
+    },
+    {
+     "w": "the",
+     "t": 126.98
+    },
+    {
+     "w": "silence,",
+     "t": 127.12
+    },
+    {
+     "w": "I",
+     "t": 127.76
+    },
+    {
+     "w": "heard",
+     "t": 128.08
+    },
+    {
+     "w": "You",
+     "t": 128.44
+    },
+    {
+     "w": "call,",
+     "t": 128.6
+    }
+   ],
+   "t": 126.56
+  },
+  {
+   "text": "You never left me through it all.",
+   "section": 3,
+   "words": [
+    {
+     "w": "You",
+     "t": 129.46
+    },
+    {
+     "w": "never",
+     "t": 130.24
+    },
+    {
+     "w": "left",
+     "t": 130.64
+    },
+    {
+     "w": "me",
+     "t": 131.1
+    },
+    {
+     "w": "through",
+     "t": 131.46
+    },
+    {
+     "w": "it",
+     "t": 132.06
+    },
+    {
+     "w": "all.",
+     "t": 132.34
+    }
+   ],
+   "t": 129.46
+  },
+  {
+   "text": "I thought the road had led nowhere,",
+   "section": 3,
+   "words": [
+    {
+     "w": "I",
+     "t": 133.24
+    },
+    {
+     "w": "thought",
+     "t": 133.74
+    },
+    {
+     "w": "the",
+     "t": 134.02
+    },
+    {
+     "w": "road",
+     "t": 134.22
+    },
+    {
+     "w": "had",
+     "t": 134.76
+    },
+    {
+     "w": "led",
+     "t": 134.98
+    },
+    {
+     "w": "nowhere,",
+     "t": 135.22
+    }
+   ],
+   "t": 133.24
+  },
+  {
+   "text": "But You were walking with me there.",
+   "section": 3,
+   "words": [
+    {
+     "w": "But",
+     "t": 136.86
+    },
+    {
+     "w": "You",
+     "t": 137.32
+    },
+    {
+     "w": "were",
+     "t": 137.52
+    },
+    {
+     "w": "walking",
+     "t": 137.78
+    },
+    {
+     "w": "with",
+     "t": 138.32
+    },
+    {
+     "w": "me",
+     "t": 139.1
+    },
+    {
+     "w": "there.",
+     "t": 139.32
+    }
+   ],
+   "t": 136.86
+  },
+  {
+   "text": "You took the things I held so tight,",
+   "section": 3,
+   "words": [
+    {
+     "w": "You",
+     "t": 139.74
+    },
+    {
+     "w": "took",
+     "t": 140.8
+    },
+    {
+     "w": "the",
+     "t": 141.08
+    },
+    {
+     "w": "things",
+     "t": 141.32
+    },
+    {
+     "w": "I",
+     "t": 141.68
+    },
+    {
+     "w": "held",
+     "t": 141.94
+    },
+    {
+     "w": "so",
+     "t": 142.3
+    },
+    {
+     "w": "tight,",
+     "t": 142.7
+    }
+   ],
+   "t": 139.74
+  },
+  {
+   "text": "To teach me how to find my light.",
+   "section": 3,
+   "words": [
+    {
+     "w": "To",
+     "t": 143.32
+    },
+    {
+     "w": "teach",
+     "t": 144.3
+    },
+    {
+     "w": "me",
+     "t": 144.62
+    },
+    {
+     "w": "how",
+     "t": 144.84
+    },
+    {
+     "w": "to",
+     "t": 145.26
+    },
+    {
+     "w": "find",
+     "t": 145.44
+    },
+    {
+     "w": "my",
+     "t": 145.86
+    },
+    {
+     "w": "light.",
+     "t": 146.36
+    }
+   ],
+   "t": 143.32
+  },
+  {
+   "text": "And though I walk through endless rain,",
+   "section": 3,
+   "words": [
+    {
+     "w": "And",
+     "t": 146.86
+    },
+    {
+     "w": "though",
+     "t": 147.92
+    },
+    {
+     "w": "I",
+     "t": 148.16
+    },
+    {
+     "w": "walk",
+     "t": 148.34
+    },
+    {
+     "w": "through",
+     "t": 148.74
+    },
+    {
+     "w": "endless",
+     "t": 149.02
+    },
+    {
+     "w": "rain,",
+     "t": 149.56
+    }
+   ],
+   "t": 146.86
+  },
+  {
+   "text": "I know the sun will rise again.",
+   "section": 3,
+   "words": [
+    {
+     "w": "I",
+     "t": 150.2
+    },
+    {
+     "w": "know",
+     "t": 150.68
+    },
+    {
+     "w": "the",
+     "t": 151.1
+    },
+    {
+     "w": "sun",
+     "t": 151.54
+    },
+    {
+     "w": "will",
+     "t": 152.06
+    },
+    {
+     "w": "rise",
+     "t": 152.64
+    },
+    {
+     "w": "again.",
+     "t": 153.28
+    }
+   ],
+   "t": 150.2
+  },
+  {
+   "text": "I'm still here, though I've lost it all,",
+   "section": 4,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 153.8
+    },
+    {
+     "w": "still",
+     "t": 154.66
+    },
+    {
+     "w": "here,",
+     "t": 155.06
+    },
+    {
+     "w": "though",
+     "t": 155.68
+    },
+    {
+     "w": "I've",
+     "t": 156.08
+    },
+    {
+     "w": "lost",
+     "t": 156.4
+    },
+    {
+     "w": "it",
+     "t": 156.78
+    },
+    {
+     "w": "all,",
+     "t": 157.06
+    }
+   ],
+   "t": 153.8
+  },
+  {
+   "text": "But I still rise each time I fall.",
+   "section": 4,
+   "words": [
+    {
+     "w": "But",
+     "t": 157.44
+    },
+    {
+     "w": "I",
+     "t": 158.46
+    },
+    {
+     "w": "still",
+     "t": 158.62
+    },
+    {
+     "w": "rise",
+     "t": 158.96
+    },
+    {
+     "w": "each",
+     "t": 159.54
+    },
+    {
+     "w": "time",
+     "t": 159.9
+    },
+    {
+     "w": "I",
+     "t": 160.38
+    },
+    {
+     "w": "fall.",
+     "t": 160.64
+    }
+   ],
+   "t": 157.44
+  },
+  {
+   "text": "I lost the life I thought I'd know,",
+   "section": 4,
+   "words": [
+    {
+     "w": "I",
+     "t": 161.1
+    },
+    {
+     "w": "lost",
+     "t": 162.0
+    },
+    {
+     "w": "the",
+     "t": 162.34
+    },
+    {
+     "w": "life",
+     "t": 162.6
+    },
+    {
+     "w": "I",
+     "t": 163.1
+    },
+    {
+     "w": "thought",
+     "t": 163.42
+    },
+    {
+     "w": "I'd",
+     "t": 163.8
+    },
+    {
+     "w": "know,",
+     "t": 164.18
+    }
+   ],
+   "t": 161.1
+  },
+  {
+   "text": "But found a strength I didn't know.",
+   "section": 4,
+   "words": [
+    {
+     "w": "But",
+     "t": 164.44
+    },
+    {
+     "w": "found",
+     "t": 165.46
+    },
+    {
+     "w": "a",
+     "t": 165.84
+    },
+    {
+     "w": "strength",
+     "t": 166.02
+    },
+    {
+     "w": "I",
+     "t": 166.62
+    },
+    {
+     "w": "didn't",
+     "t": 167.06
+    },
+    {
+     "w": "know.",
+     "t": 167.58
+    }
+   ],
+   "t": 164.44
+  },
+  {
+   "text": "Some nights I still forget to breathe,",
+   "section": 4,
+   "words": [
+    {
+     "w": "Some",
+     "t": 168.5
+    },
+    {
+     "w": "nights",
+     "t": 168.7
+    },
+    {
+     "w": "I",
+     "t": 169.14
+    },
+    {
+     "w": "still",
+     "t": 169.5
+    },
+    {
+     "w": "forget",
+     "t": 170.08
+    },
+    {
+     "w": "to",
+     "t": 170.7
+    },
+    {
+     "w": "breathe,",
+     "t": 171.08
+    }
+   ],
+   "t": 168.5
+  },
+  {
+   "text": "Still holding on to what I believe.",
+   "section": 4,
+   "words": [
+    {
+     "w": "Still",
+     "t": 171.42
+    },
+    {
+     "w": "holding",
+     "t": 172.16
+    },
+    {
+     "w": "on",
+     "t": 172.86
+    },
+    {
+     "w": "to",
+     "t": 173.22
+    },
+    {
+     "w": "what",
+     "t": 173.52
+    },
+    {
+     "w": "I",
+     "t": 173.84
+    },
+    {
+     "w": "believe.",
+     "t": 174.24
+    }
+   ],
+   "t": 171.42
+  },
+  {
+   "text": "I haven't reached the end of me,",
+   "section": 4,
+   "words": [
+    {
+     "w": "I",
+     "t": 175.58
+    },
+    {
+     "w": "haven't",
+     "t": 176.14
+    },
+    {
+     "w": "reached",
+     "t": 176.6
+    },
+    {
+     "w": "the",
+     "t": 177.0
+    },
+    {
+     "w": "end",
+     "t": 177.32
+    },
+    {
+     "w": "of",
+     "t": 177.76
+    },
+    {
+     "w": "me,",
+     "t": 177.94
+    }
+   ],
+   "t": 175.58
+  },
+  {
+   "text": "There's still a man I'm meant to be.",
+   "section": 4,
+   "words": [
+    {
+     "w": "There's",
+     "t": 179.18
+    },
+    {
+     "w": "still",
+     "t": 179.74
+    },
+    {
+     "w": "a",
+     "t": 179.92
+    },
+    {
+     "w": "man",
+     "t": 180.12
+    },
+    {
+     "w": "I'm",
+     "t": 180.62
+    },
+    {
+     "w": "meant",
+     "t": 181.1
+    },
+    {
+     "w": "to",
+     "t": 181.48
+    },
+    {
+     "w": "be.",
+     "t": 181.64
+    }
+   ],
+   "t": 179.18
+  },
+  {
+   "text": "I learned that kindness has a cost,",
+   "section": 5,
+   "words": [
+    {
+     "w": "I",
+     "t": 182.12
+    },
+    {
+     "w": "learned",
+     "t": 183.16
+    },
+    {
+     "w": "that",
+     "t": 183.44
+    },
+    {
+     "w": "kindness",
+     "t": 183.64
+    },
+    {
+     "w": "has",
+     "t": 184.06
+    },
+    {
+     "w": "a",
+     "t": 184.38
+    },
+    {
+     "w": "cost,",
+     "t": 184.54
+    }
+   ],
+   "t": 182.12
+  },
+  {
+   "text": "And counted everything I lost.",
+   "section": 5,
+   "words": [
+    {
+     "w": "And",
+     "t": 184.88
+    },
+    {
+     "w": "counted",
+     "t": 185.1
+    },
+    {
+     "w": "everything",
+     "t": 185.38
+    },
+    {
+     "w": "I",
+     "t": 185.92
+    },
+    {
+     "w": "lost.",
+     "t": 186.18
+    }
+   ],
+   "t": 184.88
+  },
+  {
+   "text": "I gave my best to those I knew,",
+   "section": 5,
+   "words": [
+    {
+     "w": "I",
+     "t": 186.56
+    },
+    {
+     "w": "gave",
+     "t": 186.76
+    },
+    {
+     "w": "my",
+     "t": 186.96
+    },
+    {
+     "w": "best",
+     "t": 187.14
+    },
+    {
+     "w": "to",
+     "t": 187.48
+    },
+    {
+     "w": "those",
+     "t": 187.64
+    },
+    {
+     "w": "I",
+     "t": 187.88
+    },
+    {
+     "w": "knew,",
+     "t": 188.04
+    }
+   ],
+   "t": 186.56
+  },
+  {
+   "text": "But none would see what I went through.",
+   "section": 5,
+   "words": [
+    {
+     "w": "But",
+     "t": 188.26
+    },
+    {
+     "w": "none",
+     "t": 188.48
+    },
+    {
+     "w": "would",
+     "t": 188.68
+    },
+    {
+     "w": "see",
+     "t": 188.88
+    },
+    {
+     "w": "what",
+     "t": 189.16
+    },
+    {
+     "w": "I",
+     "t": 189.36
+    },
+    {
+     "w": "went",
+     "t": 189.5
+    },
+    {
+     "w": "through.",
+     "t": 189.74
+    }
+   ],
+   "t": 188.26
+  },
+  {
+   "text": "I stopped expecting them to care,",
+   "section": 5,
+   "words": [
+    {
+     "w": "I",
+     "t": 190.0
+    },
+    {
+     "w": "stopped",
+     "t": 190.24
+    },
+    {
+     "w": "expecting",
+     "t": 190.54
+    },
+    {
+     "w": "them",
+     "t": 191.14
+    },
+    {
+     "w": "to",
+     "t": 191.4
+    },
+    {
+     "w": "care,",
+     "t": 191.56
+    }
+   ],
+   "t": 190.0
+  },
+  {
+   "text": "Or turn around and find them there.",
+   "section": 5,
+   "words": [
+    {
+     "w": "Or",
+     "t": 191.88
+    },
+    {
+     "w": "turn",
+     "t": 192.06
+    },
+    {
+     "w": "around",
+     "t": 192.28
+    },
+    {
+     "w": "and",
+     "t": 192.62
+    },
+    {
+     "w": "find",
+     "t": 192.86
+    },
+    {
+     "w": "them",
+     "t": 193.14
+    },
+    {
+     "w": "there.",
+     "t": 193.32
+    }
+   ],
+   "t": 191.88
+  },
+  {
+   "text": "Some bridges burn without a flame,",
+   "section": 5,
+   "words": [
+    {
+     "w": "Some",
+     "t": 193.56
+    },
+    {
+     "w": "bridges",
+     "t": 193.8
+    },
+    {
+     "w": "burn",
+     "t": 194.17
+    },
+    {
+     "w": "without",
+     "t": 194.54
+    },
+    {
+     "w": "a",
+     "t": 194.84
+    },
+    {
+     "w": "flame,",
+     "t": 195.08
+    }
+   ],
+   "t": 193.56
+  },
+  {
+   "text": "And some deserve to bear the shame.",
+   "section": 5,
+   "words": [
+    {
+     "w": "And",
+     "t": 195.4
+    },
+    {
+     "w": "some",
+     "t": 195.6
+    },
+    {
+     "w": "deserve",
+     "t": 195.91
+    },
+    {
+     "w": "to",
+     "t": 196.22
+    },
+    {
+     "w": "bear",
+     "t": 196.52
+    },
+    {
+     "w": "the",
+     "t": 196.72
+    },
+    {
+     "w": "shame.",
+     "t": 196.88
+    }
+   ],
+   "t": 195.4
+  },
+  {
+   "text": "They thought I'd crawl, they thought I'd break,",
+   "section": 6,
+   "words": [
+    {
+     "w": "They",
+     "t": 197.14
+    },
+    {
+     "w": "thought",
+     "t": 197.32
+    },
+    {
+     "w": "I'd",
+     "t": 197.48
+    },
+    {
+     "w": "crawl,",
+     "t": 197.8
+    },
+    {
+     "w": "they",
+     "t": 198.14
+    },
+    {
+     "w": "thought",
+     "t": 198.22
+    },
+    {
+     "w": "I'd",
+     "t": 198.4
+    },
+    {
+     "w": "break,",
+     "t": 198.66
+    }
+   ],
+   "t": 197.14
+  },
+  {
+   "text": "They never knew how much I'd take.",
+   "section": 6,
+   "words": [
+    {
+     "w": "They",
+     "t": 198.9
+    },
+    {
+     "w": "never",
+     "t": 199.1
+    },
+    {
+     "w": "knew",
+     "t": 199.42
+    },
+    {
+     "w": "how",
+     "t": 199.7
+    },
+    {
+     "w": "much",
+     "t": 199.92
+    },
+    {
+     "w": "I'd",
+     "t": 200.2
+    },
+    {
+     "w": "take.",
+     "t": 200.46
+    }
+   ],
+   "t": 198.9
+  },
+  {
+   "text": "They saw the scars, ignored the fight,",
+   "section": 6,
+   "words": [
+    {
+     "w": "They",
+     "t": 200.64
+    },
+    {
+     "w": "saw",
+     "t": 200.8
+    },
+    {
+     "w": "the",
+     "t": 201.04
+    },
+    {
+     "w": "scars,",
+     "t": 201.24
+    },
+    {
+     "w": "ignored",
+     "t": 201.7
+    },
+    {
+     "w": "the",
+     "t": 201.96
+    },
+    {
+     "w": "fight,",
+     "t": 202.14
+    }
+   ],
+   "t": 200.64
+  },
+  {
+   "text": "They never saw the sleepless nights.",
+   "section": 6,
+   "words": [
+    {
+     "w": "They",
+     "t": 202.42
+    },
+    {
+     "w": "never",
+     "t": 202.62
+    },
+    {
+     "w": "saw",
+     "t": 202.94
+    },
+    {
+     "w": "the",
+     "t": 203.24
+    },
+    {
+     "w": "sleepless",
+     "t": 203.44
+    },
+    {
+     "w": "nights.",
+     "t": 203.88
+    }
+   ],
+   "t": 202.42
+  },
+  {
+   "text": "They thought my tears would make me weak,",
+   "section": 6,
+   "words": [
+    {
+     "w": "They",
+     "t": 204.2
+    },
+    {
+     "w": "thought",
+     "t": 204.38
+    },
+    {
+     "w": "my",
+     "t": 204.58
+    },
+    {
+     "w": "tears",
+     "t": 204.78
+    },
+    {
+     "w": "would",
+     "t": 205.12
+    },
+    {
+     "w": "make",
+     "t": 205.28
+    },
+    {
+     "w": "me",
+     "t": 205.5
+    },
+    {
+     "w": "weak,",
+     "t": 205.74
+    }
+   ],
+   "t": 204.2
+  },
+  {
+   "text": "But pain gave strength to every word I'd speak.",
+   "section": 6,
+   "words": [
+    {
+     "w": "But",
+     "t": 205.98
+    },
+    {
+     "w": "pain",
+     "t": 206.14
+    },
+    {
+     "w": "gave",
+     "t": 206.36
+    },
+    {
+     "w": "strength",
+     "t": 206.56
+    },
+    {
+     "w": "to",
+     "t": 206.88
+    },
+    {
+     "w": "every",
+     "t": 207.08
+    },
+    {
+     "w": "word",
+     "t": 207.36
+    },
+    {
+     "w": "I'd",
+     "t": 207.7
+    },
+    {
+     "w": "speak.",
+     "t": 207.92
+    }
+   ],
+   "t": 205.98
+  },
+  {
+   "text": "They shut me out, they slammed the door,",
+   "section": 6,
+   "words": [
+    {
+     "w": "They",
+     "t": 208.14
+    },
+    {
+     "w": "shut",
+     "t": 208.34
+    },
+    {
+     "w": "me",
+     "t": 208.62
+    },
+    {
+     "w": "out,",
+     "t": 208.78
+    },
+    {
+     "w": "they",
+     "t": 209.08
+    },
+    {
+     "w": "slammed",
+     "t": 209.18
+    },
+    {
+     "w": "the",
+     "t": 209.48
+    },
+    {
+     "w": "door,",
+     "t": 209.62
+    }
+   ],
+   "t": 208.14
+  },
+  {
+   "text": "But I won't beg them anymore.",
+   "section": 6,
+   "words": [
+    {
+     "w": "But",
+     "t": 209.88
+    },
+    {
+     "w": "I",
+     "t": 210.08
+    },
+    {
+     "w": "won't",
+     "t": 210.32
+    },
+    {
+     "w": "beg",
+     "t": 210.58
+    },
+    {
+     "w": "them",
+     "t": 210.8
+    },
+    {
+     "w": "anymore.",
+     "t": 211.02
+    }
+   ],
+   "t": 209.88
+  },
+  {
+   "text": "I gave them mercy, they gave me hell,",
+   "section": 6,
+   "words": [
+    {
+     "w": "I",
+     "t": 211.52
+    },
+    {
+     "w": "gave",
+     "t": 211.68
+    },
+    {
+     "w": "them",
+     "t": 211.9
+    },
+    {
+     "w": "mercy,",
+     "t": 212.12
+    },
+    {
+     "w": "they",
+     "t": 212.5
+    },
+    {
+     "w": "gave",
+     "t": 212.72
+    },
+    {
+     "w": "me",
+     "t": 213.0
+    },
+    {
+     "w": "hell,",
+     "t": 213.16
+    }
+   ],
+   "t": 211.52
+  },
+  {
+   "text": "And left me with a tale to tell.",
+   "section": 6,
+   "words": [
+    {
+     "w": "And",
+     "t": 213.48
+    },
+    {
+     "w": "left",
+     "t": 213.62
+    },
+    {
+     "w": "me",
+     "t": 213.88
+    },
+    {
+     "w": "with",
+     "t": 214.04
+    },
+    {
+     "w": "a",
+     "t": 214.24
+    },
+    {
+     "w": "tale",
+     "t": 214.38
+    },
+    {
+     "w": "to",
+     "t": 214.74
+    },
+    {
+     "w": "tell.",
+     "t": 214.92
+    }
+   ],
+   "t": 213.48
+  },
+  {
+   "text": "They tried to silence every word,",
+   "section": 6,
+   "words": [
+    {
+     "w": "They",
+     "t": 215.18
+    },
+    {
+     "w": "tried",
+     "t": 215.36
+    },
+    {
+     "w": "to",
+     "t": 215.66
+    },
+    {
+     "w": "silence",
+     "t": 215.82
+    },
+    {
+     "w": "every",
+     "t": 216.28
+    },
+    {
+     "w": "word,",
+     "t": 216.6
+    }
+   ],
+   "t": 215.18
+  },
+  {
+   "text": "But now my voice demands to be heard.",
+   "section": 6,
+   "words": [
+    {
+     "w": "But",
+     "t": 216.92
+    },
+    {
+     "w": "now",
+     "t": 217.14
+    },
+    {
+     "w": "my",
+     "t": 217.36
+    },
+    {
+     "w": "voice",
+     "t": 217.56
+    },
+    {
+     "w": "demands",
+     "t": 217.86
+    },
+    {
+     "w": "to",
+     "t": 218.18
+    },
+    {
+     "w": "be",
+     "t": 218.36
+    },
+    {
+     "w": "heard.",
+     "t": 218.5
+    }
+   ],
+   "t": 216.92
+  },
+  {
+   "text": "I paid the price, I broke the chain,",
+   "section": 6,
+   "words": [
+    {
+     "w": "I",
+     "t": 218.74
+    },
+    {
+     "w": "paid",
+     "t": 218.9
+    },
+    {
+     "w": "the",
+     "t": 219.18
+    },
+    {
+     "w": "price,",
+     "t": 219.34
+    },
+    {
+     "w": "I",
+     "t": 219.76
+    },
+    {
+     "w": "broke",
+     "t": 219.8
+    },
+    {
+     "w": "the",
+     "t": 220.08
+    },
+    {
+     "w": "chain,",
+     "t": 220.24
+    }
+   ],
+   "t": 218.74
+  },
+  {
+   "text": "And learned to live despite the pain.",
+   "section": 6,
+   "words": [
+    {
+     "w": "And",
+     "t": 220.56
+    },
+    {
+     "w": "learned",
+     "t": 220.72
+    },
+    {
+     "w": "to",
+     "t": 220.96
+    },
+    {
+     "w": "live",
+     "t": 221.14
+    },
+    {
+     "w": "despite",
+     "t": 221.38
+    },
+    {
+     "w": "the",
+     "t": 221.72
+    },
+    {
+     "w": "pain.",
+     "t": 221.94
+    }
+   ],
+   "t": 220.56
+  },
+  {
+   "text": "I won't look back, I won't retreat,",
+   "section": 6,
+   "words": [
+    {
+     "w": "I",
+     "t": 222.24
+    },
+    {
+     "w": "won't",
+     "t": 222.46
+    },
+    {
+     "w": "look",
+     "t": 222.72
+    },
+    {
+     "w": "back,",
+     "t": 222.9
+    },
+    {
+     "w": "I",
+     "t": 223.18
+    },
+    {
+     "w": "won't",
+     "t": 223.34
+    },
+    {
+     "w": "retreat,",
+     "t": 223.6
+    }
+   ],
+   "t": 222.24
+  },
+  {
+   "text": "My heart still breaks, but still it beats.",
+   "section": 6,
+   "words": [
+    {
+     "w": "My",
+     "t": 223.96
+    },
+    {
+     "w": "heart",
+     "t": 224.22
+    },
+    {
+     "w": "still",
+     "t": 224.46
+    },
+    {
+     "w": "breaks,",
+     "t": 224.68
+    },
+    {
+     "w": "but",
+     "t": 224.94
+    },
+    {
+     "w": "still",
+     "t": 225.1
+    },
+    {
+     "w": "it",
+     "t": 225.34
+    },
+    {
+     "w": "beats.",
+     "t": 225.54
+    }
+   ],
+   "t": 223.96
+  },
+  {
+   "text": "Maybe You broke what I called home,",
+   "section": 7,
+   "words": [
+    {
+     "w": "Maybe",
+     "t": 227.14
+    },
+    {
+     "w": "You",
+     "t": 227.44
+    },
+    {
+     "w": "broke",
+     "t": 227.7
+    },
+    {
+     "w": "what",
+     "t": 228.18
+    },
+    {
+     "w": "I",
+     "t": 228.48
+    },
+    {
+     "w": "called",
+     "t": 228.72
+    },
+    {
+     "w": "home,",
+     "t": 229.26
+    }
+   ],
+   "t": 227.14
+  },
+  {
+   "text": "To show me I was never home.",
+   "section": 7,
+   "words": [
+    {
+     "w": "To",
+     "t": 230.4
+    },
+    {
+     "w": "show",
+     "t": 230.78
+    },
+    {
+     "w": "me",
+     "t": 231.06
+    },
+    {
+     "w": "I",
+     "t": 231.28
+    },
+    {
+     "w": "was",
+     "t": 231.6
+    },
+    {
+     "w": "never",
+     "t": 231.96
+    },
+    {
+     "w": "home.",
+     "t": 232.34
+    }
+   ],
+   "t": 230.4
+  },
+  {
+   "text": "I searched for reasons in the rain,",
+   "section": 7,
+   "words": [
+    {
+     "w": "I",
+     "t": 233.96
+    },
+    {
+     "w": "searched",
+     "t": 234.34
+    },
+    {
+     "w": "for",
+     "t": 234.72
+    },
+    {
+     "w": "reasons",
+     "t": 234.94
+    },
+    {
+     "w": "in",
+     "t": 235.46
+    },
+    {
+     "w": "the",
+     "t": 235.86
+    },
+    {
+     "w": "rain,",
+     "t": 235.98
+    }
+   ],
+   "t": 233.96
+  },
+  {
+   "text": "And wondered what was left to gain.",
+   "section": 7,
+   "words": [
+    {
+     "w": "And",
+     "t": 237.46
+    },
+    {
+     "w": "wondered",
+     "t": 237.84
+    },
+    {
+     "w": "what",
+     "t": 238.26
+    },
+    {
+     "w": "was",
+     "t": 238.56
+    },
+    {
+     "w": "left",
+     "t": 238.9
+    },
+    {
+     "w": "to",
+     "t": 239.59
+    },
+    {
+     "w": "gain.",
+     "t": 240.27
+    }
+   ],
+   "t": 237.46
+  },
+  {
+   "text": "Perhaps You never turned away,",
+   "section": 7,
+   "words": [
+    {
+     "w": "Perhaps",
+     "t": 240.96
+    },
+    {
+     "w": "You",
+     "t": 241.72
+    },
+    {
+     "w": "never",
+     "t": 241.92
+    },
+    {
+     "w": "turned",
+     "t": 242.38
+    },
+    {
+     "w": "away,",
+     "t": 242.94
+    }
+   ],
+   "t": 240.96
+  },
+  {
+   "text": "You simply let me find my way.",
+   "section": 7,
+   "words": [
+    {
+     "w": "You",
+     "t": 244.54
+    },
+    {
+     "w": "simply",
+     "t": 244.92
+    },
+    {
+     "w": "let",
+     "t": 245.4
+    },
+    {
+     "w": "me",
+     "t": 245.76
+    },
+    {
+     "w": "find",
+     "t": 245.98
+    },
+    {
+     "w": "my",
+     "t": 246.42
+    },
+    {
+     "w": "way.",
+     "t": 246.78
+    }
+   ],
+   "t": 244.54
+  },
+  {
+   "text": "I still don't know what lies ahead,",
+   "section": 7,
+   "words": [
+    {
+     "w": "I",
+     "t": 248.06
+    },
+    {
+     "w": "still",
+     "t": 248.44
+    },
+    {
+     "w": "don't",
+     "t": 248.72
+    },
+    {
+     "w": "know",
+     "t": 248.98
+    },
+    {
+     "w": "what",
+     "t": 249.2
+    },
+    {
+     "w": "lies",
+     "t": 249.48
+    },
+    {
+     "w": "ahead,",
+     "t": 249.9
+    }
+   ],
+   "t": 248.06
+  },
+  {
+   "text": "But I still hear the words You said.",
+   "section": 7,
+   "words": [
+    {
+     "w": "But",
+     "t": 251.64
+    },
+    {
+     "w": "I",
+     "t": 252.02
+    },
+    {
+     "w": "still",
+     "t": 252.2
+    },
+    {
+     "w": "hear",
+     "t": 252.54
+    },
+    {
+     "w": "the",
+     "t": 252.92
+    },
+    {
+     "w": "words",
+     "t": 253.14
+    },
+    {
+     "w": "You",
+     "t": 253.6
+    },
+    {
+     "w": "said.",
+     "t": 253.84
+    }
+   ],
+   "t": 251.64
+  },
+  {
+   "text": "I may be broken, but I'm here,",
+   "section": 8,
+   "words": [
+    {
+     "w": "I",
+     "t": 255.98
+    },
+    {
+     "w": "may",
+     "t": 256.84
+    },
+    {
+     "w": "be",
+     "t": 257.22
+    },
+    {
+     "w": "broken,",
+     "t": 257.52
+    },
+    {
+     "w": "but",
+     "t": 258.3
+    },
+    {
+     "w": "I'm",
+     "t": 258.92
+    },
+    {
+     "w": "here,",
+     "t": 259.2
+    }
+   ],
+   "t": 255.98
+  },
+  {
+   "text": "And somehow, hope is drawing near.",
+   "section": 8,
+   "words": [
+    {
+     "w": "And",
+     "t": 259.58
+    },
+    {
+     "w": "somehow,",
+     "t": 260.36
+    },
+    {
+     "w": "hope",
+     "t": 260.94
+    },
+    {
+     "w": "is",
+     "t": 261.58
+    },
+    {
+     "w": "drawing",
+     "t": 262.1
+    },
+    {
+     "w": "near.",
+     "t": 262.56
+    }
+   ],
+   "t": 259.58
+  },
+  {
+   "text": "I cannot change the years I've lost,",
+   "section": 8,
+   "words": [
+    {
+     "w": "I",
+     "t": 263.08
+    },
+    {
+     "w": "cannot",
+     "t": 263.92
+    },
+    {
+     "w": "change",
+     "t": 264.34
+    },
+    {
+     "w": "the",
+     "t": 265.06
+    },
+    {
+     "w": "years",
+     "t": 265.5
+    },
+    {
+     "w": "I've",
+     "t": 265.94
+    },
+    {
+     "w": "lost,",
+     "t": 266.28
+    }
+   ],
+   "t": 263.08
+  },
+  {
+   "text": "Or take back all the lines they crossed.",
+   "section": 8,
+   "words": [
+    {
+     "w": "Or",
+     "t": 266.98
+    },
+    {
+     "w": "take",
+     "t": 267.46
+    },
+    {
+     "w": "back",
+     "t": 267.84
+    },
+    {
+     "w": "all",
+     "t": 268.18
+    },
+    {
+     "w": "the",
+     "t": 268.7
+    },
+    {
+     "w": "lines",
+     "t": 268.98
+    },
+    {
+     "w": "they",
+     "t": 269.46
+    },
+    {
+     "w": "crossed.",
+     "t": 269.76
+    }
+   ],
+   "t": 266.98
+  },
+  {
+   "text": "They took so much, but not my soul,",
+   "section": 8,
+   "words": [
+    {
+     "w": "They",
+     "t": 270.32
+    },
+    {
+     "w": "took",
+     "t": 270.74
+    },
+    {
+     "w": "so",
+     "t": 271.1
+    },
+    {
+     "w": "much,",
+     "t": 271.5
+    },
+    {
+     "w": "but",
+     "t": 272.08
+    },
+    {
+     "w": "not",
+     "t": 272.32
+    },
+    {
+     "w": "my",
+     "t": 272.84
+    },
+    {
+     "w": "soul,",
+     "t": 273.26
+    }
+   ],
+   "t": 270.32
+  },
+  {
+   "text": "I'm still the one who makes me whole.",
+   "section": 8,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 273.82
+    },
+    {
+     "w": "still",
+     "t": 274.42
+    },
+    {
+     "w": "the",
+     "t": 274.86
+    },
+    {
+     "w": "one",
+     "t": 275.16
+    },
+    {
+     "w": "who",
+     "t": 275.58
+    },
+    {
+     "w": "makes",
+     "t": 275.94
+    },
+    {
+     "w": "me",
+     "t": 276.46
+    },
+    {
+     "w": "whole.",
+     "t": 276.72
+    }
+   ],
+   "t": 273.82
+  },
+  {
+   "text": "The road is long, the night is deep,",
+   "section": 8,
+   "words": [
+    {
+     "w": "The",
+     "t": 277.12
+    },
+    {
+     "w": "road",
+     "t": 278.04
+    },
+    {
+     "w": "is",
+     "t": 278.42
+    },
+    {
+     "w": "long,",
+     "t": 278.68
+    },
+    {
+     "w": "the",
+     "t": 279.34
+    },
+    {
+     "w": "night",
+     "t": 279.64
+    },
+    {
+     "w": "is",
+     "t": 279.94
+    },
+    {
+     "w": "deep,",
+     "t": 280.2
+    }
+   ],
+   "t": 277.12
+  },
+  {
+   "text": "And still, I rise when others sleep.",
+   "section": 8,
+   "words": [
+    {
+     "w": "And",
+     "t": 280.7
+    },
+    {
+     "w": "still,",
+     "t": 281.94
+    },
+    {
+     "w": "I",
+     "t": 282.28
+    },
+    {
+     "w": "rise",
+     "t": 282.5
+    },
+    {
+     "w": "when",
+     "t": 283.36
+    },
+    {
+     "w": "others",
+     "t": 283.88
+    },
+    {
+     "w": "sleep.",
+     "t": 285.1
+    }
+   ],
+   "t": 280.7
+  },
+  {
+   "text": "And when the morning finds my face,",
+   "section": 9,
+   "words": [
+    {
+     "w": "And",
+     "t": 293.66
+    },
+    {
+     "w": "when",
+     "t": 294.38
+    },
+    {
+     "w": "the",
+     "t": 294.54
+    },
+    {
+     "w": "morning",
+     "t": 294.66
+    },
+    {
+     "w": "finds",
+     "t": 294.96
+    },
+    {
+     "w": "my",
+     "t": 295.42
+    },
+    {
+     "w": "face,",
+     "t": 295.7
+    }
+   ],
+   "t": 293.66
+  },
+  {
+   "text": "I'll find the strength to claim my place.",
+   "section": 9,
+   "words": [
+    {
+     "w": "I'll",
+     "t": 297.18
+    },
+    {
+     "w": "find",
+     "t": 297.9
+    },
+    {
+     "w": "the",
+     "t": 298.14
+    },
+    {
+     "w": "strength",
+     "t": 298.28
+    },
+    {
+     "w": "to",
+     "t": 298.68
+    },
+    {
+     "w": "claim",
+     "t": 298.94
+    },
+    {
+     "w": "my",
+     "t": 299.3
+    },
+    {
+     "w": "place.",
+     "t": 299.6
+    }
+   ],
+   "t": 297.18
+  },
+  {
+   "text": "And though some wounds will always stay,",
+   "section": 9,
+   "words": [
+    {
+     "w": "And",
+     "t": 300.18
+    },
+    {
+     "w": "though",
+     "t": 301.46
+    },
+    {
+     "w": "some",
+     "t": 301.64
+    },
+    {
+     "w": "wounds",
+     "t": 301.92
+    },
+    {
+     "w": "will",
+     "t": 302.4
+    },
+    {
+     "w": "always",
+     "t": 302.64
+    },
+    {
+     "w": "stay,",
+     "t": 303.14
+    }
+   ],
+   "t": 300.18
+  },
+  {
+   "text": "I'll carry them, but walk away.",
+   "section": 9,
+   "words": [
+    {
+     "w": "I'll",
+     "t": 303.64
+    },
+    {
+     "w": "carry",
+     "t": 305.06
+    },
+    {
+     "w": "them,",
+     "t": 305.38
+    },
+    {
+     "w": "but",
+     "t": 305.78
+    },
+    {
+     "w": "walk",
+     "t": 306.1
+    },
+    {
+     "w": "away.",
+     "t": 306.5
+    }
+   ],
+   "t": 303.64
+  },
+  {
+   "text": "And if You hear me when I pray,",
+   "section": 9,
+   "words": [
+    {
+     "w": "And",
+     "t": 307.8
+    },
+    {
+     "w": "if",
+     "t": 308.52
+    },
+    {
+     "w": "You",
+     "t": 308.74
+    },
+    {
+     "w": "hear",
+     "t": 308.86
+    },
+    {
+     "w": "me",
+     "t": 309.22
+    },
+    {
+     "w": "when",
+     "t": 309.44
+    },
+    {
+     "w": "I",
+     "t": 309.72
+    },
+    {
+     "w": "pray,",
+     "t": 309.86
+    }
+   ],
+   "t": 307.8
+  },
+  {
+   "text": "Was losing all the only way?",
+   "section": 9,
+   "words": [
+    {
+     "w": "Was",
+     "t": 311.84
+    },
+    {
+     "w": "losing",
+     "t": 312.54
+    },
+    {
+     "w": "all",
+     "t": 312.92
+    },
+    {
+     "w": "the",
+     "t": 313.2
+    },
+    {
+     "w": "only",
+     "t": 313.4
+    },
+    {
+     "w": "way?",
+     "t": 314.0
+    }
+   ],
+   "t": 311.84
+  },
+  {
+   "text": "I'm not the man I used to be,",
+   "section": 9,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 316.7
+    },
+    {
+     "w": "not",
+     "t": 317.4
+    },
+    {
+     "w": "the",
+     "t": 317.62
+    },
+    {
+     "w": "man",
+     "t": 317.8
+    },
+    {
+     "w": "I",
+     "t": 318.14
+    },
+    {
+     "w": "used",
+     "t": 318.44
+    },
+    {
+     "w": "to",
+     "t": 318.8
+    },
+    {
+     "w": "be,",
+     "t": 319.0
+    }
+   ],
+   "t": 316.7
+  },
+  {
+   "text": "I am the strength that set me free.",
+   "section": 9,
+   "words": [
+    {
+     "w": "I",
+     "t": 322.26
+    },
+    {
+     "w": "am",
+     "t": 322.96
+    },
+    {
+     "w": "the",
+     "t": 323.18
+    },
+    {
+     "w": "strength",
+     "t": 323.38
+    },
+    {
+     "w": "that",
+     "t": 323.86
+    },
+    {
+     "w": "set",
+     "t": 324.16
+    },
+    {
+     "w": "me",
+     "t": 324.56
+    },
+    {
+     "w": "free.",
+     "t": 324.82
+    }
+   ],
+   "t": 322.26
+  }
+ ]
+}
