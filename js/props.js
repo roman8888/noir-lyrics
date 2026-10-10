@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261010193950';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H } from './layout.js?v=20261010193950';
+import { rng, clamp } from './util.js?v=20261010195259';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, LAMP_H } from './layout.js?v=20261010195259';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -14,7 +14,7 @@ const ease = x => 1 - Math.pow(1 - clamp(x), 3);
 function figure(s = 1, mat = INK(), umbrella = false) {
   const g = new THREE.Group();
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.3 * s, 1.35 * s, 4, 12), mat); body.position.y = 1.05 * s; g.add(body);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.21 * s, 14, 10), mat); head.position.y = 2.08 * s; g.add(head);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.21 * s, 14, 10), mat); head.position.y = 2.08 * s; g.add(head); g.userData.head = head;
   if (umbrella) {
     const u = new THREE.Mesh(new THREE.SphereGeometry(0.85 * s, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), mat); u.position.y = 2.25 * s; g.add(u);
     const st = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.2 * s), mat); st.position.y = 1.7 * s; g.add(st);
@@ -224,7 +224,7 @@ export function createProps(scene, city, timing, fonts, route) {
   const pool = new THREE.Group(); scene.add(pool);
   const PX = -(FACADE + 10), PZ = A.z;                           // the flooded end of the first alley
   const waterGeo = new THREE.PlaneGeometry(14, A.w + 1, 70, 24);
-  const water = new THREE.Mesh(waterGeo, new THREE.MeshStandardMaterial({ color: 0x05070a, roughness: 0.3, metalness: 0.45, transparent: true, opacity: 0.96 }));
+  const water = new THREE.Mesh(waterGeo, new THREE.MeshStandardMaterial({ color: 0x0a1218, roughness: 0.25, metalness: 0.35, transparent: true, opacity: 0.72, side: THREE.DoubleSide }));
   water.rotation.x = -Math.PI / 2; water.position.set(PX, 0.42, PZ); pool.add(water);
   const w0 = waterGeo.attributes.position.array.slice();
   const victim = new THREE.Group(); victim.position.set(PX - 1.2, 0.42, PZ); pool.add(victim);
@@ -233,18 +233,36 @@ export function createProps(scene, city, timing, fonts, route) {
   const vSh = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 0.3, 4, 12), vm); vSh.rotation.z = Math.PI / 2; vSh.position.y = -0.25; victim.add(vSh);
   for (const s of [-1, 1]) { const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 0.8, 4, 8), vm); arm.position.set(s * 0.45, 0.25, 0.1 * s); arm.rotation.z = s * 0.5; victim.add(arm); }
   const hands = [];
-  const handMat = new THREE.MeshStandardMaterial({ color: 0x08080a, roughness: 0.95 });
+  const handMat = new THREE.MeshStandardMaterial({ color: 0x17100f, roughness: 0.75 });
+  const HR = 0.5 + r() * 0.0;                                             // all arms are built around the victim's head
   for (let i = 0; i < 20; i++) {
-    const g = new THREE.Group();
-    const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 2.6, 4, 10), handMat); arm.position.y = 1.5; g.add(arm);
-    const palm = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.08, 0.34), handMat); palm.position.y = 0.05; g.add(palm);
-    for (let f = 0; f < 4; f++) { const fi = new THREE.Mesh(new THREE.CapsuleGeometry(0.028, 0.22, 3, 6), handMat); fi.rotation.x = Math.PI / 2 - 0.5; fi.position.set(-0.1 + f * 0.065, 0.02, 0.25); g.add(fi); }
-    const th = new THREE.Mesh(new THREE.CapsuleGeometry(0.03, 0.16, 3, 6), handMat); th.rotation.z = Math.PI / 2 - 0.4; th.position.set(0.17, 0.03, 0.08); g.add(th);
-    const ang = (i / 20) * Math.PI * 2 + r() * 0.3, tilt = 0.18 + r() * 0.28, radius = 0.25 + (i % 3) * 0.16;
-    g.userData = { ang, tilt, radius, delay: r() * 0.9, ph: r() * 6 };
-    g.rotation.set(Math.sin(ang) * tilt, 0, -Math.cos(ang) * tilt);
-    pool.add(g); hands.push(g);
+    // shoulder → upper arm → elbow → forearm → wrist → palm → fingers, each a child of the one before
+    const arm = new THREE.Group();
+    const upper = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 1.25, 4, 10), handMat); upper.position.y = -0.62; arm.add(upper);
+    const elbow = new THREE.Group(); elbow.position.y = -1.25; arm.add(elbow);
+    const fore = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 1.1, 4, 10), handMat); fore.position.y = -0.55; elbow.add(fore);
+    const wrist = new THREE.Group(); wrist.position.y = -1.1; elbow.add(wrist);
+    const palm = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 10), handMat); palm.scale.set(1, 0.42, 1.2); palm.position.y = -0.08; wrist.add(palm);
+    const fingers = [];
+    for (let f = 0; f < 4; f++) {
+      const base = new THREE.Group(); base.position.set(-0.1 + f * 0.067, -0.08, 0.15); wrist.add(base);
+      const p1 = new THREE.Mesh(new THREE.CapsuleGeometry(0.026, 0.16, 3, 6), handMat); p1.rotation.x = Math.PI / 2; p1.position.z = 0.1; base.add(p1);
+      const knuckle = new THREE.Group(); knuckle.position.z = 0.2; base.add(knuckle);
+      const p2 = new THREE.Mesh(new THREE.CapsuleGeometry(0.023, 0.14, 3, 6), handMat); p2.rotation.x = Math.PI / 2; p2.position.z = 0.08; knuckle.add(p2);
+      fingers.push({ base, knuckle });
+    }
+    const thumb = new THREE.Group(); thumb.position.set(0.15, -0.06, 0.02); thumb.rotation.y = -0.9; thumb.rotation.z = 0.5; wrist.add(thumb);
+    const tp = new THREE.Mesh(new THREE.CapsuleGeometry(0.028, 0.16, 3, 6), handMat); tp.rotation.x = Math.PI / 2; tp.position.z = 0.1; thumb.add(tp);
+    const ang = (i / 20) * Math.PI * 2 + (r() - 0.5) * 0.35, radius = 0.22 + (i % 4) * 0.09, tilt = 0.55 + r() * 0.5;
+    arm.userData = { ang, radius, tilt, delay: r(), ph: r() * 6, elbow, wrist, fingers, thumb, sway: (r() - 0.5) * 0.4 };
+    pool.add(arm); hands.push(arm);
   }
+  // rings on the water where the hands press
+  const pressRings = [];
+  for (let i = 0; i < 10; i++) { const m = new THREE.Mesh(new THREE.RingGeometry(0.1, 0.115, 40), new THREE.MeshBasicMaterial({ color: 0x7a8494, transparent: true, opacity: 0 })); m.rotation.x = -Math.PI / 2; m.position.set(PX - 1.2, 0.44, PZ); m.userData.ph = i / 10; pool.add(m); pressRings.push(m); }
+  const NB = 70, bPos = new Float32Array(NB * 3), bLife = new Float32Array(NB).map(() => Math.random());
+  const bubbleGeo = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(bPos, 3));
+  const bubbles = new THREE.Points(bubbleGeo, new THREE.PointsMaterial({ map: puffTex, size: 0.09, transparent: true, depthWrite: false, opacity: 0.8, color: 0xcfe0ee })); bubbles.visible = false; scene.add(bubbles);
   const poolLight = new THREE.PointLight(0xcfd8ff, 0, 14, 1.6); poolLight.position.set(PX + 2, 4.5, PZ); pool.add(poolLight);
   // a hard backlight at the end of the alley: the head and the hands become silhouettes on lit water
   const poolBack = new THREE.PointLight(0xe8eeff, 0, 30, 1.2); poolBack.position.set(PX - 3.6, 3.0, PZ); pool.add(poolBack);
@@ -309,13 +327,21 @@ export function createProps(scene, city, timing, fonts, route) {
   const T_DAWN = timing.sections.find(s => s.name === 'Final Chorus')?.t ?? 256;
 
   return {
-    room, pool, hands, alleyLights, solid,
+    room, pool, hands, alleyLights, solid, under: 0,
     update(dt, t, time, env, camera) {
       // walkers
-      for (const f of walkers) { const w = f.userData.w; w.z += w.v * dt; if (w.z < -330) w.z = 40; if (w.z > 40) w.z = -330; f.position.set(w.x, Math.abs(Math.sin(time * 5 + w.x)) * 0.03, w.z); }
+      for (const f of walkers) { const w = f.userData.w; w.z += w.v * dt; if (w.z < -330) w.z = 40; if (w.z > 40) w.z = -330; f.position.set(w.x, Math.abs(Math.sin(time * 5 + w.x)) * 0.03, w.z);
+        const dz = camera.position.z - w.z; f.visible = !(camera.position.y < 6 && dz > -3 && dz < 20); }   // never in front of the words
       // crowd: faces the camera until the line, then turns its back and walks away
-      const ck = T_CROWD > 0 ? clamp((t - T_CROWD - 0.6) / 1.6) : 0;
-      for (const f of crowd) { f.rotation.y = Math.PI / 2 + Math.PI * ease(ck) + Math.sin(time * 0.6 + f.userData.ph * 9) * 0.04; f.position.x -= (t > T_CROWD + 2.2 && t < T_CROWD + 9 ? 0.7 : 0) * dt; f.visible = !(T_CROWD > 0 && t > T_CROWD + 9.5) || t < T_CROWD; }
+      const ct = T_CROWD > 0 ? t - T_CROWD : -99;
+      for (const f of crowd) {
+        const ph = f.userData.ph;
+        f.visible = ct > -1.2 && ct < 11;
+        const headTurn = ease((ct - 0.9 - ph * 0.5) / 0.7), bodyTurn = ease((ct - 1.7 - ph * 0.6) / 1.1), walk = clamp((ct - 3.0 - ph * 0.8) / 0.5);
+        f.userData.head.rotation.y = Math.PI * 0.6 * headTurn * (1 - bodyTurn);
+        f.rotation.y = Math.PI / 2 + Math.PI * bodyTurn + Math.sin(time * 0.6 + ph * 9) * 0.04;
+        if (walk > 0) { f.position.x -= 0.55 * dt * walk; f.position.y = Math.abs(Math.sin(time * 4.2 + ph * 7)) * 0.045 * walk; f.rotation.z = Math.sin(time * 4.2 + ph * 7) * 0.03 * walk; }
+      }
       // the two walking
       const tw = T_TWO > 0 ? t - T_TWO + 1.5 : -1;
       two.forEach((f, i) => { f.visible = tw > 0 && tw < 14; f.position.set(-0.6 + i * 1.2, Math.abs(Math.sin(time * 4.8 + i)) * 0.04, -118 - tw * 1.1); f.rotation.y = 0; });
@@ -355,20 +381,48 @@ export function createProps(scene, city, timing, fonts, route) {
       } else eyesPlaced = eyesPlaced && ek < 6.5;
       // the drowning
       const dk = T_DROWN > 0 ? t - T_DROWN : -1;
-      pool.visible = dk > -1.5 && dk < 9;
+      pool.visible = dk > -1.5 && dk < 9; if (!pool.visible) { this.under = 0; bubbles.visible = false; }
       if (pool.visible) {
-        const press = ease((dk - 0.4) / 1.6);                                    // hands come down over ~1.6 s
-        const sink = ease((dk - 1.6) / 2.6);                                     // the head goes under
-        victim.position.y = 0.42 - sink * 0.75 + Math.sin(time * 6) * 0.03 * (1 - sink);
-        victim.rotation.z = Math.sin(time * 3.1) * 0.12 * (1 - sink);
-        hands.forEach(g => { const u = g.userData; const k = ease((dk - u.delay * 0.6 - 0.2) / 1.4);
-          const y = 5.5 - k * (4.6 + sink * 0.6) + Math.sin(time * 9 + u.ph) * 0.03 * k;
-          g.position.set(victim.position.x + Math.cos(u.ang) * u.radius * (1.4 - k * 0.4), y, victim.position.z + Math.sin(u.ang) * u.radius * (1.4 - k * 0.4)); });
+        const press = ease((dk - 0.4) / 1.6);                                    // the arms arrive over ~1.6 s
+        const sink = ease((dk - 1.9) / 3.2);                                     // the head goes under, push by push
+        const pulse = Math.pow(Math.max(0, Math.sin(time * 5.2)), 3);            // the pressing rhythm
+        victim.position.y = 0.42 - sink * 0.85 - press * pulse * 0.08 + Math.sin(time * 6) * 0.03 * (1 - sink);
+        victim.rotation.z = Math.sin(time * 3.1) * 0.14 * (1 - sink);
+        victim.rotation.x = -0.35 * press * (1 - sink);                           // the head tilts back, gasping
+        victim.children.forEach((c, k) => { if (k >= 2) { const sd = k === 2 ? -1 : 1; c.rotation.z = sd * (0.5 + Math.sin(time * 7 + k) * 0.6 * (1 - sink) * press); c.rotation.x = Math.sin(time * 9 + k * 2) * 0.4 * (1 - sink); } });
+        // the viewer is the one drowning: the hands close in on the lens and force the camera under
+        victim.visible = false;
+        const camF = new THREE.Vector3(); camera.getWorldDirection(camF);
+        const camR = new THREE.Vector3().crossVectors(camF, new THREE.Vector3(0, 1, 0)).normalize(), camU = new THREE.Vector3().crossVectors(camR, camF).normalize();
+        const lens = camera.position.clone().addScaledVector(camF, 0.42);
+        const hx = lens.x, hz = lens.z, hy = lens.y;
+        hands.forEach(g => { const u = g.userData;
+          const k = ease((dk - u.delay * 0.9 - 0.1) / 1.5);                        // this arm's descent
+          const ca = Math.cos(u.ang), sa = Math.sin(u.ang);
+          // shoulders in a ring above and around the viewer, hands aiming at the lens
+          const sh = camera.position.clone().addScaledVector(camR, ca * (1.9 + u.radius * 2)).addScaledVector(camU, 1.6 + Math.max(0, sa) * 1.2 + (u.ph % 1) * 0.4).addScaledVector(camF, 0.9 + u.radius);
+          const tgt = lens.clone().addScaledVector(camR, ca * u.radius * 0.9).addScaledVector(camU, sa * u.radius * 0.6 + 0.05).addScaledVector(camF, (1 - k) * 2.5 - press * pulse * 0.06 * k);
+          g.position.copy(sh).addScaledVector(camR, Math.sin(time * 1.3 + u.ph) * 0.05 * u.sway);
+          const L = g.position.distanceTo(tgt);
+          g.lookAt(tgt); g.rotateX(-Math.PI / 2);                                  // the arm hangs along -y: point it at the lens
+          const bend = Math.max(0, 1 - L / 2.35) * 1.3;
+          u.elbow.rotation.x = -bend; g.rotateX(bend * 0.5);
+          u.wrist.rotation.x = -0.9 + 0.6 * k;
+          const curl = 0.25 + k * (0.55 + pulse * press * 0.35);
+          u.fingers.forEach((f, j) => { f.base.rotation.x = -curl * (0.8 + j * 0.08); f.knuckle.rotation.x = -curl * 1.1; });
+          u.thumb.rotation.x = -curl * 0.6;
+        });
+        this.under = Math.max(0, Math.min(1, (0.44 - camera.position.y) / 0.12));
+        bubbles.visible = this.under > 0;
+        if (bubbles.visible) { for (let i = 0; i < NB; i++) { bLife[i] += dt * (0.35 + (i % 5) * 0.08); if (bLife[i] > 1) bLife[i] = 0; const L2 = bLife[i];
+            const p = lens.clone().addScaledVector(camR, Math.sin(i * 7.3) * 0.5).addScaledVector(camU, -0.4 + L2 * 1.1).addScaledVector(camF, 0.25 + (i % 7) * 0.08); bPos.set([p.x, p.y, p.z], i * 3); }
+          bubbleGeo.attributes.position.needsUpdate = true; }
+        pressRings.forEach(m => { const q = (time * 0.7 + m.userData.ph) % 1; m.scale.setScalar(1 + q * 9); m.material.opacity = (1 - q) * 0.5 * press; m.position.set(camera.position.x + Math.cos(m.userData.ph * 6.28) * 0.15, 0.44, camera.position.z + Math.sin(m.userData.ph * 6.28) * 0.15); });
         const pa = waterGeo.attributes.position.array;
         for (let i = 0; i < pa.length; i += 3) { const x = w0[i], y = w0[i + 1]; const d = Math.hypot(x + 1.2, y);
           pa[i + 2] = Math.sin(x * 2.1 + time * 2.2) * 0.02 + Math.sin(y * 3.3 - time * 1.7) * 0.015 + Math.sin(d * 9 - time * 7) * 0.05 * press * Math.exp(-d * 0.9); }
         waterGeo.attributes.position.needsUpdate = true; waterGeo.computeVertexNormals();
-        poolLight.intensity = 1.2 + Math.random() * 0.5; poolBack.intensity = 4 + Math.random() * 1;
+        poolLight.intensity = 1.2 + Math.random() * 0.5 + this.under * 12; poolBack.intensity = 4 + Math.random() * 1;   // under water the surface glows above you
       }
       // embers under the bridge when the bridges burn
       const T_BURN = lineT('bridges burn');

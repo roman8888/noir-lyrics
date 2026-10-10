@@ -1,7 +1,7 @@
 // Words that act out what they mean: "fade" fades, "fall" falls, "fly" flies away, "drown" sinks...
 // Each effect runs after the word is sung. age = seconds since it was sung.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261010193950';
+import { clamp } from './util.js?v=20261010195259';
 
 const RED = new THREE.Color(0.36, 0.015, 0.03), EMBER = new THREE.Color(0.8, 0.12, 0.05), GOLD = new THREE.Color(0.85, 0.88, 1.0);   // 'GOLD' is now a pale cold light: no yellow in this film
 const BLUE = new THREE.Color(0.25, 0.4, 0.6), ASH = new THREE.Color(0.2, 0.19, 0.18);
@@ -34,7 +34,10 @@ const FX = {
   deep(m, u, a) { m.position.z -= ease(a / 3) * 2.5; m.position.y -= ease(a / 3) * 0.3; },
   long(m, u, a) { m.scale.x *= 1 + ease(a / 2) * 0.6; },
   near(m, u, a) { m.position.z += ease(a / 2.5) * 1.6; },
-  tight(m, u, a) { m.scale.x *= 1 - ease(a / 0.8) * 0.22; m.scale.y *= 1 + ease(a / 0.8) * 0.06; },
+  tight(m, u, a) {                            // the letters slide into each other until no gap is left
+    const k = ease((a - 0.1) / 0.7);
+    if (u.sqX != null) m.position.x += (u.sqX - u.home.x) * k; else m.scale.x *= 1 - k * 0.22;
+    m.scale.y *= 1 + k * 0.05; },
   tremble(m, u, a) { m.position.x += (Math.random() - 0.5) * 0.04; m.position.y += (Math.random() - 0.5) * 0.03; },
   crawl(m, u, a, x) { m.position.y -= ease(a / 1) * 0.35; m.position.x += a * 0.12 * (0.6 + 0.4 * Math.max(0, Math.sin(x.now * 4))); m.scale.y *= 0.82; },
   lies(m, u, a, x) { m.material.opacity *= Math.sin(x.now * 2.3 + u.seed.x * 9) > 0.6 ? 0.35 : 1; },

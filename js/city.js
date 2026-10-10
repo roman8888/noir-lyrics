@@ -2,8 +2,8 @@
 // interior-mapped windows (every lit window is a small parallax room), street lamps, traffic, rain.
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
-import { rng, makeRain } from './util.js?v=20261010193950';
-import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261010193950';
+import { rng, makeRain } from './util.js?v=20261010195259';
+import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261010195259';
 
 const buildingVS = /* glsl */`
   varying vec3 vW; varying vec3 vN; varying float vSeed;
@@ -15,7 +15,7 @@ const buildingVS = /* glsl */`
   }`;
 // interior mapping: each lit window is a ray-marched box room behind the glass (walls, floor, lamp, furniture, a figure)
 const buildingFS = /* glsl */`
-  uniform float uTime, uFog, uFlash, uDawn; uniform vec3 uFogColor, uSkyTint;
+  uniform float uTime, uFog, uFlash, uDawn, uDark, uDarkZ; uniform vec3 uFogColor, uSkyTint;
   varying vec3 vW; varying vec3 vN; varying float vSeed;
   float h(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
   float h3(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
@@ -31,6 +31,7 @@ const buildingFS = /* glsl */`
       float win = step(0.18, f.x) * step(f.x, 0.82) * step(0.24, f.y) * step(f.y, 0.80);
       float r = h(c + vSeed * 13.7);
       float lit = step(0.84, r);
+      lit *= 1.0 - uDark * smoothstep(uDarkZ - 10.0, uDarkZ + 10.0, vW.z);      // the blackout wave: windows go dark behind, then ahead
       float flick = 0.9 + 0.1 * sin(uTime * (1.5 + r * 6.0) + r * 40.0);
       vec3 glass = vec3(0.006, 0.007, 0.010) + 0.012 * f.y + uSkyTint * 0.04 * (1.0 - f.y);
       vec3 room = glass;
@@ -173,7 +174,7 @@ export function createCity() {
   const bGeo = new THREE.BoxGeometry(1, 1, 1); bGeo.translate(0, 0.5, 0);
   const bMat = new THREE.ShaderMaterial({
     vertexShader: buildingVS, fragmentShader: buildingFS,
-    uniforms: { uTime: { value: 0 }, uFog: { value: 0.016 }, uFogColor: { value: fogColor }, uFlash: { value: 0 }, uDawn: { value: 0 }, uSkyTint: { value: new THREE.Color(0.05, 0.05, 0.07) } },
+    uniforms: { uTime: { value: 0 }, uFog: { value: 0.016 }, uFogColor: { value: fogColor }, uFlash: { value: 0 }, uDawn: { value: 0 }, uSkyTint: { value: new THREE.Color(0.05, 0.05, 0.07) }, uDark: { value: 0 }, uDarkZ: { value: 0 } },
   });
   const blds = new THREE.InstancedMesh(bGeo, bMat, boxes.length);
   boxes.forEach(([x, z, wd, ht, d, y0 = 0], i) => {
@@ -244,6 +245,7 @@ export function createCity() {
   return {
     scene, fogColor, cars, lampPos, makeCar, blds,
     lampAt(z, side) { let best = 0, bd = 1e9; lampPos.forEach(([x, zz], i) => { const d = Math.abs(zz - z) + (Math.sign(x) === side ? 0 : 100); if (d < bd) { bd = d; best = i; } }); return best; },
+    setDark(amount, z) { bMat.uniforms.uDark.value = amount; bMat.uniforms.uDarkZ.value = z; },
     dimLamp(i, v) { dim[i] = v; cones.geometry.attributes.aDim.needsUpdate = true; bulbColor.setRGB(v, v, v); bulbs.setColorAt(i, bulbColor); bulbs.instanceColor.needsUpdate = true; },
     update(dt, time, camera, sky) {
       bMat.uniforms.uTime.value = time;

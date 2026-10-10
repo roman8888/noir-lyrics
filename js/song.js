@@ -2,9 +2,9 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261010193950';
-import { fxFor, applyFx } from './fx.js?v=20261010193950';
-import { LOOKS } from './songs.js?v=20261010193950';
+import { clamp, easeOutExpo } from './util.js?v=20261010195259';
+import { fxFor, applyFx } from './fx.js?v=20261010195259';
+import { LOOKS } from './songs.js?v=20261010195259';
 
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607);
@@ -117,7 +117,18 @@ export function createSong(fonts, scene, route, occluders = []) {
         const home = new THREE.Vector3(x + tk.wd / 2, y - (rowH[ri] / LINE_H - tk.ws) * SIZE * 0.4, 0);
         const seed = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
         mesh.userData = { home, seed, reveal: tk.t ?? (L.t + wi * step), acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : fxFor(tk.w), hl: 0, hov: 0 };
-        mesh.visible = false; group.add(mesh); words.push(mesh);
+        if (mesh.userData.fx === 'tight') {                        // built letter by letter, so the letters can squeeze together when sung
+          const chars = [...tk.w], geos = chars.map(ch => wordGeo(ch, tk.acc)), gap = SIZE * 0.1;
+          const natW = geos.reduce((s2, g) => s2 + g.width, 0) + gap * (chars.length - 1), sqW = geos.reduce((s2, g) => s2 + g.width * 0.86, 0);
+          let nx = -natW / 2, sx = -sqW / 2;
+          chars.forEach((ch, k) => {
+            const lm = new THREE.Mesh(geos[k].g, mat.clone()); lm.castShadow = true;
+            const lh = home.clone(); lh.x += (nx + geos[k].width / 2) * tk.ws;
+            lm.userData = { ...mesh.userData, home: lh, sqX: home.x + (sx + geos[k].width * 0.86 / 2) * tk.ws, seed: seed.clone(), hl: 0, hov: 0 };
+            lm.visible = false; group.add(lm); words.push(lm);
+            nx += geos[k].width + gap; sx += geos[k].width * 0.86;
+          });
+        } else { mesh.visible = false; group.add(mesh); words.push(mesh); }
         if (mesh.userData.fx === 'shame') {                      // shame shame shame: copies knock in around the word
           const offs = [[-1.9, 0.9], [1.8, 1.0], [-2.1, -0.8], [2.0, -0.85], [-0.3, 1.5], [0.5, -1.45]];
           offs.forEach(([ox, oy], k) => {
@@ -133,7 +144,8 @@ export function createSong(fonts, scene, route, occluders = []) {
     if (a.camPos) {
       const lineW = Math.max(...rows.map(row => row.reduce((s2, tk) => s2 + tk.wd, 0) + SPACE * (row.length - 1))) * group.scale.x, lineH = totH * group.scale.x;
       const d = group.position.distanceTo(a.camPos), tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-      const maxW = 2 * d * tanH * camera.aspect * 0.7, maxH = 2 * d * tanH * 0.6;
+      let maxW = 2 * d * tanH * camera.aspect * 0.62; const maxH = 2 * d * tanH * 0.55;
+      const al = a.beat?.alley; if (al && Math.abs(group.position.x) > 8) maxW = Math.min(maxW, al.w - 0.5);   // inside an alley: narrower than the alley
       const fit = Math.min(1, maxW / lineW, maxH / lineH);
       if (fit < 1) group.scale.multiplyScalar(fit);
     }
@@ -222,12 +234,12 @@ export function createSong(fonts, scene, route, occluders = []) {
       // so the camera is already framed when the words arrive instead of correcting afterwards
       const act = active >= 0 ? live.get(active) : null;
       if (act) { act.group.getWorldPosition(focusAt); } else focusAt.copy(pose.look);
-      let w = act ? 0.6 * (1 - clamp((t - lineEnd(active)) / 1.5)) : 0;
+      let w = act ? 0.88 * (1 - clamp((t - lineEnd(active)) / 1.5)) : 0;
       const nxI = active + 1;
       if (lines[nxI] && lines[nxI].t != null) {
         const lead = clamp((t - (lines[nxI].t - 2.2)) / 1.8);
         if (lead > 0) { const ln = live.get(nxI); if (ln) ln.group.getWorldPosition(nextAt); else nextAt.copy(route.anchorFor(nxI).pos);
-          focusAt.lerp(nextAt, lead * lead * (3 - 2 * lead)); w = Math.max(w, 0.6 * lead); }
+          focusAt.lerp(nextAt, lead * lead * (3 - 2 * lead)); w = Math.max(w, 0.88 * lead); }
       }
       tmp.copy(pose.look).lerp(focusAt, w);
       const kp = 1.6, kl = 1.3;                                                // slow, cinematic easing: no quick turns
@@ -235,7 +247,7 @@ export function createSong(fonts, scene, route, occluders = []) {
       camBase.lerp(pose.pos, 1 - Math.exp(-dt * kp));
       look.lerp(tmp, 1 - Math.exp(-dt * kl));
       ptrS.lerp(pointer, 1 - Math.exp(-dt * 3));
-      camera.position.copy(camBase);
+      camera.position.copy(camBase); camera.position.y += route.dive(t);
       camera.position.x += Math.sin(now * 0.37) * 0.015;                 // the faintest breathing, nothing more
       camera.position.y += Math.sin(now * 0.29 + 1) * 0.01;
       camera.lookAt(look);                                                  // level horizon, always

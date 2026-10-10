@@ -7,14 +7,14 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261010193950';
-import { createProps } from './props.js?v=20261010193950';
-import { createSky } from './sky.js?v=20261010193950';
-import { createRoute } from './route.js?v=20261010193950';
-import { createSong } from './song.js?v=20261010193950';
-import { SONGS } from './songs.js?v=20261010193950';
-import { clamp, fmt, toLRC } from './util.js?v=20261010193950';
-import { createDrops } from './drops.js?v=20261010193950';
+import { createCity } from './city.js?v=20261010195259';
+import { createProps } from './props.js?v=20261010195259';
+import { createSky } from './sky.js?v=20261010195259';
+import { createRoute } from './route.js?v=20261010195259';
+import { createSong } from './song.js?v=20261010195259';
+import { SONGS } from './songs.js?v=20261010195259';
+import { clamp, fmt, toLRC } from './util.js?v=20261010195259';
+import { createDrops } from './drops.js?v=20261010195259';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -28,18 +28,20 @@ renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadow
 
 // film look: faint chromatic aberration on the kick, mono with surviving reds/golds, grain, vignette (no flicker)
 const NoirShader = {
-  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uBass: { value: 0 }, uAspect: { value: 1 }, uColor: { value: 0.0 } },
+  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uBass: { value: 0 }, uAspect: { value: 1 }, uColor: { value: 0.0 }, uWater: { value: 0.0 } },
   vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-  fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime, uBass, uAspect, uColor; varying vec2 vUv;
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime, uBass, uAspect, uColor, uWater; varying vec2 vUv;
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
     void main(){
       vec2 uv = vUv, c = uv - 0.5;
+      uv += uWater * 0.012 * vec2(sin(uv.y * 28.0 + uTime * 3.1), cos(uv.x * 24.0 + uTime * 2.7));   // underwater: the image wobbles
       float ca = uBass * 0.0012;
       vec3 col = vec3(texture2D(tDiffuse, uv + c*ca*2.).r, texture2D(tDiffuse, uv).g, texture2D(tDiffuse, uv - c*ca*2.).b);
       float lum = dot(col, vec3(0.299, 0.587, 0.114));
       float sat = smoothstep(0.06, 0.28, max(col.r - col.b, col.g - col.b));
       col = mix(vec3(lum) * vec3(1.0, 0.985, 0.96), col, clamp(sat + uColor, 0., 1.));
-      col *= smoothstep(1.05, 0.3, length(c * vec2(uAspect * 0.78, 1.0)));
+      col = mix(col, col * vec3(0.25, 0.42, 0.5) + vec3(0.0, 0.015, 0.02), uWater * 0.85);
+      col *= smoothstep(1.05, 0.3 + uWater * 0.35, length(c * vec2(uAspect * 0.78, 1.0)));
       col += (h(gl_FragCoord.xy + fract(uTime) * 91.) - 0.5) * 0.028;
       gl_FragColor = vec4(col, 1.);
     }`,
@@ -178,12 +180,15 @@ function frame() {
   noir.uniforms.uColor.value = (sky.sun || 0) * 0.7 + (sky.moon || 0) * 0.1;
   noir.uniforms.uTime.value = now;
   bokeh.uniforms.focus.value = song.focus;
+  noir.uniforms.uWater.value = props.under; bokeh.uniforms.maxblur.value = 0.0022 + props.under * 0.012;
   composer.render(dt);
   drops.update(dt); drops.fade(clamp((t - DROP_AT[4] - 1.5) / 2.5));                   // the blood runs for a moment after the last drop, then is gone
   requestAnimationFrame(frame);
 }
+let lastSize = '';
 function resize() {
   const w = innerWidth, h = innerHeight;
+  const key = `${w}x${h}x${$('lyrics').classList.contains('open')}`; if (key === lastSize) return; lastSize = key;   // never clear the frame for nothing
   renderer.setSize(w, h, false); composer.setSize(w, h); bloom.setSize(w, h);
   song.camera.aspect = w / h;
   // with the lyrics panel open, frame the scene in the visible part of the screen
