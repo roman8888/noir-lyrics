@@ -72,10 +72,10 @@ button:hover { opacity: 1; }
 #lyhead { display: flex; align-items: center; justify-content: space-between; padding: 54px 18px 10px 22px; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--dim); }
 #lyhead button { font-size: 22px; line-height: 1; padding: 0 4px; font-style: normal; }
 #lycred { padding: 0 18px 14px 22px; border-bottom: 1px solid rgba(236,232,225,.08); margin-bottom: 6px; }
-#lycred b { display: block; font-size: 22px; font-weight: 700; letter-spacing: .02em; color: var(--paper); }
+#lycred b { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; letter-spacing: .02em; color: var(--paper); }
 #lycred i { display: block; font-size: 16px; color: var(--dim); margin-top: 2px; }
-#lycred a { display: inline-block; margin-top: 10px; color: var(--red); line-height: 0; }
-#lycred a svg { display: block; }
+#lycred a { display: inline-block; color: var(--red); line-height: 0; transform: translateY(1px); }
+#lycred a svg { display: block; width: 22px; height: 22px; }
 #lycred a:hover { color: #ff4a3f; }
 #lylist { list-style: none; margin: 0; padding: 0 0 40px; overflow-y: auto; flex: 1; scrollbar-width: thin; }
 #lylist li { display: grid; grid-template-columns: 56px 1fr; gap: 10px; padding: 7px 18px 7px 22px; font-size: 19px; line-height: 1.35; color: rgba(236,232,225,.55); cursor: pointer; }
