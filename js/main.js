@@ -7,15 +7,15 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261017004845';
-import { createProps } from './props.js?v=20261017004845';
-import { createSky } from './sky.js?v=20261017004845';
-import { createRoute } from './route.js?v=20261017004845';
-import { createSong, LEAD } from './song.js?v=20261017004845';
-import { SONGS } from './songs.js?v=20261017004845';
-import { clamp, fmt, toLRC } from './util.js?v=20261017004845';
-import { createLanding } from './landing.js?v=20261017004845';
-import { createDrops } from './drops.js?v=20261017004845';
+import { createCity } from './city.js?v=20261017005048';
+import { createProps } from './props.js?v=20261017005048';
+import { createSky } from './sky.js?v=20261017005048';
+import { createRoute } from './route.js?v=20261017005048';
+import { createSong, LEAD } from './song.js?v=20261017005048';
+import { SONGS } from './songs.js?v=20261017005048';
+import { clamp, fmt, toLRC } from './util.js?v=20261017005048';
+import { createLanding } from './landing.js?v=20261017005048';
+import { createDrops } from './drops.js?v=20261017005048';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -97,7 +97,8 @@ const props2 = current.slug === 'on-my-way-to-you' ? (await import('./props2.js?
 const song = createSong({ roman, italic }, city.scene, route, [city.blds, ...props.solid, ...(props2 ? props2.solid : [])]);
 props.wordAt = (i, re, out) => song.wordAt(i, re, out);                 // set pieces that ride on a word (the fire on "hell")
 song.load(current, timing);
-audio.src = LOWPOWER ? `songs/${current.slug}/tour.webm` : `songs/${current.slug}/song.mp3`;
+const AAC = !LOWPOWER && !RECORD && !!document.createElement('audio').canPlayType('audio/mp4; codecs="mp4a.40.2"');   // AAC seeks sample-accurately; VBR mp3 drifts after a seek
+audio.src = LOWPOWER ? `songs/${current.slug}/tour.webm` : `songs/${current.slug}/song.${AAC ? 'm4a' : 'mp3'}`;
 if (LOWPOWER) { $('tourvideo').hidden = false; $('gl').style.display = 'none'; $('lowpower').hidden = false;
   $('lowpower').addEventListener('click', () => { localStorage.setItem('noir-live', '1'); location.href = location.pathname + '?live=1'; });
   audio.addEventListener('error', () => { location.href = location.pathname + '?live=1'; }); }   // no recording: the live city after all
@@ -130,6 +131,7 @@ let needUnmute = false;
 const LINE_AT = (() => { const m = location.pathname.match(/\/([^/]+)\/line\/(\d+)\/?$/); if (!m || m[1] !== current.slug) return 0;   // /<song>/ alone starts from the top
   const L = timing.lines[parseInt(m[2], 10) - 1]; return L && L.t != null ? Math.max(0, L.t - 0.15) : 0; })();
 async function startSong() {
+  if (LINE_AT > 0 && audio.readyState < 1) await new Promise(r => audio.addEventListener('loadedmetadata', r, { once: true }));   // seek only once the file is known, or the seek is lost
   audio.currentTime = LINE_AT; audio.muted = false;
   try { await audio.play(); }
   catch { audio.muted = true; needUnmute = true; try { await audio.play(); } catch { /* nothing more we can do until a gesture */ } }
