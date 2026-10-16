@@ -14,7 +14,7 @@
 <title>Roman — When God Wants to Make You Stronger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=20261017001528">
+<link rel="stylesheet" href="css/site.css?v=20261017001843">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -24,6 +24,8 @@
 </head>
 <body>
 <canvas id="gl"></canvas>
+<video id="tourvideo" hidden playsinline preload="auto"></video>
+<div id="lowpower" hidden><span class="dot"></span><span>pre-recorded &middot; low-power mode</span><a id="trylive" href="#">try live</a></div>
 <canvas id="glass"></canvas>
 
 <div id="home" hidden><div class="bar">
@@ -63,9 +65,16 @@
   <div id="pbottom">
     <div id="bar"><div id="fill"></div></div>
     <div id="pctl">
+      <button id="prevline" title="previous line (↑)">&#8249; line</button>
       <button id="pp" aria-label="Play or pause">pause</button>
+      <button id="nextline" title="next line (↓)">line &#8250;</button>
       <span id="clock">0:00</span>
       <span class="grow"></span>
+      <button id="restart" title="from the top">restart</button>
+      <button id="mute" title="mute (m)">mute</button>
+      <button id="lyr" title="lyrics panel (l)">lyrics</button>
+      <button id="fs" title="fullscreen (f)">fullscreen</button>
+      <a id="nextsong" href="./" title="the other song">next song &#8250;</a>
       <span id="tools" hidden>
         <button id="tap" title="Enter stamps the next line">tap-sync</button>
         <button id="save">save .lrc</button>
@@ -80,6 +89,6 @@
 </div>
 <div id="loading"></div>
 
-<script type="module" src="js/main.js?v=20261017001528"></script>
+<script type="module" src="js/main.js?v=20261017001843"></script>
 </body>
 </html>

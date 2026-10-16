@@ -7,15 +7,15 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261017001528';
-import { createProps } from './props.js?v=20261017001528';
-import { createSky } from './sky.js?v=20261017001528';
-import { createRoute } from './route.js?v=20261017001528';
-import { createSong, LEAD } from './song.js?v=20261017001528';
-import { SONGS } from './songs.js?v=20261017001528';
-import { clamp, fmt, toLRC } from './util.js?v=20261017001528';
-import { createLanding } from './landing.js?v=20261017001528';
-import { createDrops } from './drops.js?v=20261017001528';
+import { createCity } from './city.js?v=20261017001843';
+import { createProps } from './props.js?v=20261017001843';
+import { createSky } from './sky.js?v=20261017001843';
+import { createRoute } from './route.js?v=20261017001843';
+import { createSong, LEAD } from './song.js?v=20261017001843';
+import { SONGS } from './songs.js?v=20261017001843';
+import { clamp, fmt, toLRC } from './util.js?v=20261017001843';
+import { createLanding } from './landing.js?v=20261017001843';
+import { createDrops } from './drops.js?v=20261017001843';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -57,7 +57,14 @@ const bokeh = new BokehPass(new THREE.Scene(), new THREE.PerspectiveCamera(), { 
 composer.addPass(renderPass); composer.addPass(bokeh); composer.addPass(bloom); composer.addPass(new OutputPass()); composer.addPass(noir);
 
 // ---------- audio ----------
-const audio = new Audio(); audio.preload = 'auto';
+// Low-power machines get the recorded tour (a video with the song in it) instead of the live city. Decided up front from the
+// device, or later from the measured frame rate (the page then reloads itself with ?video=1). ?live=1 forces the city.
+const Q = new URLSearchParams(location.search);
+const LOWPOWER = (() => { if (Q.has('live')) return false; if (Q.has('video')) return true;
+  const cores = navigator.hardwareConcurrency || 8, mem = navigator.deviceMemory || 8, mobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+  return mobile || cores <= 2 || mem <= 2; })();
+const RECORD = Q.has('record');                                           // ?record=1: capture this tour to a .webm (dev)
+const audio = LOWPOWER ? document.getElementById('tourvideo') : new Audio(); audio.preload = 'auto';
 let actx = null, analyser = null, fbuf = null;
 function ensureAudioGraph() {
   if (actx) return actx.resume();
@@ -87,7 +94,10 @@ const props2 = current.slug === 'on-my-way-to-you' ? (await import('./props2.js?
 const song = createSong({ roman, italic }, city.scene, route, [city.blds, ...props.solid, ...(props2 ? props2.solid : [])]);
 props.wordAt = (i, re, out) => song.wordAt(i, re, out);                 // set pieces that ride on a word (the fire on "hell")
 song.load(current, timing);
-audio.src = `songs/${current.slug}/song.mp3`;
+audio.src = LOWPOWER ? `songs/${current.slug}/tour.webm` : `songs/${current.slug}/song.mp3`;
+if (LOWPOWER) { $('tourvideo').hidden = false; $('gl').style.display = 'none'; $('lowpower').hidden = false;
+  $('trylive').addEventListener('click', e => { e.preventDefault(); location.href = location.pathname + '?live=1'; });
+  audio.addEventListener('error', () => { location.href = location.pathname + '?live=1'; }); }   // no recording: the live city after all
 renderPass.scene = city.scene; renderPass.camera = song.camera; bokeh.scene = city.scene; bokeh.camera = song.camera;
 const drops = createDrops($('glass'));
 const landing = LANDING ? createLanding(city.scene, { roman, italic }, SONGS, ROOT) : null;
@@ -114,7 +124,7 @@ async function startSong() {
   catch { audio.muted = true; needUnmute = true; try { await audio.play(); } catch { /* nothing more we can do until a gesture */ } }
   if (actx) actx.resume();
 }
-if (!LANDING) { $('player').hidden = false; $('homelink').hidden = false; startSong(); }
+if (!LANDING) { $('player').hidden = false; $('homelink').hidden = false; if (!RECORD) startSong(); }   // recording waits for one click (the audio graph needs it)
 const unlock = () => {
   ensureAudioGraph(); actx.resume();
   if (needUnmute) { needUnmute = false; audio.muted = false; }
@@ -126,6 +136,14 @@ let userPaused = false;
 // ---------- player ----------
 const togglePlay = () => { if (audio.paused) { userPaused = false; audio.play(); } else { userPaused = true; audio.pause(); } };
 $('pp').addEventListener('click', togglePlay);
+const lineStep = dir => { const ts = timing.lines.map(L => L.t).filter(t => t != null).sort((x, y) => x - y), now = audio.currentTime;
+  const to = dir > 0 ? ts.find(t => t > now + 0.3) : [...ts].reverse().find(t => t < now - 1.0); if (to != null) audio.currentTime = Math.max(0, to - 0.15); };
+$('prevline').addEventListener('click', () => lineStep(-1)); $('nextline').addEventListener('click', () => lineStep(1));
+$('restart').addEventListener('click', () => { audio.currentTime = 0; if (audio.paused) { userPaused = false; audio.play().catch(() => {}); } });
+$('mute').addEventListener('click', () => { audio.muted = !audio.muted; $('mute').classList.toggle('on', audio.muted); $('mute').textContent = audio.muted ? 'unmute' : 'mute'; });
+$('lyr').addEventListener('click', () => openLyrics(!$('lyrics').classList.contains('open')));
+$('fs').addEventListener('click', () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); });
+{ const other = SONGS[(SONGS.findIndex(s => s.slug === current.slug) + 1) % SONGS.length]; $('nextsong').href = ROOT + other.slug + '/'; $('nextsong').title = other.title; }
 audio.addEventListener('play', () => { $('pp').textContent = 'pause'; $('ending').hidden = true; $('player').hidden = false; });
 audio.addEventListener('pause', () => ($('pp').textContent = 'play'));
 audio.addEventListener('ended', () => { $('player').hidden = true; $('ending').hidden = false; });
@@ -148,12 +166,10 @@ addEventListener('keydown', e => {
   if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
   else if (e.code === 'ArrowRight') audio.currentTime += 5;
   else if (e.code === 'ArrowLeft') audio.currentTime = Math.max(0, audio.currentTime - 5);
-  else if (e.code === 'ArrowDown' || e.code === 'ArrowUp') {                                   // a line down / up in the lyrics
-    e.preventDefault();
-    const ts = timing.lines.map(L => L.t).filter(t => t != null).sort((x, y) => x - y), now = audio.currentTime;
-    const to = e.code === 'ArrowDown' ? ts.find(t => t > now + 0.3) : [...ts].reverse().find(t => t < now - 1.0);
-    if (to != null) audio.currentTime = Math.max(0, to - 0.15);
-  }
+  else if (e.code === 'ArrowDown' || e.code === 'ArrowUp') { e.preventDefault(); lineStep(e.code === 'ArrowDown' ? 1 : -1); }   // a line down / up
+  else if (e.code === 'KeyM') $('mute').click();
+  else if (e.code === 'KeyL') $('lyr').click();
+  else if (e.code === 'KeyF') $('fs').click();
   else if (e.code === 'Enter' && tapping) { const L = tapLines()[tapIdx]; if (L) { L.t = audio.currentTime; tapIdx++; showTapHint(); } }
 });
 // ---------- lyrics panel: every line with its time; click to jump; the sung line is marked
@@ -186,8 +202,13 @@ addEventListener('pointermove', e => { $('player').classList.remove('idle'); idl
 // ---------- loop ----------
 let skyName = '';
 const fadeOut = { k: 0, r: 0, g: 0, b: 0 }, carPos = new THREE.Vector3();
+let fpsN = 0, fpsT0 = 0, fpsChecked = LOWPOWER || RECORD;
 function frame(once) {
   const dt = Math.min(clock.getDelta(), 0.05), now = clock.elapsedTime;
+  // the first seconds of the song tell us whether this machine can carry the city; if not, the recorded tour takes over
+  if (!fpsChecked && !LANDING && !audio.paused && audio.currentTime > 3 && document.visibilityState === 'visible') { if (!fpsT0) fpsT0 = now; fpsN++;   // (a hidden tab renders nothing: only visible frames count)
+    if (now - fpsT0 > 6) { fpsChecked = true; const fps = fpsN / (now - fpsT0);
+      if (fps < 20 && !Q.has('live')) fetch(`songs/${current.slug}/tour.webm`, { method: 'HEAD' }).then(r => { if (r.ok) location.replace(location.pathname + '?video=1'); }).catch(() => {}); } }
   const t = LANDING ? 6 : audio.currentTime;                             // the front page holds the city at the moment the credits hang in the sky
   if (audio.duration) $('fill').style.width = `${(t / audio.duration) * 100}%`;
   $('clock').textContent = `${fmt(t)} / ${fmt(audio.duration || 0)}`;
@@ -211,9 +232,9 @@ function frame(once) {
   bokeh.uniforms.focus.value = song.focus;
   const fd = route.fade(t, fadeOut); noir.uniforms.uFade.value = fd.k; noir.uniforms.uFadeCol.value.setRGB(fd.r || 0, fd.g || 0, fd.b || 0);
   noir.uniforms.uWater.value = props.under; bokeh.uniforms.maxblur.value = 0.0022 + props.under * 0.012;
-  composer.render(dt);
+  if (!LOWPOWER) composer.render(dt);
   drops.update(dt); drops.fade(clamp((t - DROP_AT[4] - 1.5) / 2.5));                   // the blood runs for a moment after the last drop, then is gone
-  if (once !== true) requestAnimationFrame(frame);                        // (rAF passes a timestamp as the first argument: only an explicit true is a one-shot)
+  if (once !== true && !RECORD) requestAnimationFrame(frame);             // (rAF passes a timestamp as the first argument: only an explicit true is a one-shot)
 }
 let lastSize = '';
 function resize() {
@@ -228,5 +249,17 @@ function resize() {
   noir.uniforms.uAspect.value = w / h; city.resize(w, h);
 }
 addEventListener('resize', resize); new ResizeObserver(resize).observe(document.documentElement); resize();
-requestAnimationFrame(frame);
+if (RECORD) {
+  // capture: frames by timer (30 fps, keeps going in a background tab while the song plays), video from the canvas,
+  // sound from the song; the .webm downloads when the song ends
+  ensureAudioGraph(); const dest = actx.createMediaStreamDestination(); analyser.disconnect(); analyser.connect(dest);   // the sound goes into the file, not the speakers
+  const stream = renderer.domElement.captureStream(30); dest.stream.getAudioTracks().forEach(tr => stream.addTrack(tr));
+  const rec = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9,opus', videoBitsPerSecond: 1_300_000, audioBitsPerSecond: 96_000 });
+  const chunks = []; rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+  rec.onstop = () => { const blob = new Blob(chunks, { type: 'video/webm' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${current.slug}.tour.webm`; a.click(); document.title = 'recorded ✓'; };
+  setInterval(() => frame(true), 1000 / 30);
+  audio.addEventListener('playing', () => { if (rec.state === 'inactive') rec.start(1000); }, { once: true });
+  audio.addEventListener('ended', () => { if (rec.state !== 'inactive') setTimeout(() => rec.stop(), 1500); });
+  window.__rec = rec;
+} else requestAnimationFrame(frame);
 window.__noir = { audio, song, city, props, sky, route, renderer, landing, get mode() { return mode; }, step: () => frame(true) };   // step(): one frame on demand (probes while the tab is hidden and rAF sleeps)
