@@ -112,11 +112,23 @@ body.home #lyopen, body.home #player { display: none; }
 #home { position: fixed; left: 0; right: 0; top: 0; z-index: 3; }
 #home .bar { display: flex; align-items: center; gap: 22px; height: 48px; padding: 0 22px 0 18px; background: rgba(5,6,8,.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid rgba(236,232,225,.08); }
 #home .logo { display: flex; line-height: 0; }
-#home .site { font-size: 15px; letter-spacing: .22em; text-transform: uppercase; color: var(--paper); text-decoration: none; }
-#home .me { font-size: 14px; font-style: italic; color: var(--dim); }
 #home nav { margin-left: auto; display: flex; gap: 22px; font-size: 12px; letter-spacing: .25em; text-transform: uppercase; }
 #home nav a { color: rgba(236,232,225,.75); text-decoration: none; } #home nav a:hover { color: var(--red); }
-@media (max-width: 640px) { #home .me { display: none; } #home .bar { gap: 14px; } }
 #about .wa { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; color: var(--red); text-decoration: none; font-size: 15px; letter-spacing: .08em; font-style: normal; border: 1px solid rgba(216,40,31,.45); border-radius: 999px; padding: 9px 16px; }
 #about .wa:hover { background: rgba(216,40,31,.12); }
 #about .sig { margin-bottom: 4px; }
+
+/* the wordmark under the bar: blood steel, lit from a moving edge, dripping a little in the rain */
+#home .hero { position: fixed; left: 44px; bottom: 54px; pointer-events: none; }   /* over the dark road, clear of the bills */
+#home .mark { pointer-events: auto; display: block; text-decoration: none; font-weight: 700; font-size: clamp(54px, 7.6vw, 122px); line-height: .92; letter-spacing: .06em;
+  background: linear-gradient(100deg, #2a0406 0%, #7a0e14 18%, #c81e26 36%, #5a0a0e 52%, #a8161c 70%, #3a0608 100%); background-size: 240% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-stroke: 1px rgba(255,120,120,.12);
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,.9)) drop-shadow(0 0 22px rgba(168,22,28,.35));
+  animation: sheen 9s ease-in-out infinite; }
+#home .mark span { display: block; }
+#home .mark span + span { margin-left: .9em; }
+#home .mark:hover { animation-duration: 3s; }
+@keyframes sheen { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
+#home .who { margin: 18px 0 0 .25em; font-style: italic; font-size: clamp(20px, 2vw, 30px); color: var(--paper); letter-spacing: .04em; text-shadow: 0 1px 0 #000, 0 0 18px rgba(0,0,0,.8); }
+#home .tag { margin: 6px 0 0 .3em; font-size: 13px; letter-spacing: .28em; text-transform: uppercase; color: rgba(236,232,225,.5); text-shadow: 0 1px 0 #000; }
+@media (max-width: 640px) { #home .hero { left: 18px; bottom: 28px; } #home .mark span + span { margin-left: .4em; } #home .bar { gap: 14px; } }
