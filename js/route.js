@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261016235814';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261016235814';
+import { clamp } from './util.js?v=20261017001528';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261017001528';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0], A2 = ALLEYS[1];
@@ -62,9 +62,9 @@ const ORDER1 = ['Pre', 'Intro', 'Verse 1', 'Rap 1', 'Pre-Chorus', 'Chorus', 'Ver
 const LANE = -23, A3 = ALLEYS[2];
 const BEATS2 = {
   Pre:     { sky: 'night', keys: [[0, LANE, 92, -210], [0.5, LANE, 40, -260], [0.85, LANE, 8, -290], [1, LANE, EYE + 0.3, -300]], place: ['sky'], lookAt: new THREE.Vector3(LANE, 44, -370), lookMix: 0.85 },
-  Intro:   { sky: 'night', keys: [[0, LANE, EYE, -300], [0.5, LANE, EYE, -322], [1, LANE, EYE, -345]], walk: 1,
+  Intro:   { sky: 'night', keys: [[0, LANE, EYE, -300], [0.58, LANE, EYE, -318], [1, LANE, EYE, -352]], walk: 1,     // slow and heavy, then the walk picks up on "I'm on my way to you"
              place: ['ahead', 'ahead', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'ahead'], dist: 16 },
-  'Verse 1': { sky: 'verse', keys: [[0, LANE, EYE, -345], [0.5, LANE, EYE, -375], [1, LANE, EYE, -405]], walk: 1,
+  'Verse 1': { sky: 'verse', keys: [[0, LANE, EYE, -352], [0.5, LANE, EYE, -378], [1, LANE, EYE, -405]], walk: 1,
              place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'banner', 'ahead', 'banner'], dist: 17 },
   'Pre-Chorus': { sky: 'storm', keys: [[0, LANE, EYE, -405], [1, LANE, EYE, -500]], walk: 1,
              place: ['ahead', 'sky', 'ahead', 'banner', 'banner', 'ahead', 'ahead'], dist: 20 },
@@ -156,6 +156,11 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
       if (Math.abs(out.pos.x) < 6) out.pos.x = Math.max(-3.2, Math.min(3.2, out.pos.x));   // and well inside the road, clear of the traffic lanes
       const dash = dashAt(t); if (dash > 0) out.pos.x += (dodgeX(t) - out.pos.x) * dash;      // the run for the kerb when a car comes
     }
+    const sg = surgeAt(t) + pushAt(t) + stompAt(t); if (sg > 0) out.pos.addScaledVector(lastDir, sg);   // the run forward, the push on "so am I", the stomps on "Enough"
+    out.pos.y += shoveAt(t) + (stompAt(t) > 0 ? -0.06 * stompAt(t) : 0);                            // shoved down, up for air; the stomp lands heavy
+    const pl = pullAt(t); if (pl > 0) {                                                            // "I'm coming for me": back and up, to see the man standing there
+      if (!selfSpot) selfSpot = out.pos.clone();
+      out.pos.copy(selfSpot).addScaledVector(lastDir, -8.5 * pl); out.pos.y += 4.6 * pl; }
     out.look.copy(out.pos).addScaledVector(lastDir, 8);
     if (b.looks) {
       const f = clamp((t - b.t0) / (b.t1 - b.t0)), K = b.looks; let k = 0; for (let i = 0; i < K.length - 1; i++) if (f >= K[i][0]) k = i;
@@ -165,6 +170,9 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
     } else if (b.lookAt) out.look.lerp(b.lookAt, b.lookMix ?? 1);
     for (const c of CARS) { const k = t - c.t, g = smooth((k - 1.2) / 1.0) * (1 - smooth((k - 4.6) / 0.9));   // eyes on the car as it comes, then it is past
       if (g > 0 && carAt(t, tmp2)) { tmp2.y = 1.1; out.look.lerp(tmp2, 0.8 * g); } }
+    if (pl > 0 && selfSpot) { tmp2.copy(selfSpot); tmp2.y = 1.2; out.look.lerp(tmp2, 0.95 * pl); }
+    const bu = buryAt(t); if (bu > 0 && (graveAt || !graveInit)) { if (!graveAt) { graveInit = true; const p0 = pose(T_BURY); graveAt = p0.pos.clone().addScaledVector(lastDir, 12); graveAt.y = -0.3; }   // (graveInit guards the pose→look→pose loop)
+      tmp2.copy(graveAt); if (tmp2.distanceTo(out.pos) < 2.5) { tmp2.copy(out.pos).addScaledVector(lastDir, 2.5); tmp2.y = -0.3; } out.look.lerp(tmp2, 0.9 * bu); }
     const pr = prayAt(t); if (pr > 0) { tmp2.copy(out.pos).addScaledVector(lastDir, 5); tmp2.y += 13; out.look.lerp(tmp2, 0.92 * pr); }   // up to the sky for "pray"
     const fl = floorAt(t); if (fl > 0) {                                                                                   // down to where the letters land
       if (!landing) { landing = anchorFor(I_FALL).pos.clone(); landing.y = 0.1; }
@@ -244,9 +252,39 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
   const T_FALL = I_FALL < 0 ? -1 : ((lines[I_FALL].words?.slice(-1)[0]?.t ?? lines[I_FALL].t) + 0.35);
   const fallAt = t => T_FALL < 0 ? 0 : clamp((t - T_FALL) / 0.85);                                                  // the drop itself
   // the walk slows while the eyes are on the road (the letters must not pass underfoot unseen), then catches up
-  const lingerAt = t => { if (T_FALL < 0) return 0; const a = smooth((t - (T_FALL - 0.2)) / 3.2) * 1.9; return a * (1 - smooth((t - (T_FALL + 3.0)) / 9)); };
+  const T_BURY = (() => { const L = lines.find(l => /bury you in words/i.test(l.text)); return L?.words?.find(w => /^bury/i.test(w.w || ''))?.t ?? L?.t ?? -1; })();
+  const lingerAt = t => { let L = 0;
+    if (T_FALL > 0) { const a = smooth((t - (T_FALL - 0.2)) / 3.2) * 1.9; L += a * (1 - smooth((t - (T_FALL + 3.0)) / 9)); }
+    if (T_BURY > 0) { const a = smooth((t - (T_BURY - 0.2)) / 4.5) * 2.6; L += a * (1 - smooth((t - (T_BURY + 5.5)) / 10)); }   // the grave fills while you slow to watch it
+    if (T_WAITL > 0) { const a = smooth((t - T_WAITL) / 1.6) * 1.5; L += a * (1 - smooth((t - (T_WAITL + 1.8)) / 6)); }       // "Just wait.": you stand
+    if (T_THERE > 0) { const a = smooth((t - T_THERE) / 0.5) * 0.9; L += a * (1 - smooth((t - (T_THERE + 0.9)) / 5)); }       // "I'll still be there": planted
+    return L; };
   const floorAt = t => T_FALL < 0 ? 0 : smooth((t - (T_FALL - 0.2)) / 0.9) * (1 - smooth((t - (T_FALL + 3.0)) / 1.0));   // the eyes on the road
   let landing = null;
+  // "bury you in words" (song 2): the grave opens 9 m ahead; the eyes drop to it while it fills, then come back up
+  const buryAt = t => T_BURY < 0 ? 0 : smooth((t - (T_BURY - 0.3)) / 1.0) * (1 - smooth((t - (T_BURY + 6.0)) / 1.4));
+  let graveAt = null, graveInit = false;
+  // (song 2) "I'm coming for him": a run forward. "I'm coming for me": the camera pulls back and up to show the man standing
+  // where you stood. "I won't abandon me": the head shakes no.
+  const T_FORHIM = lines.find(l => /coming for him/i.test(l.text))?.t ?? -1, T_FORME = lines.find(l => /coming for me/i.test(l.text))?.t ?? -1;
+  const T_NO = (() => { const L = lines.find(l => /won't abandon me/i.test(l.text)); return L?.words?.find(w => /^abandon/i.test(w.w || ''))?.t ?? L?.t ?? -1; })();
+  const surgeAt = t => T_FORHIM < 0 ? 0 : smooth((t - T_FORHIM) / 3.2) * 7.5;                                        // metres gained in the run (stops a step short of him)
+  const runAt = t => T_FORHIM < 0 ? 0 : smooth((t - T_FORHIM + 0.2) / 0.6) * (1 - smooth((t - T_FORHIM - 2.6) / 0.8));
+  const pullAt = t => T_FORME < 0 ? 0 : smooth((t - T_FORME + 0.1) / 1.6) * (1 - smooth((t - T_FORME - 5.2) / 1.6));
+  const noAt = t => { if (T_NO < 0) return 0; const k = t - T_NO; return k < -0.1 || k > 2.6 ? 0 : Math.sin(k * 2 * Math.PI * 1.5) * 0.15 * Math.sin(Math.min(1, k / 2.6) * Math.PI); };
+  let selfSpot = null;
+  // (song 2) line-level camera gestures. All text-keyed: absent lines = nothing.
+  const wT = (lre, wre) => { const L = lines.find(l => lre.test(l.text)); return L ? (L.words?.find(w => wre.test(w.w || ''))?.t ?? L.t) : -1; };
+  const T_STOMP = lines.filter(l => /^enough of/i.test(l.text)).map(l => l.t);                               // a hard step on each "Enough"
+  const T_WAITL = lines.find(l => /^just wait/i.test(l.text))?.t ?? -1;                                       // stand still
+  const T_SOAMI = lines.find(l => /and so am i/i.test(l.text))?.t ?? -1;                                     // push forward
+  const T_LOCK = wT(/locked on the truth/i, /^locked/i);                                                      // dead straight, no sway
+  const T_SHOVE = lines.find(l => /^push me down/i.test(l.text))?.t ?? -1, T_AIR2 = lines.find(l => /find the air/i.test(l.text))?.t ?? -1;   // shoved down, up for air
+  const T_THERE = lines.find(l => /still be there/i.test(l.text))?.t ?? -1;                                   // planted
+  const stompAt = t => { let d = 0; for (const T of T_STOMP) { const k = t - T + 0.05; if (k > 0 && k < 0.9) d += Math.sin(Math.min(1, k / 0.9) * Math.PI) * 0.7; } return d; };
+  const lockAt = t => T_LOCK < 0 ? 0 : smooth((t - T_LOCK + 0.2) / 0.4) * (1 - smooth((t - T_LOCK - 2.4) / 0.8));
+  const shoveAt = t => { let y = 0; if (T_SHOVE > 0) { const k = t - T_SHOVE; if (k > 0 && k < 1.6) y -= 0.55 * Math.sin(Math.min(1, k / 1.6) * Math.PI); } if (T_AIR2 > 0) { const k = t - T_AIR2; if (k > 0 && k < 1.8) y += 0.5 * Math.sin(Math.min(1, k / 1.8) * Math.PI); } return y; };
+  const pushAt = t => T_SOAMI < 0 ? 0 : smooth((t - T_SOAMI) / 1.6) * 4;
   const T_CALL = lines.find(l => /i heard you call/i.test(l.text))?.t ?? -1;
   const endBeat = beats.find(b => b.name === 'End');
   const endDur = endBeat.t1 - endBeat.t0;
@@ -265,7 +303,7 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
     return out;
   }
   return {
-    beats, pose, anchorFor, beatAt, fade, T_DOOR, gait(t) { return gaitOf(beatAt(t), t, dashAt(t)); }, carAt, dashAt, CARS, prayAt, floorAt, fallAt, T_VOID: 1e9, T_TOWER: endBeat.t0 + 0.74 * (endBeat.t1 - endBeat.t0),
+    beats, pose, anchorFor, beatAt, fade, T_DOOR, gait(t) { const g = gaitOf(beatAt(t), t, Math.max(dashAt(t), runAt(t))); const lk = 1 - lockAt(t); g.sway *= lk; g.roll *= lk; g.yaw = g.yaw * lk + noAt(t); g.pitch *= lk; return g; }, carAt, dashAt, CARS, prayAt, floorAt, fallAt, buryAt, pullAt, get selfSpot() { return selfSpot; }, T_VOID: 1e9, T_TOWER: endBeat.t0 + 0.74 * (endBeat.t1 - endBeat.t0),
     skyAt(t) { return beatAt(t).sky; },
     // how far the hands have pushed the viewer under the water (metres below the path), gasping back up after the line
     dive(t) { if (T_DROWN < 0) return 0; const down = smooth((t - T_DROWN - 1.2) / 1.6), up = T_AIR > 0 ? smooth((t - T_AIR + 0.2) / 1.1) : smooth((t - T_DROWN - 3.4) / 2.8); return -0.72 * down * (1 - up); },

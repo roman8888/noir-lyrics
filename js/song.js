@@ -2,10 +2,10 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261016235814';
-import { fxFor, applyFx } from './fx.js?v=20261016235814';
-import { FACADE } from './layout.js?v=20261016235814';
-import { LOOKS } from './songs.js?v=20261016235814';
+import { clamp, easeOutExpo } from './util.js?v=20261017001528';
+import { fxFor, applyFx } from './fx.js?v=20261017001528';
+import { FACADE } from './layout.js?v=20261017001528';
+import { LOOKS } from './songs.js?v=20261017001528';
 
 // every word appears 0.2 s before its timestamp: Roman's ear test (the aligner marks vowel onsets a touch late); ?lead= overrides
 const LEAD_PARAM = parseFloat(new URLSearchParams(location.search).get('lead'));
@@ -276,7 +276,8 @@ export function createSong(fonts, scene, route, occluders = []) {
           focusAt.lerp(nextAt, lead * lead * (3 - 2 * lead)); w = Math.max(w, 0.88 * lead); }
       }
       if (route.prayAt) w *= 1 - route.prayAt(t);
-      if (route.floorAt) w *= 1 - route.floorAt(t);                           // eyes down to the road for the scattered line                             // eyes up for "pray": the storyboard look leads
+      if (route.floorAt) w *= 1 - route.floorAt(t);                           // eyes down to the road for the scattered line
+      if (route.buryAt) w *= 1 - 0.8 * route.buryAt(t);                       // and to the grave as it fills                             // eyes up for "pray": the storyboard look leads
       tmp.copy(pose.look).lerp(focusAt, w);
       const dash = route.dashAt ? route.dashAt(t) : 0;
       const kp = 1.6 + 7 * dash, kl = 1.3 + 2 * dash;                           // slow, cinematic easing: no quick turns — except the run from the car

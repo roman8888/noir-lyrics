@@ -2,8 +2,8 @@
 // storyboard follows the words wherever the timing puts them. Rules as ever: dark city, red = blood, no yellow.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FACADE, ROW2, CHURCH, lampZs } from './layout.js?v=20261016235814';
-import { rng, clamp } from './util.js?v=20261016235814';
+import { FACADE, ROW2, CHURCH, lampZs } from './layout.js?v=20261017001528';
+import { rng, clamp } from './util.js?v=20261017001528';
 
 const ease = x => 1 - Math.pow(1 - clamp(x), 3);
 const smooth = x => { x = clamp(x); return x * x * (3 - 2 * x); };
@@ -39,6 +39,8 @@ export function createProps2(scene, city, timing, fonts, route, props) {
   const man = figure(1.0, manMat); man.visible = false; scene.add(man); solid.push(man);
   const manLight = new THREE.PointLight(0xdfe6ff, 0, 9, 1.8); manLight.position.y = 4.5; man.add(manLight);
   let manPlaced = null, manGone = false;
+  const self = figure(1.0, manMat); self.visible = false; scene.add(self);                 // you, seen from behind and above, for "I'm coming for me"
+  const selfLight = new THREE.PointLight(0xdfe6ff, 0, 7, 1.8); selfLight.position.y = 3.6; self.add(selfLight);
 
   // ---- "against the venom of people" / "Throw your poison": black drips run down the facades beside you
   const T_VENOM = wordT(/venom of people/i, /^venom/i), T_POISON = wordT(/throw your poison/i, /^poison/i);
@@ -47,15 +49,35 @@ export function createProps2(scene, city, timing, fonts, route, props) {
   for (let i = 0; i < 26; i++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(0.09 + r() * 0.08, 1.2 + r() * 1.6), dripMat); m.visible = false; m.userData = { side: i % 2 ? 1 : -1, z: (r() - 0.5) * 28, ph: r(), sp: 0.7 + r() * 0.6 }; scene.add(m); drips.push(m); }
   let dripZ = null;
 
-  // ---- "That I bury you in words": words rain from the dark and pile on the road
+  // ---- "That I bury you in words": a grave opens in the road ahead, and the song's own words rain into it in blood
+  //      until it is full and they spill over the rim
   const T_BURY = wordT(/bury you in words/i, /^bury/i);
-  const LETTERS = 'eeeeaaaarrrttoonnsslliiuuddhhyycmwbgpfkv';
+  const GW = 1.3, GL = 2.5, GD = 1.0;
+  const grave = new THREE.Group(); grave.visible = false; scene.add(grave);
+  const earth = new THREE.MeshStandardMaterial({ color: 0x0b0a0a, roughness: 1 });
+  const pitWalls = new THREE.Mesh(new THREE.BoxGeometry(GW, GD, GL), new THREE.MeshStandardMaterial({ color: 0x050405, roughness: 1, side: THREE.BackSide })); pitWalls.position.y = -GD / 2 + 0.02; grave.add(pitWalls);
+  const rim = new THREE.Mesh(new THREE.BoxGeometry(GW + 0.9, 0.16, GL + 0.9), earth); rim.position.y = 0.08; grave.add(rim);           // the dug-up edge
+  const hole = new THREE.Mesh(new THREE.BoxGeometry(GW, 0.2, GL), new THREE.MeshBasicMaterial({ color: 0x000000 })); hole.position.y = 0.12; grave.add(hole);   // black mouth cut into the rim
+  const graveGlow = new THREE.PointLight(0xc01820, 0, 7, 1.8); graveGlow.position.y = 0.4; grave.add(graveGlow);
+  const rimLight = new THREE.PointLight(0xdfe6ff, 5, 9, 2); rimLight.position.set(0, 3.2, 0); grave.add(rimLight);   // a cold light over the hole so the rim reads
+  const stone = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.1, 0.14), new THREE.MeshStandardMaterial({ color: 0x141416, roughness: 0.9 })); stone.position.set(0, 0.55, -GL / 2 - 0.55); grave.add(stone);
+  const BURY_WORDS = ['words', 'lies', 'evil', 'venom', 'rotten', 'enough', 'silence', 'shock', 'poison', 'alone', 'darkness', 'broken'];
+  const wordGeo = BURY_WORDS.map(w => { const g = new TextGeometry(w, { font: fonts.roman, size: 0.2, height: 0.05, curveSegments: 6, bevelEnabled: false }); g.computeBoundingBox(); const b = g.boundingBox; g.translate(-(b.max.x + b.min.x) / 2, -(b.max.y + b.min.y) / 2, 0); return g; });
   const rainGlyphs = [];
-  const glyphGeo = {}; for (const ch of new Set(LETTERS)) { const g = new TextGeometry(ch, { font: fonts.roman, size: 0.34, height: 0.05, curveSegments: 6, bevelEnabled: false }); g.computeBoundingBox(); const b = g.boundingBox; g.translate(-(b.max.x + b.min.x) / 2, -(b.max.y + b.min.y) / 2, 0); glyphGeo[ch] = g; }
-  for (let i = 0; i < 150; i++) { const m = new THREE.Mesh(glyphGeo[LETTERS[i % LETTERS.length]], paper()); m.visible = false;
-    m.userData = { x: (r() - 0.5) * 7, dz: -6 - r() * 16, delay: r() * 2.6, spin: (r() - 0.5) * 3, yaw: (r() - 0.5) * 3, y0: 9 + r() * 6 }; scene.add(m); rainGlyphs.push(m); }
+  for (let i = 0; i < 140; i++) { const m = new THREE.Mesh(wordGeo[i % wordGeo.length], blood()); m.visible = false;
+    const over = i > 105;                                                                   // the last ones land on the rim and the road around
+    m.userData = { x: over ? (r() - 0.5) * 3.2 : (r() - 0.5) * (GW - 0.5), dz: over ? (r() - 0.5) * (GL + 2.4) : (r() - 0.5) * (GL - 0.5), delay: i * 0.052 + r() * 0.1, spin: (r() - 0.5) * 4, yaw: (r() - 0.5) * 3.2, y0: 7 + r() * 5,
+      rest: over ? 0.19 : -GD + 0.08 + (i / 105) * (GD + 0.1) };                          // the pile rises as the grave fills
+    grave.add(m); rainGlyphs.push(m); }
   let buryZ = null;
 
+  // ---- "I've still got words you haven't heard yet": forty words from later in the song flicker into the lane ahead,
+  //      each for a breath, pale, and are gone again — what is still to come
+  const I_WORDS = idx(/words you haven't heard yet/i), T_WORDS = wordT(/words you haven't heard yet/i, /^words/i);
+  const laterWords = [...new Set(lines.slice(I_WORDS + 1).flatMap(l => l.text.split(/\s+/)).map(w => w.replace(/[^a-zA-Z']/g, '')).filter(w => w.length >= 4))].slice(0, 40);
+  const flick = laterWords.map((w, i) => { const m = glyph(w, 0.24 + (i % 3) * 0.06, paper(), 0.03); m.visible = false;
+    m.userData = { at: (i / laterWords.length) * 3.2 + r() * 0.3, dur: 0.38 + r() * 0.3, dx: (r() - 0.5) * 5.6, dy: 0.5 + r() * 3.6, dz: 2.5 + r() * 9 }; scene.add(m); return m; });
+  let flickAt = null;
   // ---- "just how rotten you really are" / "Even the darkness struggles to swallow what's inside": the avenue goes dark around you
   const T_ROTTEN = wordT(/how rotten/i, /^rotten/i), T_DARK = T(/darkness struggles/i), T_WAIT = T(/^just wait/i);
 
@@ -109,6 +131,32 @@ export function createProps2(scene, city, timing, fonts, route, props) {
     near.forEach(({ b }, i) => { const L = laneLights[i]; L.position.copy(b.mesh.position).add(new THREE.Vector3(0, -0.3, 0)); L.intensity = 7 * b.on; });
     bulbs.forEach(b => { b.mesh.material.color.setRGB(2.6 * b.on, 2.0 * b.on, 1.3 * b.on); });
   };
+  // ---- "From them." / "people so lost in evil": figures in lit windows up the lane walls, watching, then gone
+  const T_THEM = T(/^from them/i), T_LOSTE = wordT(/so lost in evil/i, /^lost/i);
+  const watchers = [];
+  for (let i = 0; i < 7; i++) { const g = new THREE.Group(); const lit = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 2.0), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.6, 1.5, 1.3) })); g.add(lit);
+    const fig = new THREE.Mesh(new THREE.CapsuleGeometry(0.2, 0.7, 4, 8), new THREE.MeshBasicMaterial({ color: 0x000000 })); fig.position.set((r() - 0.5) * 0.5, -0.25, 0.05); g.add(fig);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 6), fig.material); head.position.set(fig.position.x, 0.42, 0.05); g.add(head);
+    g.visible = false; g.userData = { side: i % 2 ? 1 : -1, dz: -4 - i * 3.2 - r() * 2, y: 4.2 + (i % 3) * 2.6 + r() * 0.8, delay: i * 0.18 + r() * 0.1 }; scene.add(g); watchers.push(g); }
+  let watchZ = null;
+  // ---- "I won't need fists": two fists come at the lens from the sides and stop short
+  const T_FISTS = T(/won't need fists/i);
+  const fistMat = new THREE.MeshStandardMaterial({ color: 0x0a0909, roughness: 0.9 });
+  const fists = [-1, 1].map(sd => { const g = new THREE.Group(); const fm = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 10), fistMat); fm.scale.set(1.1, 0.9, 1.3); g.add(fm);
+    const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 1.4, 4, 8), fistMat); arm.rotation.z = sd * 1.1; arm.position.set(sd * 0.6, -0.35, 0.3); g.add(arm); g.visible = false; g.userData = { sd }; scene.add(g); return g; });
+  // ---- "The shock is over": every bulb flares once
+  const T_SHOCK = T(/shock is over/i);
+  // ---- the first "I'm coming." (before the verse): the bulbs ahead light up one after another down the lane
+  const T_COMING1 = lines.find(l => /^i'm coming\.?$/i.test(l.text))?.t ?? -1;
+  // ---- "The words that came too late": pale words overtake you from behind and drift away ahead
+  const T_LATE = T(/came too late/i);
+  const lateWords = ['sorry', 'stay', 'wait', 'listen', 'enough', 'please', 'no', 'why', 'now', 'here', 'still', 'me'].map((w, i) => { const m = glyph(w, 0.3, paper(), 0.03); m.visible = false; m.userData = { dx: (r() - 0.5) * 4.5, dy: 0.6 + r() * 3, sp: 2.2 + r() * 1.8, delay: i * 0.22 }; scene.add(m); return m; });
+  // ---- "But that man isn't waiting anymore": he turns to face you, his bulb flares
+  const T_NOTWAIT = T(/isn't waiting anymore/i);
+  // ---- "My eyes are open": the view opens — the lens widens for a breath
+  const T_EYES = T(/my eyes are open/i); const FOV0 = 50;
+  // ---- "Maybe you don't.": the lane dims by half before the last line
+  const T_MAYBE = T(/^maybe you don't/i);
   // ---- the lamps: one for the lone man, the rest dimmed; all dark for the bridge
   const nLamps = lampZs().length * 2; let lampMode = '';
   const setLamps = (mode, keep = -1) => { if (mode === lampMode) return; lampMode = mode;
@@ -131,6 +179,37 @@ export function createProps2(scene, city, timing, fonts, route, props) {
           const d = man.position.distanceTo(cp); man.position.addScaledVector(tmp.subVectors(cp, man.position).normalize(), Math.min(d, 2.4 * dt));
           man.position.y = Math.abs(Math.sin(time * 5.2)) * 0.04; manMat.opacity = 1; if (d < 1.4) { manGone = true; man.visible = false; manLight.intensity = 0; } }
       } else { man.visible = false; manLight.intensity = 0; if (lampMode && !(T_DARK > 0 && t > T_DARK && t < T_WAIT + 1)) setLamps('all'); }
+      // -- you, standing where you stood, while the camera pulls away
+      const pl = route.pullAt ? route.pullAt(t) : 0;
+      if (pl > 0.02 && route.selfSpot) { self.visible = true; self.position.copy(route.selfSpot); self.position.y = 0; self.rotation.y = Math.atan2(f.x, f.z) + Math.PI; selfLight.intensity = 9 * pl; }
+      else self.visible = false;
+      // -- the watchers in the windows
+      const tw = [T_THEM, T_LOSTE].find(T0 => T0 > 0 && t > T0 - 0.2 && t < T0 + 4.5);
+      if (tw) { if (watchZ !== tw) { watchZ = tw; watchers.forEach(g => { const u = g.userData; g.position.set(u.side < 0 ? -19.03 : -26.97, u.y, cp.z + u.dz); g.rotation.y = u.side < 0 ? -Math.PI / 2 : Math.PI / 2; }); }
+        watchers.forEach(g => { const u = g.userData, k = t - tw - u.delay; g.visible = k > 0 && k < 2.6 + u.delay; }); }
+      else watchers.forEach(g => (g.visible = false));
+      // -- the fists
+      if (T_FISTS > 0 && t > T_FISTS - 0.1 && t < T_FISTS + 2.6) { const k = t - T_FISTS, q = ease(k / 0.45) * (1 - smooth((k - 1.4) / 0.9));
+        const right = new THREE.Vector3(f.z, 0, -f.x);
+        fists.forEach(g => { const sd = g.userData.sd; g.visible = q > 0.02;
+          g.position.copy(cp).addScaledVector(f, 1.6 - 0.9 * q).addScaledVector(right, sd * (1.6 - 1.15 * q)); g.position.y = cp.y - 0.15 + Math.sin(time * 14) * 0.02 * q;
+          g.quaternion.copy(camera.quaternion); }); }
+      else fists.forEach(g => (g.visible = false));
+      // -- the bulbs: the runway on the first "I'm coming", the flare on "shock", half-light on "Maybe you don't"
+      if (T_COMING1 > 0 && t > T_COMING1 && t < T_COMING1 + 3.5) { const k = t - T_COMING1;
+        bulbs.forEach(b => { const d = cp.z - b.mesh.position.z; if (d > 0 && d < 140) { const w = Math.sin(Math.max(0, Math.min(Math.PI, (k * 45 - d) / 18 * Math.PI))); b.on = 1 + 1.8 * w; } }); }
+      if (T_SHOCK > 0 && t > T_SHOCK && t < T_SHOCK + 0.7) { const k = t - T_SHOCK; bulbs.forEach(b => { b.on = 1 + 2.2 * Math.exp(-k * 6); }); }
+      if (T_MAYBE > 0 && t > T_MAYBE && !(T_LAST > 0 && t > T_LAST + 1)) bulbs.forEach(b => { b.on = 1 - 0.5 * smooth((t - T_MAYBE) / 1.2); });
+      // -- the words that came too late
+      if (T_LATE > 0 && t > T_LATE && t < T_LATE + 4.5) { const k = t - T_LATE, right = new THREE.Vector3(f.z, 0, -f.x);
+        lateWords.forEach(m => { const u = m.userData, a = k - u.delay; m.visible = a > 0 && a < 3.2; if (!m.visible) return;
+          m.position.copy(cp).addScaledVector(f, -3 + a * u.sp).addScaledVector(right, u.dx); m.position.y = u.dy; m.quaternion.copy(camera.quaternion); m.material.opacity = 0.85 * Math.sin(Math.min(1, a / 3.2) * Math.PI); }); }
+      else lateWords.forEach(m => (m.visible = false));
+      // -- the man turns to you when he is done waiting
+      if (T_NOTWAIT > 0 && man.visible && t > T_NOTWAIT && t < T_NOTWAIT + 3) { const k = t - T_NOTWAIT; man.rotation.y = Math.atan2(cp.x - man.position.x, cp.z - man.position.z) + Math.PI * (1 - ease(k / 1.2)); manLight.intensity = 16 + 22 * Math.exp(-k * 2.5); }
+      // -- the eyes open: a wider lens for a breath
+      if (camera.isPerspectiveCamera) { const k = T_EYES > 0 ? t - T_EYES : -1; const wide = (k > -0.2 && k < 2.2) ? Math.sin(Math.min(1, Math.max(0, (k + 0.2) / 2.4)) * Math.PI) : 0;
+        const fov = FOV0 + 10 * wide; if (Math.abs(camera.fov - fov) > 0.05) { camera.fov = fov; camera.updateProjectionMatrix(); } }
       // -- the drips
       const dv = [T_VENOM, T_POISON].find(T0 => T0 > 0 && t > T0 - 0.3 && t < T0 + 4.5);
       if (dv) { if (dripZ !== dv) { dripZ = dv; drips.forEach(m => { m.userData.z0 = cp.z - 4 + m.userData.z; }); }
@@ -138,14 +217,25 @@ export function createProps2(scene, city, timing, fonts, route, props) {
           const lane = cp.x < -12, wx = lane ? (u.side < 0 ? -19.02 : -26.98) : u.side * (FACADE - 0.02), face = lane ? (u.side < 0 ? -1 : 1) : -u.side;   // the lane's two walls, or the avenue's facades
           m.position.set(wx, 8.5 - k * 9, u.z0); m.rotation.y = face * Math.PI / 2; m.scale.y = 0.6 + k * 0.8; }); }
       else drips.forEach(m => (m.visible = false));
-      // -- the word rain
-      if (T_BURY > 0 && t > T_BURY - 0.2 && t < T_BURY + 11) {
-        if (buryZ == null) buryZ = cp.z;
-        const k = t - T_BURY, fade = clamp((k - 8.5) / 2.2);
-        rainGlyphs.forEach(m => { const u = m.userData, q = clamp((k - u.delay) / 1.35), g = q * q;
-          m.visible = q > 0; m.position.set(u.x, u.y0 - (u.y0 - 0.05) * g, buryZ + u.dz);
-          m.rotation.set(-Math.PI / 2 * clamp(q * 1.2), u.yaw * q, u.spin * Math.sin(q * Math.PI) * 0.5); m.material.opacity = 1 - fade; });
-      } else rainGlyphs.forEach(m => (m.visible = false));
+      // -- the grave: opens ahead a breath before the word, fills with red words, is left behind
+      if (T_BURY > 0 && t > T_BURY - 1.2 && t < T_BURY + 14) {
+        if (buryZ == null) { buryZ = cp.z - 12; grave.position.set(cp.x, 0, buryZ); grave.rotation.y = Math.atan2(f.x, f.z) + Math.PI; }
+        const k = t - T_BURY, open = ease((k + 1.2) / 1.0);
+        grave.visible = true; grave.scale.set(1, 1, open);                                          // the mouth opens along its length
+        rainGlyphs.forEach(m => { const u = m.userData, q = clamp((k - u.delay) / 1.1), g = q * q;
+          m.visible = q > 0; m.position.set(u.x, u.y0 - (u.y0 - u.rest) * g, u.dz);
+          m.rotation.set(-Math.PI / 2 * clamp(q * 1.25), u.yaw * q, u.spin * Math.sin(q * Math.PI) * 0.5); });
+        graveGlow.intensity = 14 * clamp(k / 3) + Math.sin(time * 7) * 0.6;
+      } else grave.visible = false;
+      // -- the words still to come
+      if (T_WORDS > 0 && t > T_WORDS - 0.1 && t < T_WORDS + 4.6) {
+        if (!flickAt) { flickAt = { p: cp.clone(), f: f.clone(), r: new THREE.Vector3(f.z, 0, -f.x) }; }
+        const k = t - T_WORDS;
+        flick.forEach(m => { const u = m.userData, a = (k - u.at) / u.dur, o = a < 0 || a > 1 ? 0 : Math.sin(a * Math.PI);
+          m.visible = o > 0.02; if (!m.visible) return;
+          m.position.copy(flickAt.p).addScaledVector(flickAt.f, u.dz).addScaledVector(flickAt.r, u.dx); m.position.y = u.dy;
+          m.quaternion.copy(camera.quaternion); m.material.opacity = o * 0.9; m.scale.setScalar(0.85 + 0.3 * o); });
+      } else flick.forEach(m => (m.visible = false));
       // -- the dark: rotten (a breath of it), then the darkness that struggles to swallow (the whole avenue) until "Just wait"
       if (T_ROTTEN > 0 && t > T_ROTTEN - 0.3 && t < T_ROTTEN + 3.6) city.setDark(0.9 * smooth((t - T_ROTTEN + 0.3) / 0.8) * (1 - smooth((t - T_ROTTEN - 2.4) / 1.2)), cp.z - 20);
       else if (T_DARK > 0 && t > T_DARK - 0.4 && t < T_WAIT + 1.2) { const w = smooth((t - T_DARK + 0.4) / 3.5), back = smooth((t - T_WAIT + 0.2) / 1.2); city.setDark((1 - back) * Math.min(1, w * 1.2), cp.z - 10 - w * 220); setLamps(back > 0.5 ? 'all' : 'none');

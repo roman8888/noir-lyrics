@@ -1,7 +1,7 @@
 // Words that act out what they mean: "fade" fades, "fall" falls, "fly" flies away, "drown" sinks...
 // Each effect runs after the word is sung. age = seconds since it was sung.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261016235814';
+import { clamp } from './util.js?v=20261017001528';
 
 const RED = new THREE.Color(0.36, 0.015, 0.03), EMBER = new THREE.Color(0.8, 0.12, 0.05), GOLD = new THREE.Color(0.85, 0.88, 1.0);   // 'GOLD' is now a pale cold light: no yellow in this film
 const BLUE = new THREE.Color(0.25, 0.4, 0.6), ASH = new THREE.Color(0.2, 0.19, 0.18);
@@ -85,7 +85,7 @@ const MAP = [
   [/^(break|broke|broken|cracks|wounds|scars|shatter)$/, 'break'], [/^(burn|burned|burns|flame)$/, 'burn'],
   [/^light$/, 'light'], [/^(silence|silent|quiet|sleep)$/, 'silence'],
   [/^ahead$/, 'ahead'], [/^(away|lost|nowhere|retreat|gone)$/, 'away'], [/^(turn|turned|backs)$/, 'turn'], [/^(slammed|shut|door)$/, 'slam'],
-  [/^(hell|fire)/, 'hell'], [/^coming/i, 'coming'], [/^enough/i, 'shame'], [/^(beats|beat|heart)$/, 'beat'], [/^breathe$/, 'breathe'], [/^deep$/, 'deep'], [/^long$/, 'long'], [/^near$/, 'near'],
+  [/^(hell|fire)/, 'hell'], [/^coming/i, 'coming'], [/^talk/i, 'shame'], [/^rotten/i, 'bleed'], [/^silence/i, 'home'], [/^enough/i, 'shame'], [/^(beats|beat|heart)$/, 'beat'], [/^breathe$/, 'breathe'], [/^deep$/, 'deep'], [/^long$/, 'long'], [/^near$/, 'near'],
   [/^(tight|held|holding|hold)$/, 'tight'], [/^(fears|afraid)$/, 'tremble'], [/^weak$/, 'weak'], [/^crawl$/, 'crawl'],
   [/^lies$/, 'lies'], [/^pretend$/, 'pretend'], [/^rain$/, 'rain'], [/^(sun|morning|hope)$/, 'sun'],
   [/^(call|hears|hear|heard|voice|speak|said)$/, 'echo'], [/^(pray|prayer)$/, 'pray'], [/^(walk|walking)$/, 'walk'],
