@@ -2,7 +2,7 @@
 // black paper under one hard street light. Hover brightens a bill; a click walks into that song.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FACADE } from './layout.js?v=20261016235123';
+import { FACADE } from './layout.js?v=20261016235307';
 
 const EYE = 1.7;
 export function createLanding(scene, fonts, songs, root) {
@@ -29,9 +29,7 @@ export function createLanding(scene, fonts, songs, root) {
     let widest = 0;
     lines.forEach((ln, k) => { const m = text(ln, size, blood()); m.position.set(0, (lines.length - 1) * lh / 2 - k * lh, 0.03); title.add(m); mats.push(m.material);
       m.geometry.computeBoundingBox(); widest = Math.max(widest, m.geometry.boundingBox.max.x - m.geometry.boundingBox.min.x); });
-    const fit = Math.min(1, (W - 0.7) / widest); title.scale.setScalar(fit); title.position.y = 0.55;      // the whole title stays inside the bill
-    const by = text('ROMAN SHIKHRI', 0.17, pale); by.position.set(0, -0.75, 0.03); bill.add(by);
-    const hint = text('play', 0.15, pale, true); hint.position.set(0, -1.15, 0.03); bill.add(hint);
+    const fit = Math.min(1, (W - 0.7) / widest); title.scale.setScalar(fit); title.position.y = 0;         // the title alone, centred, inside the bill
     // one hard street light on the bill
     const sp = new THREE.SpotLight(0xdfe6ff, 90, 14, 0.5, 0.55, 1.3); sp.position.set(-FACADE + 3.2, y + 4.2, z + 0.4); sp.target.position.set(-FACADE, y, z); group.add(sp, sp.target);
     group.add(bill); bills.push({ bill, plate, mats, song: s, hov: 0, z });
