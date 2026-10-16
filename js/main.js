@@ -7,21 +7,21 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261017003920';
-import { createProps } from './props.js?v=20261017003920';
-import { createSky } from './sky.js?v=20261017003920';
-import { createRoute } from './route.js?v=20261017003920';
-import { createSong, LEAD } from './song.js?v=20261017003920';
-import { SONGS } from './songs.js?v=20261017003920';
-import { clamp, fmt, toLRC } from './util.js?v=20261017003920';
-import { createLanding } from './landing.js?v=20261017003920';
-import { createDrops } from './drops.js?v=20261017003920';
+import { createCity } from './city.js?v=20261017004034';
+import { createProps } from './props.js?v=20261017004034';
+import { createSky } from './sky.js?v=20261017004034';
+import { createRoute } from './route.js?v=20261017004034';
+import { createSong, LEAD } from './song.js?v=20261017004034';
+import { SONGS } from './songs.js?v=20261017004034';
+import { clamp, fmt, toLRC } from './util.js?v=20261017004034';
+import { createLanding } from './landing.js?v=20261017004034';
+import { createDrops } from './drops.js?v=20261017004034';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
 
 const renderer = new THREE.WebGLRenderer({ canvas: $('gl'), antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setPixelRatio(new URLSearchParams(location.search).has('record') ? 1 : Math.min(devicePixelRatio, 2));   // recordings at 1x: a quarter of the pixels, a quarter of the file
 renderer.setSize(innerWidth, innerHeight, false);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
@@ -148,7 +148,7 @@ audio.addEventListener('play', () => { $('pp').textContent = 'pause'; $('ending'
 audio.addEventListener('pause', () => ($('pp').textContent = 'play'));
 audio.addEventListener('ended', () => { $('player').hidden = true; $('ending').hidden = false; });
 $('again').addEventListener('click', () => { $('ending').hidden = true; $('player').hidden = false; song.reset(); dropsFallen = 0; $('titles').classList.remove('off'); audio.currentTime = 0; audio.play(); });
-$('bar').addEventListener('click', e => { const r = e.currentTarget.getBoundingClientRect(); if (audio.duration) audio.currentTime = clamp((e.clientX - r.left) / r.width) * audio.duration; });
+$('bar').addEventListener('click', e => { const r = e.currentTarget.getBoundingClientRect(); const D = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : (current.duration || 0); if (D) audio.currentTime = clamp((e.clientX - r.left) / r.width) * D; });
 let tapping = false, tapIdx = 0;
 const tapLines = () => song.lines().filter(l => !l.title);
 function showTapHint() { const L = tapLines()[tapIdx]; $('taphint').innerHTML = L ? `press <b>Enter</b> when this line starts:<br>${L.text}` : 'done &mdash; press <b>save .lrc</b>'; }
@@ -210,8 +210,9 @@ function frame(once) {
     if (now - fpsT0 > 6) { fpsChecked = true; const fps = fpsN / (now - fpsT0);
       if (fps < 20 && !Q.has('live')) fetch(`songs/${current.slug}/tour.webm`, { method: 'HEAD' }).then(r => { if (r.ok) location.replace(location.pathname + '?video=1'); }).catch(() => {}); } }
   const t = LANDING ? 6 : audio.currentTime;                             // the front page holds the city at the moment the credits hang in the sky
-  if (audio.duration) $('fill').style.width = `${(t / audio.duration) * 100}%`;
-  $('clock').textContent = `${fmt(t)} / ${fmt(audio.duration || 0)}`;
+  const DUR = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : (current.duration || 0);
+  if (DUR) $('fill').style.width = `${(t / DUR) * 100}%`;
+  $('clock').textContent = `${fmt(t)} / ${fmt(DUR)}`;
   idleTimer += dt; if (idleTimer > 2.5 && !audio.paused && !tapping) $('player').classList.add('idle');
   if (!LANDING) markLyrics(t + LEAD);                                    // the panel keeps step with the words
   while (!LANDING && dropsFallen < 5 && t >= DROP_AT[dropsFallen]) { drops.drop(5 - dropsFallen); dropsFallen++; }
