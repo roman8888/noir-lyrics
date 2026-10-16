@@ -2,7 +2,7 @@
 // black paper under one hard street light. Hover brightens a bill; a click walks into that song.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FACADE } from './layout.js?v=20261016234512';
+import { FACADE } from './layout.js?v=20261016234717';
 
 const EYE = 1.7;
 export function createLanding(scene, fonts, songs, root) {
@@ -63,13 +63,13 @@ export function createLanding(scene, fonts, songs, root) {
   let over = null, overNote = null;
   // ---- free movement: drag to look, WASD / arrows to walk, wheel to roll forward; the first touch ends the idle drift
   const free = { on: false, pos: new THREE.Vector3(-4.3, EYE + 0.15, 0), yaw: 0, pitch: 0, vel: new THREE.Vector3(), tyaw: 0, tpitch: 0, wheel: 0 };
-  const keys = new Set(); let dragging = false, lastX = 0, lastY = 0;
+  const keys = new Set(); let dragging = false, lastX = 0, lastY = 0, downAt = 0, moved = 0, held = false;   // press and hold = walk forward; drag = turn; a short tap = click
   addEventListener('keydown', e => { if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyQ', 'KeyE'].includes(e.code)) { keys.add(e.code); free.on = true; e.preventDefault(); } });
   addEventListener('keyup', e => keys.delete(e.code));
-  addEventListener('pointerdown', e => { if (e.target.closest('a, button, #about')) return; dragging = true; lastX = e.clientX; lastY = e.clientY; });
-  addEventListener('pointerup', () => (dragging = false));
+  addEventListener('pointerdown', e => { if (e.target.closest('a, button, #about')) return; dragging = true; lastX = e.clientX; lastY = e.clientY; downAt = performance.now(); moved = 0; });
+  addEventListener('pointerup', () => { dragging = false; held = false; });
   addEventListener('pointermove', e => { if (!dragging) return; const dx = e.clientX - lastX, dy = e.clientY - lastY; lastX = e.clientX; lastY = e.clientY;
-    if (Math.abs(dx) + Math.abs(dy) > 1) free.on = true; free.tyaw -= dx * 0.0032; free.tpitch = Math.max(-1.0, Math.min(0.9, free.tpitch - dy * 0.0028)); });
+    moved += Math.abs(dx) + Math.abs(dy); if (moved > 6) free.on = true; free.tyaw -= dx * 0.0032; free.tpitch = Math.max(-1.0, Math.min(0.9, free.tpitch - dy * 0.0028)); });
   addEventListener('wheel', e => { free.on = true; free.wheel += e.deltaY * 0.004; }, { passive: true });
   const mid = bills.reduce((a, b) => a + b.z, 0) / Math.max(1, bills.length);
   return {
@@ -89,6 +89,7 @@ export function createLanding(scene, fonts, songs, root) {
       // smooth walk: acceleration along the view's heading, damping, a gentle bob
       const fwd = new THREE.Vector3(-Math.sin(free.yaw), 0, -Math.cos(free.yaw)), right = new THREE.Vector3(fwd.z, 0, -fwd.x);
       const acc = new THREE.Vector3();
+      if (held) acc.add(fwd);                                                                 // the held press walks you forward
       if (keys.has('KeyW') || keys.has('ArrowUp')) acc.add(fwd); if (keys.has('KeyS') || keys.has('ArrowDown')) acc.sub(fwd);
       if (keys.has('KeyD') || keys.has('ArrowRight')) acc.add(right); if (keys.has('KeyA') || keys.has('ArrowLeft')) acc.sub(right);
       if (keys.has('KeyE')) acc.y += 1; if (keys.has('KeyQ')) acc.y -= 1;
@@ -106,6 +107,7 @@ export function createLanding(scene, fonts, songs, root) {
     },
     pointer(x, y) { ndc.set(x, y); },
     update(dt, camera) {
+      if (dragging && !held && performance.now() - downAt > 260) { held = true; free.on = true; }   // a press that lasts becomes a walk
       ray.setFromCamera(ndc, camera);
       const hit = ray.intersectObjects(bills.map(b => b.plate))[0];
       over = hit ? bills.find(b => b.plate === hit.object) : null;
@@ -121,7 +123,8 @@ export function createLanding(scene, fonts, songs, root) {
         b.bill.position.x = -FACADE + 0.06 + b.hov * 0.12;
       }
     },
-    click() { if (overNote) location.href = root + overNote.song.slug + '/line/' + overNote.line; else if (over) location.href = root + over.song.slug + '/'; },
+    click() { if (held || moved > 6 || performance.now() - downAt > 300) return;   // a walk or a turn is not a click
+      if (overNote) location.href = root + overNote.song.slug + '/line/' + overNote.line; else if (over) location.href = root + over.song.slug + '/'; },
     get free() { return free.on; },
     teleport(x, y, z, yaw = 0, pitch = 0) { free.on = true; free.pos.set(x, y, z); free.vel.set(0, 0, 0); free.yaw = free.tyaw = yaw; free.pitch = free.tpitch = pitch; },
   };
