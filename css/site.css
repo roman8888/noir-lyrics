@@ -88,3 +88,11 @@ button:hover { opacity: 1; }
 #lylist li.now span { border-left: 2px solid var(--red); margin-left: -10px; padding-left: 8px; }
 #lyopen { position: fixed; left: 18px; top: 48px; z-index: 3; }
 @media (max-width: 1100px) { #lyrics { width: 290px; } }
+
+/* the front page: a quiet header over the city; the bills on the wall do the rest */
+#home { position: fixed; left: 0; right: 0; top: 0; z-index: 3; display: flex; justify-content: space-between; align-items: flex-start; padding: 44px 48px; pointer-events: none; }
+#home h1 { margin: 0; font-size: clamp(26px, 3vw, 40px); font-weight: 700; letter-spacing: .02em; color: var(--paper); }
+#home p { margin: 6px 0 0; font-style: italic; font-size: 17px; color: var(--dim); }
+#home p.hint { font-style: normal; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; margin-top: 18px; color: rgba(236,232,225,.35); }
+#home .wa { pointer-events: auto; font-size: 12px; letter-spacing: .25em; text-transform: uppercase; color: var(--red); text-decoration: none; border: 1px solid rgba(216,40,31,.5); border-radius: 999px; padding: 8px 14px; }
+body.home #lyopen, body.home #player { display: none; }

@@ -1,5 +1,5 @@
 // Five drops of blood fall through the rain during the descent and run down the glass.
-import { rng } from './util.js?v=20261011000429';
+import { rng } from './util.js?v=20261016232009';
 
 export function createDrops(canvas) {
   const ctx = canvas.getContext('2d');

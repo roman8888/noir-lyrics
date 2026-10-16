@@ -7,14 +7,15 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261011000429';
-import { createProps } from './props.js?v=20261011000429';
-import { createSky } from './sky.js?v=20261011000429';
-import { createRoute } from './route.js?v=20261011000429';
-import { createSong, LEAD } from './song.js?v=20261011000429';
-import { SONGS } from './songs.js?v=20261011000429';
-import { clamp, fmt, toLRC } from './util.js?v=20261011000429';
-import { createDrops } from './drops.js?v=20261011000429';
+import { createCity } from './city.js?v=20261016232009';
+import { createProps } from './props.js?v=20261016232009';
+import { createSky } from './sky.js?v=20261016232009';
+import { createRoute } from './route.js?v=20261016232009';
+import { createSong, LEAD } from './song.js?v=20261016232009';
+import { SONGS } from './songs.js?v=20261016232009';
+import { clamp, fmt, toLRC } from './util.js?v=20261016232009';
+import { createLanding } from './landing.js?v=20261016232009';
+import { createDrops } from './drops.js?v=20261016232009';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -69,7 +70,11 @@ function ensureAudioGraph() {
 // ---------- boot: one world, the city; the song is sung inside it ----------
 const ttf = new TTFLoader();
 const [roman, italic] = await Promise.all([FONTS.roman, FONTS.italic].map(u => ttf.loadAsync(u).then(j => new Font(j))));
-const current = SONGS[0];
+// which page: /<song>/… is that song; anything else is the front page with the bills on the wall
+const ROOT = window.__root || '/';
+const SEG = location.pathname.slice(ROOT.length).split('/')[0];
+const current = SONGS.find(s => s.slug === SEG) || SONGS[0];
+const LANDING = !SONGS.some(s => s.slug === SEG);
 const timing = await fetch(`songs/${current.slug}/timing.json`).then(r => r.json());
 const city = createCity();
 const sky = createSky(city.scene);
@@ -81,6 +86,10 @@ song.load(current, timing);
 audio.src = `songs/${current.slug}/song.mp3`;
 renderPass.scene = city.scene; renderPass.camera = song.camera; bokeh.scene = city.scene; bokeh.camera = song.camera;
 const drops = createDrops($('glass'));
+const landing = LANDING ? createLanding(city.scene, { roman, italic }, SONGS, ROOT) : null;
+if (LANDING) { document.body.classList.add('home'); $('home').hidden = false; $('lyrics').classList.remove('open'); $('lyopen').hidden = true;
+  addEventListener('pointermove', e => landing.pointer((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1));
+  addEventListener('click', e => { if (!e.target.closest('a, button')) landing.click(); }); }
 if (new URLSearchParams(location.search).has('edit')) $('tools').hidden = false;
 
 // ---------- opening: the song starts at once; the camera descends into the city while the credits show and five blood
@@ -101,8 +110,7 @@ async function startSong() {
   catch { audio.muted = true; needUnmute = true; try { await audio.play(); } catch { /* nothing more we can do until a gesture */ } }
   if (actx) actx.resume();
 }
-$('player').hidden = false;
-startSong();
+if (!LANDING) { $('player').hidden = false; startSong(); }
 const unlock = () => {
   ensureAudioGraph(); actx.resume();
   if (needUnmute) { needUnmute = false; audio.muted = false; }
@@ -157,7 +165,7 @@ const lyList = $('lylist'), lyItems = [];
 const openLyrics = v => { $('lyrics').classList.toggle('open', v); $('lyopen').hidden = v; resize(); };
 $('lytoggle').addEventListener('click', () => openLyrics(false));
 $('lyopen').addEventListener('click', () => openLyrics(true));
-setTimeout(() => openLyrics(innerWidth > 1100), 0);
+setTimeout(() => openLyrics(!LANDING && innerWidth > 1100), 0);
 let lyNow = -1;
 function markLyrics(t) {
   let n = -1; for (let i = 0; i < timing.lines.length; i++) if (timing.lines[i].t <= t) n = i;
@@ -165,7 +173,7 @@ function markLyrics(t) {
   if (lyNow >= 0) lyItems[lyNow].classList.remove('now');
   lyNow = n; if (n >= 0) { lyItems[n].classList.add('now'); lyItems[n].scrollIntoView({ block: 'center', behavior: 'smooth' }); }
   // the address follows the line: /<song>/line/<n> (1-based, as listed in the panel)
-  try { history.replaceState(null, '', (window.__root || '/') + (n >= 0 ? `${current.slug}/line/${n + 1}` : '')); } catch { /* file:// and friends */ }
+  try { history.replaceState(null, '', ROOT + current.slug + (n >= 0 ? `/line/${n + 1}` : '/')); } catch { /* file:// and friends */ }   // before the first line: /<song>/
 }
 let idleTimer = 0;
 addEventListener('pointermove', e => { $('player').classList.remove('idle'); idleTimer = 0; song.setPointer((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); });
@@ -175,15 +183,15 @@ let skyName = '';
 const fadeOut = { k: 0, r: 0, g: 0, b: 0 }, carPos = new THREE.Vector3();
 function frame(once) {
   const dt = Math.min(clock.getDelta(), 0.05), now = clock.elapsedTime;
-  const t = audio.currentTime;
+  const t = LANDING ? 6 : audio.currentTime;                             // the front page holds the city at the moment the credits hang in the sky
   if (audio.duration) $('fill').style.width = `${(t / audio.duration) * 100}%`;
   $('clock').textContent = `${fmt(t)} / ${fmt(audio.duration || 0)}`;
   idleTimer += dt; if (idleTimer > 2.5 && !audio.paused && !tapping) $('player').classList.add('idle');
-  markLyrics(t + LEAD);                                                  // the panel keeps step with the words
-  while (dropsFallen < 5 && t >= DROP_AT[dropsFallen]) { drops.drop(5 - dropsFallen); dropsFallen++; }
+  if (!LANDING) markLyrics(t + LEAD);                                    // the panel keeps step with the words
+  while (!LANDING && dropsFallen < 5 && t >= DROP_AT[dropsFallen]) { drops.drop(5 - dropsFallen); dropsFallen++; }
   if (t < 0.5) dropsFallen = 0;
   const sName = route.skyAt(t); if (sName !== skyName) { skyName = sName; sky.set(sName, skyName ? 7 : 0.1); }
-  song.update(dt, now, t, analyser, fbuf);
+  if (LANDING) { landing.camera(song.camera, now); landing.update(dt, song.camera); } else song.update(dt, now, t, analyser, fbuf);
   const env = song.env, P = song.P;
   sky.update(dt, now, song.camera.position, env.bass);
   city.chaseAt(route.carAt(t, carPos), song.camera);                                     // the car that comes for you (Rap 2)
@@ -215,4 +223,4 @@ function resize() {
 }
 addEventListener('resize', resize); new ResizeObserver(resize).observe(document.documentElement); resize();
 requestAnimationFrame(frame);
-window.__noir = { audio, song, city, props, sky, route, renderer, get mode() { return mode; }, step: () => frame(true) };   // step(): one frame on demand (probes while the tab is hidden and rAF sleeps)
+window.__noir = { audio, song, city, props, sky, route, renderer, landing, get mode() { return mode; }, step: () => frame(true) };   // step(): one frame on demand (probes while the tab is hidden and rAF sleeps)
