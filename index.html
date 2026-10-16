@@ -14,7 +14,7 @@
 <title>Roman — When God Wants to Make You Stronger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=20261017004034">
+<link rel="stylesheet" href="css/site.css?v=20261017004845">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -23,16 +23,45 @@
 </script>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7.5 4.5v15M16.5 4.5v15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="M6 5v14M18 5.5L9.5 12 18 18.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="none"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M18 5v14M6 5.5l8.5 6.5L6 18.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="none"/></symbol>
+  <symbol id="i-restart" viewBox="0 0 24 24"><path d="M5 12a7 7 0 1 0 2.2-5.1M5 4.5v4h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5zM15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+  <symbol id="i-muted" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5zM16 9.5l4.5 5M20.5 9.5l-4.5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+  <symbol id="i-full" viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+  <symbol id="i-lyrics" viewBox="0 0 24 24"><path d="M5 7h14M5 12h10M5 17h7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="5" cy="6" r="1.2" fill="currentColor"/><circle cx="5" cy="12" r="1.2" fill="currentColor"/><circle cx="5" cy="18" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M12 10.5v6M12 7.6v.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2.4c-2.6 4.4-6.2 8.1-6.2 12.1a6.2 6.2 0 0 0 12.4 0c0-4-3.6-7.7-6.2-12.1z" fill="currentColor"/><path fill="#ece8e1" opacity=".9" d="M10.3 10.2v6.1a1.9 1.9 0 1 1-1.2-1.8V9.2l5.1-1.3v6.7a1.9 1.9 0 1 1-1.2-1.8V9.6z"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-rec" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.2" fill="none" opacity=".5"/></symbol>
+</svg>
 <canvas id="gl"></canvas>
 <video id="tourvideo" hidden playsinline preload="auto"></video>
-<div id="lowpower" hidden><span class="dot"></span><span>pre-recorded &middot; low-power mode</span><a id="trylive" href="#">try live</a></div>
 <canvas id="glass"></canvas>
 
-<div id="home" hidden><div class="bar">
-  <a class="logo" href="./" aria-label="hyperfeeling"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#9a141b" d="M12 2.4c-2.6 4.4-6.2 8.1-6.2 12.1a6.2 6.2 0 0 0 12.4 0c0-4-3.6-7.7-6.2-12.1z"/><path fill="#ece8e1" opacity=".9" d="M10.3 10.2v6.1a1.9 1.9 0 1 1-1.2-1.8V9.2l5.1-1.3v6.7a1.9 1.9 0 1 1-1.2-1.8V9.6z"/></svg></a>
-  <nav><a id="aboutlink" href="about/">about</a><a href="./">songs</a></nav>
-</div>
+<header id="topbar"><a class="ic logo" href="./" aria-label="hyperfeeling"><svg><use href="#i-drop"/></svg></a><span class="brand"><a href="https://hyperfeeling.com">hyperfeeling</a><em id="barsong"></em></span><span class="grow"></span>
+  <button id="lyr" class="ic" hidden title="lyrics (l)" aria-label="lyrics"><svg><use href="#i-lyrics"/></svg></button>
+  <a class="ic" href="listen/" title="just listen — light, for any phone" aria-label="listen"><svg><use href="#i-sound"/></svg></a>
+  <a class="ic" href="playlist/" title="playlist" aria-label="playlist"><svg><use href="#i-list"/></svg></a>
+  <a class="ic" href="about/" title="about" aria-label="about"><svg><use href="#i-info"/></svg></a>
+</header>
+<div id="home" hidden>
 <div class="hero"><a class="mark" href="https://hyperfeeling.com"><span>HYPER</span><span>FEELING</span></a><p class="who">Roman Shikhri</p><p class="tag">Words that come to life.</p></div></div>
+<section id="playlist" hidden>
+  <div class="inner">
+    <p class="kicker">hyperfeeling &middot; playlist</p>
+    <h1>The songs, in order.</h1>
+    <p class="lead">Press play and the city carries you from one song into the next. Or pick one.</p>
+    <button id="playall" class="playall">&#9654; play all</button>
+    <ol id="plsongs"></ol>
+    <p class="foot"><a href="./">&larr; the wall</a> &middot; <a href="about/">about</a></p>
+  </div>
+</section>
+<aside id="plist" hidden><div class="head">playlist</div><ol></ol></aside>
 <section id="about" hidden>
   <a class="close" href="./" aria-label="back to the songs">&times;</a>
   <div class="inner">
@@ -58,23 +87,22 @@
 </header>
 <div id="count"></div>
 
-<aside id="lyrics" class="open"><div id="lyhead"><span>Lyrics</span><a class="back" href="./" title="all songs">&larr; songs</a><button id="lytoggle" aria-label="Hide lyrics">&times;</button></div><div id="lycred"><b>Roman Shikhri <a id="lywa" href="https://wa.me/972528664009" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2a8.8 8.8 0 0 0-7.6 13.2L3.2 20.8l4.6-1.2A8.8 8.8 0 1 0 12 3.2z"/><path d="M9.1 8.3c.3-.4.9-.4 1.2 0l.9 1.5c.2.3.1.7-.1 1l-.6.6c.5 1 1.4 1.9 2.4 2.4l.6-.6c.3-.3.7-.3 1-.1l1.5.9c.4.3.4.9 0 1.2l-.5.6c-.6.6-1.5.8-2.3.5a9.1 9.1 0 0 1-4.9-4.9c-.3-.8-.1-1.7.5-2.3z" fill="currentColor" stroke="none"/></svg></a></b><i id="lytitle">When God Wants to Make You Stronger</i></div><ol id="lylist"></ol></aside>
-<button id="lyopen" hidden>lyrics</button>
-<a id="homelink" href="./" hidden>&larr; songs</a>
+<aside id="lyrics" class="open"><div id="lyhead"><span>Lyrics</span><button id="lytoggle" class="ic" aria-label="Hide lyrics"><svg><use href="#i-close"/></svg></button></div><div id="lycred"><b>Roman Shikhri</b><i id="lytitle">When God Wants to Make You Stronger</i></div><ol id="lylist"></ol></aside>
 <div id="player" hidden>
   <div id="pbottom">
     <div id="bar"><div id="fill"></div></div>
     <div id="pctl">
-      <button id="prevline" title="previous line (↑)">&#8249; line</button>
-      <button id="pp" aria-label="Play or pause">pause</button>
-      <button id="nextline" title="next line (↓)">line &#8250;</button>
+      <button id="lowpower" hidden title="pre-recorded (low-power mode) · tap for the live city" aria-label="pre-recorded, tap for the live city"><i></i><span>rec</span></button>
       <span id="clock">0:00</span>
       <span class="grow"></span>
-      <button id="restart" title="from the top">restart</button>
-      <button id="mute" title="mute (m)">mute</button>
-      <button id="lyr" title="lyrics panel (l)">lyrics</button>
-      <button id="fs" title="fullscreen (f)">fullscreen</button>
-      <a id="nextsong" href="./" title="the other song">next song &#8250;</a>
+      <button id="prevline" class="ic" title="previous line (↑)" aria-label="previous line"><svg><use href="#i-prev"/></svg></button>
+      <button id="pp" class="ic big" aria-label="play or pause"><svg class="when-paused"><use href="#i-play"/></svg><svg class="when-playing"><use href="#i-pause"/></svg></button>
+      <button id="nextline" class="ic" title="next line (↓)" aria-label="next line"><svg><use href="#i-next"/></svg></button>
+      <span class="grow"></span>
+      <button id="restart" class="ic" title="from the top" aria-label="restart"><svg><use href="#i-restart"/></svg></button>
+      <button id="mute" class="ic" title="mute (m)" aria-label="mute"><svg class="when-sound"><use href="#i-sound"/></svg><svg class="when-muted"><use href="#i-muted"/></svg></button>
+      <button id="fs" class="ic" title="fullscreen (f)" aria-label="fullscreen"><svg><use href="#i-full"/></svg></button>
+      <a id="nextsong" class="ic" href="./" title="next song" aria-label="next song"><svg><use href="#i-next"/></svg></a>
       <span id="tools" hidden>
         <button id="tap" title="Enter stamps the next line">tap-sync</button>
         <button id="save">save .lrc</button>
@@ -89,6 +117,6 @@
 </div>
 <div id="loading"></div>
 
-<script type="module" src="js/main.js?v=20261017004034"></script>
+<script type="module" src="js/main.js?v=20261017004845"></script>
 </body>
 </html>

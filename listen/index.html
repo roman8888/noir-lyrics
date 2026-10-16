@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050608">
+<title>Roman Shikhri — listen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* the listening room: no 3-D, no shaders — a cover, a player, the words. Runs on anything with a browser. */
+  :root { --ink: #050608; --paper: #ece8e1; --dim: rgba(236,232,225,.55); --red: #d8281f; --blood: #7a0e14; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--ink); color: var(--paper); font-family: 'Playfair Display', Georgia, serif; min-height: 100%; }
+  body { padding: 0 16px calc(120px + env(safe-area-inset-bottom, 0px)); }
+  header { display: flex; align-items: center; gap: 10px; height: 54px; }
+  header a { color: var(--paper); text-decoration: none; font-size: 13px; letter-spacing: .22em; text-transform: uppercase; opacity: .9; }
+  header .city { margin-left: auto; color: var(--red); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+  h1 { font-size: 26px; margin: 18px 0 4px; }
+  .sub { margin: 0 0 22px; font-style: italic; color: var(--dim); font-size: 15px; }
+  .songs { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .song { display: grid; grid-template-columns: 72px 1fr auto; gap: 14px; align-items: center; padding: 10px; border: 1px solid rgba(236,232,225,.08); border-radius: 12px; background: rgba(255,255,255,.02); cursor: pointer; }
+  .song.now { border-color: rgba(216,40,31,.45); background: rgba(216,40,31,.06); }
+  .cover { width: 72px; height: 72px; border-radius: 8px; overflow: hidden; background: #0b0b0d; }
+  .cover svg { width: 100%; height: 100%; display: block; }
+  .song .t { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.2; }
+  .song .n { margin: 4px 0 0; font-size: 13px; color: var(--dim); font-style: italic; }
+  .song .len { font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .lyr { margin-top: 18px; display: none; }
+  .lyr.on { display: block; }
+  .lyr h2 { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--dim); margin: 0 0 10px; font-weight: 400; }
+  .lyr ol { list-style: none; margin: 0; padding: 0; }
+  .lyr li { display: grid; grid-template-columns: 44px 1fr; gap: 8px; padding: 6px 0; font-size: 17px; line-height: 1.35; color: rgba(236,232,225,.55); cursor: pointer; }
+  .lyr li.sec { display: block; padding-top: 14px; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: rgba(236,232,225,.35); }
+  .lyr time { font-size: 11px; color: rgba(236,232,225,.35); padding-top: 3px; font-variant-numeric: tabular-nums; }
+  .lyr li.now { color: var(--paper); } .lyr li.now time { color: var(--red); }
+  /* the player strip */
+  .player { position: fixed; left: 0; right: 0; bottom: 0; padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(0deg, rgba(5,6,8,.98) 60%, rgba(5,6,8,0)); }
+  .bar { position: relative; height: 22px; cursor: pointer; }
+  .bar::before { content: ''; position: absolute; left: 0; right: 0; top: 10px; height: 2px; background: rgba(236,232,225,.15); }
+  .bar .fill { position: absolute; left: 0; top: 10px; height: 2px; width: 0; background: var(--red); box-shadow: 0 0 8px rgba(216,40,31,.7); }
+  .row { display: flex; align-items: center; gap: 2px; }
+  .row .grow { flex: 1; }
+  .clock { font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; min-width: 76px; padding-left: 6px; }
+  .ic { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; background: none; color: var(--red); cursor: pointer; opacity: .85; padding: 0; }
+  .ic svg { width: 22px; height: 22px; display: block; } .ic.big svg { width: 30px; height: 30px; }
+  .ic.on { opacity: 1; filter: drop-shadow(0 0 6px rgba(216,40,31,.6)); }
+  #pp .pause, #pp.playing .play { display: none; } #pp.playing .pause { display: block; }
+  .nowline { font-size: 13px; color: var(--dim); padding: 0 8px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-style: italic; }
+  @media (min-width: 760px) { body { max-width: 720px; margin: 0 auto; } h1 { font-size: 34px; } .song { grid-template-columns: 88px 1fr auto; } .cover { width: 88px; height: 88px; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7.5 4.5v15M16.5 4.5v15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="M6 5v14M18 5.5L9.5 12 18 18.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="none"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M18 5v14M6 5.5l8.5 6.5L6 18.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="none"/></symbol>
+  <symbol id="i-lyrics" viewBox="0 0 24 24"><path d="M5 7h14M5 12h10M5 17h7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2.4c-2.6 4.4-6.2 8.1-6.2 12.1a6.2 6.2 0 0 0 12.4 0c0-4-3.6-7.7-6.2-12.1z" fill="currentColor"/></symbol>
+</svg>
+<header><a href="../" aria-label="hyperfeeling" style="display:flex"><svg width="22" height="22" style="color:#9a141b"><use href="#i-drop"/></svg></a><a href="../">hyperfeeling</a><a class="city" href="../">the city &rarr;</a></header>
+<h1>Listen</h1>
+<p class="sub">Just the songs. Light enough for any phone. The city version is one tap away.</p>
+<ol class="songs" id="songs"></ol>
+<section class="lyr" id="lyr"><h2>Lyrics</h2><ol id="lines"></ol></section>
+<div class="player">
+  <div class="nowline" id="nowline"></div>
+  <div class="bar" id="bar"><div class="fill" id="fill"></div></div>
+  <div class="row">
+    <span class="clock" id="clock">0:00 / 0:00</span><span class="grow"></span>
+    <button class="ic" id="prev" aria-label="previous song"><svg><use href="#i-prev"/></svg></button>
+    <button class="ic big" id="pp" aria-label="play or pause"><svg class="play"><use href="#i-play"/></svg><svg class="pause"><use href="#i-pause"/></svg></button>
+    <button class="ic" id="next" aria-label="next song"><svg><use href="#i-next"/></svg></button>
+    <span class="grow"></span>
+    <button class="ic" id="lyrbtn" aria-label="lyrics"><svg><use href="#i-lyrics"/></svg></button>
+  </div>
+</div>
+<audio id="a" preload="metadata"></audio>
+<script>
+(async () => {
+  const $ = id => document.getElementById(id);
+  const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  // the song list comes from the same source as the city (an ES module): read it as text and pick the slugs and titles
+  const src = await fetch('../js/songs.js').then(r => r.text());
+  const songs = [...src.matchAll(/slug:\s*'([^']+)'[\s\S]*?title:\s*'([^']+)'(?:[\s\S]*?duration:\s*(\d+))?/g)].map(m => ({ slug: m[1], title: m[2], dur: +m[3] || 0 }));
+  const cover = (i, title) => `<svg viewBox="0 0 100 100" role="img" aria-label="${title}"><rect width="100" height="100" fill="#0b0b0d"/><rect x="8" y="8" width="84" height="84" fill="none" stroke="#3a0a0c" stroke-width="1"/><path d="M50 18c-10 17-24 31-24 46a24 24 0 0 0 48 0c0-15-14-29-24-46z" fill="${i % 2 ? '#7a0e14' : '#9a141b'}"/><text x="50" y="92" text-anchor="middle" font-family="Georgia,serif" font-size="9" fill="#ece8e1" opacity=".7">${String(i + 1).padStart(2, '0')}</text></svg>`;
+  const a = $('a'); let cur = -1, timing = null, items = [], lyOn = false;
+  const list = $('songs');
+  songs.forEach((s, i) => { const li = document.createElement('li'); li.className = 'song'; li.innerHTML = `<div class="cover">${cover(i, s.title)}</div><div><p class="t">${s.title}</p><p class="n">Roman Shikhri</p></div><span class="len">${s.dur ? fmt(s.dur) : ''}</span>`; li.addEventListener('click', () => load(i, true)); list.appendChild(li); });
+  async function load(i, play) {
+    cur = i; [...list.children].forEach((li, k) => li.classList.toggle('now', k === i));
+    a.src = `../songs/${songs[i].slug}/song.mp3`; if (play) a.play().catch(() => {});
+    $('nowline').textContent = songs[i].title;
+    timing = await fetch(`../songs/${songs[i].slug}/timing.json`).then(r => r.json()).catch(() => null);
+    const ol = $('lines'); ol.innerHTML = ''; items = [];
+    if (timing) { let sec = -1; timing.lines.forEach(L => { if (L.section !== sec) { sec = L.section; const h = document.createElement('li'); h.className = 'sec'; h.textContent = timing.sections[sec].name; ol.appendChild(h); }
+      const li = document.createElement('li'); li.innerHTML = `<time>${fmt(L.t)}</time><span>${L.text}</span>`; li.addEventListener('click', () => { a.currentTime = Math.max(0, L.t - 0.3); a.play().catch(() => {}); }); ol.appendChild(li); items.push({ li, t: L.t }); }); }
+    history.replaceState(null, '', `#${songs[i].slug}`);
+  }
+  $('pp').addEventListener('click', () => { if (cur < 0) load(0, true); else if (a.paused) a.play().catch(() => {}); else a.pause(); });
+  $('prev').addEventListener('click', () => load((cur - 1 + songs.length) % songs.length, true));
+  $('next').addEventListener('click', () => load((cur + 1) % songs.length, true));
+  $('lyrbtn').addEventListener('click', () => { lyOn = !lyOn; $('lyr').classList.toggle('on', lyOn); $('lyrbtn').classList.toggle('on', lyOn); if (lyOn && cur < 0) load(0, false); });
+  $('bar').addEventListener('click', e => { const r = e.currentTarget.getBoundingClientRect(); const D = a.duration || songs[cur]?.dur; if (D) a.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * D; });
+  a.addEventListener('play', () => $('pp').classList.add('playing')); a.addEventListener('pause', () => $('pp').classList.remove('playing'));
+  a.addEventListener('ended', () => load((cur + 1) % songs.length, true));
+  let lyNow = -1;
+  a.addEventListener('timeupdate', () => { const t = a.currentTime, D = a.duration || songs[cur]?.dur || 0; $('fill').style.width = D ? `${(t / D) * 100}%` : '0'; $('clock').textContent = `${fmt(t)} / ${fmt(D)}`;
+    if (!items.length) return; let n = -1; for (let i = 0; i < items.length; i++) if (items[i].t <= t + 0.2) n = i; if (n === lyNow) return;
+    if (lyNow >= 0) items[lyNow].li.classList.remove('now'); lyNow = n; if (n >= 0) { items[n].li.classList.add('now'); if (lyOn) items[n].li.scrollIntoView({ block: 'center', behavior: 'smooth' }); } });
+  const h = location.hash.slice(1); const start = songs.findIndex(s => s.slug === h); if (start >= 0) load(start, false);
+})();
+</script>
+</body>
+</html>

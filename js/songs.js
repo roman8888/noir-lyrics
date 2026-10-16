@@ -21,6 +21,7 @@ export const SONGS = [
     slug: 'when-god-wants-to-make-you-stronger',
     title: 'When God Wants to Make You Stronger',
     duration: 363,
+    note: 'Faith, betrayal and the long walk back — the avenue, the alley, the water, the tower.',
     accents: ['god', 'rise', 'fall', 'fly', 'rain', 'pain', 'light', 'fade', 'alone', 'strength', 'drown', 'bleed',
       'lies', 'pretend', 'trust', 'defeat', 'standing', 'silence', 'call', 'sun', 'breathe', 'cost', 'flame', 'shame',
       'break', 'scars', 'hell', 'chain', 'beats', 'home', 'broken', 'hope', 'soul', 'whole', 'morning', 'free', 'pray', 'way', 'here'],
@@ -29,6 +30,7 @@ export const SONGS = [
     slug: 'on-my-way-to-you',
     title: 'On My Way to You',
     duration: 288,
+    note: 'A harder walk down the back lane: the grave of words, the LIES wall, the water again — and coming up.',
     pool: 2,                                                           // the water: where the third alley meets the back lane
     accents: ['coming', 'save', 'alone', 'venom', 'rotten', 'evil', 'lies', 'darkness', 'swallow', 'karma', 'fists', 'fire', 'tear',
       'silence', 'shock', 'frozen', 'arrow', 'truth', 'drown', 'underwater', 'air', 'breath', 'broken', 'storm', 'poison', 'abandon', 'fighting', 'lost'],

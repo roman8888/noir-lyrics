@@ -7,15 +7,15 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261017004034';
-import { createProps } from './props.js?v=20261017004034';
-import { createSky } from './sky.js?v=20261017004034';
-import { createRoute } from './route.js?v=20261017004034';
-import { createSong, LEAD } from './song.js?v=20261017004034';
-import { SONGS } from './songs.js?v=20261017004034';
-import { clamp, fmt, toLRC } from './util.js?v=20261017004034';
-import { createLanding } from './landing.js?v=20261017004034';
-import { createDrops } from './drops.js?v=20261017004034';
+import { createCity } from './city.js?v=20261017004845';
+import { createProps } from './props.js?v=20261017004845';
+import { createSky } from './sky.js?v=20261017004845';
+import { createRoute } from './route.js?v=20261017004845';
+import { createSong, LEAD } from './song.js?v=20261017004845';
+import { SONGS } from './songs.js?v=20261017004845';
+import { clamp, fmt, toLRC } from './util.js?v=20261017004845';
+import { createLanding } from './landing.js?v=20261017004845';
+import { createDrops } from './drops.js?v=20261017004845';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -60,7 +60,7 @@ composer.addPass(renderPass); composer.addPass(bokeh); composer.addPass(bloom); 
 // Low-power machines get the recorded tour (a video with the song in it) instead of the live city. Decided up front from the
 // device, or later from the measured frame rate (the page then reloads itself with ?video=1). ?live=1 forces the city.
 const Q = new URLSearchParams(location.search);
-const LOWPOWER = (() => { if (Q.has('live')) return false; if (Q.has('video')) return true;
+const LOWPOWER = (() => { if (Q.has('live') || localStorage.getItem('noir-live') === '1') return false; if (Q.has('video')) return true;
   const cores = navigator.hardwareConcurrency || 8, mem = navigator.deviceMemory || 8, mobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
   return mobile || cores <= 2 || mem <= 2; })();
 const RECORD = Q.has('record');                                           // ?record=1: capture this tour to a .webm (dev)
@@ -83,6 +83,9 @@ const SEG = location.pathname.slice(ROOT.length).split('/')[0];
 const current = SONGS.find(s => s.slug === SEG) || SONGS[0];
 const LANDING = !SONGS.some(s => s.slug === SEG);
 const ABOUT = SEG === 'about';                                           // /about/: the city at rest behind the sheet
+const PLAYLIST_PAGE = SEG === 'playlist';                                // /playlist/: the plain list, play all in order
+const PLAYLIST = Q.has('playlist') || sessionStorage.getItem('playlist') === '1';   // a tour inside the running playlist
+if (Q.has('playlist')) sessionStorage.setItem('playlist', '1');
 document.title = LANDING ? 'Roman Shikhri — hyperfeeling' : `Roman Shikhri — ${current.title}`;
 $('lytitle').textContent = current.title;                               // the panel header names the song being sung
 const timing = await fetch(`songs/${current.slug}/timing.json`).then(r => r.json());
@@ -96,14 +99,22 @@ props.wordAt = (i, re, out) => song.wordAt(i, re, out);                 // set p
 song.load(current, timing);
 audio.src = LOWPOWER ? `songs/${current.slug}/tour.webm` : `songs/${current.slug}/song.mp3`;
 if (LOWPOWER) { $('tourvideo').hidden = false; $('gl').style.display = 'none'; $('lowpower').hidden = false;
-  $('trylive').addEventListener('click', e => { e.preventDefault(); location.href = location.pathname + '?live=1'; });
+  $('lowpower').addEventListener('click', () => { localStorage.setItem('noir-live', '1'); location.href = location.pathname + '?live=1'; });
   audio.addEventListener('error', () => { location.href = location.pathname + '?live=1'; }); }   // no recording: the live city after all
 renderPass.scene = city.scene; renderPass.camera = song.camera; bokeh.scene = city.scene; bokeh.camera = song.camera;
 const drops = createDrops($('glass'));
 const landing = LANDING ? createLanding(city.scene, { roman, italic }, SONGS, ROOT) : null;
-if (LANDING) { document.body.classList.add('home'); $('home').hidden = ABOUT; $('about').hidden = !ABOUT; $('lyrics').classList.remove('open'); $('lyopen').hidden = true;
+const fmtLen = n => `${Math.floor(n / 60)}:${String(Math.round(n % 60)).padStart(2, '0')}`;
+if (PLAYLIST_PAGE) {                                                      // the list, in order
+  sessionStorage.removeItem('playlist');
+  const ol = $('plsongs'); SONGS.forEach((sg, i) => { const li = document.createElement('li');
+    li.innerHTML = `<span class="n">${String(i + 1).padStart(2, '0')}</span><div><p class="t">${sg.title}</p><p class="d">${sg.note || ''}</p></div><span class="len">${fmtLen(sg.duration || 0)}</span>`;
+    li.addEventListener('click', () => { location.href = ROOT + sg.slug + '/?playlist=1'; }); ol.appendChild(li); });
+  $('playall').addEventListener('click', () => { location.href = ROOT + SONGS[0].slug + '/?playlist=1'; });
+}
+if (LANDING) { document.body.classList.add('home'); $('home').hidden = ABOUT || PLAYLIST_PAGE; $('about').hidden = !ABOUT; $('playlist').hidden = !PLAYLIST_PAGE; $('lyrics').classList.remove('open');
   addEventListener('pointermove', e => landing.pointer((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1));
-  addEventListener('click', e => { if (!ABOUT && !e.target.closest('a, button')) landing.click(); }); }
+  addEventListener('click', e => { if (!ABOUT && !PLAYLIST_PAGE && !e.target.closest('a, button')) landing.click(); }); }
 if (new URLSearchParams(location.search).has('edit')) $('tools').hidden = false;
 
 // ---------- opening: the song starts at once; the camera descends into the city while the credits show and five blood
@@ -124,7 +135,7 @@ async function startSong() {
   catch { audio.muted = true; needUnmute = true; try { await audio.play(); } catch { /* nothing more we can do until a gesture */ } }
   if (actx) actx.resume();
 }
-if (!LANDING) { $('player').hidden = false; $('homelink').hidden = false; if (!RECORD) startSong(); }   // recording waits for one click (the audio graph needs it)
+if (!LANDING) { $('player').hidden = false; $('lyr').hidden = false; $('barsong').textContent = current.title; if (!RECORD) startSong(); }   // recording waits for one click (the audio graph needs it)
 const unlock = () => {
   ensureAudioGraph(); actx.resume();
   if (needUnmute) { needUnmute = false; audio.muted = false; }
@@ -140,13 +151,19 @@ const lineStep = dir => { const ts = timing.lines.map(L => L.t).filter(t => t !=
   const to = dir > 0 ? ts.find(t => t > now + 0.3) : [...ts].reverse().find(t => t < now - 1.0); if (to != null) audio.currentTime = Math.max(0, to - 0.15); };
 $('prevline').addEventListener('click', () => lineStep(-1)); $('nextline').addEventListener('click', () => lineStep(1));
 $('restart').addEventListener('click', () => { audio.currentTime = 0; if (audio.paused) { userPaused = false; audio.play().catch(() => {}); } });
-$('mute').addEventListener('click', () => { audio.muted = !audio.muted; $('mute').classList.toggle('on', audio.muted); $('mute').textContent = audio.muted ? 'unmute' : 'mute'; });
+$('mute').addEventListener('click', () => { audio.muted = !audio.muted; $('mute').classList.toggle('muted', audio.muted); });
 $('lyr').addEventListener('click', () => openLyrics(!$('lyrics').classList.contains('open')));
 $('fs').addEventListener('click', () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); });
 { const other = SONGS[(SONGS.findIndex(s => s.slug === current.slug) + 1) % SONGS.length]; $('nextsong').href = ROOT + other.slug + '/'; $('nextsong').title = other.title; }
-audio.addEventListener('play', () => { $('pp').textContent = 'pause'; $('ending').hidden = true; $('player').hidden = false; });
-audio.addEventListener('pause', () => ($('pp').textContent = 'play'));
-audio.addEventListener('ended', () => { $('player').hidden = true; $('ending').hidden = false; });
+audio.addEventListener('play', () => { $('pp').classList.add('playing'); $('ending').hidden = true; $('player').hidden = false; });
+audio.addEventListener('pause', () => $('pp').classList.remove('playing'));
+const nextInList = () => { const i = SONGS.findIndex(sg => sg.slug === current.slug); return ROOT + SONGS[(i + 1) % SONGS.length].slug + '/'; };   // round and round
+audio.addEventListener('ended', () => { if (!LANDING) { location.href = nextInList(); return; } });   // the next song follows
+if (!PLAYLIST_PAGE) { $('plist').hidden = false; const ol = $('plist').querySelector('ol');
+  SONGS.forEach((sg, i) => { const li = document.createElement('li'); li.className = sg.slug === current.slug ? 'now' : ''; li.innerHTML = `<span class="n">${String(i + 1).padStart(2, '0')}</span><span>${sg.title}</span>`;
+    li.addEventListener('click', () => { location.href = ROOT + sg.slug + '/'; }); ol.appendChild(li); });
+  $('plist').querySelector('.head').addEventListener('click', () => $('plist').classList.toggle('open'));   // on phones the list folds to a tab
+}
 $('again').addEventListener('click', () => { $('ending').hidden = true; $('player').hidden = false; song.reset(); dropsFallen = 0; $('titles').classList.remove('off'); audio.currentTime = 0; audio.play(); });
 $('bar').addEventListener('click', e => { const r = e.currentTarget.getBoundingClientRect(); const D = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : (current.duration || 0); if (D) audio.currentTime = clamp((e.clientX - r.left) / r.width) * D; });
 let tapping = false, tapIdx = 0;
@@ -183,9 +200,8 @@ const lyList = $('lylist'), lyItems = [];
     lyList.appendChild(li); lyItems.push(li);
   });
 }
-const openLyrics = v => { $('lyrics').classList.toggle('open', v); $('lyopen').hidden = v; resize(); };
+const openLyrics = v => { $('lyrics').classList.toggle('open', v); document.body.classList.toggle('panel-open', v); $('lyr').style.opacity = v ? '1' : ''; resize(); };
 $('lytoggle').addEventListener('click', () => openLyrics(false));
-$('lyopen').addEventListener('click', () => openLyrics(true));
 setTimeout(() => openLyrics(!LANDING && innerWidth > 1100), 0);
 let lyNow = -1;
 function markLyrics(t) {
@@ -207,8 +223,8 @@ function frame(once) {
   const dt = Math.min(clock.getDelta(), 0.05), now = clock.elapsedTime;
   // the first seconds of the song tell us whether this machine can carry the city; if not, the recorded tour takes over
   if (!fpsChecked && !LANDING && !audio.paused && audio.currentTime > 3 && document.visibilityState === 'visible') { if (!fpsT0) fpsT0 = now; fpsN++;   // (a hidden tab renders nothing: only visible frames count)
-    if (now - fpsT0 > 6) { fpsChecked = true; const fps = fpsN / (now - fpsT0);
-      if (fps < 20 && !Q.has('live')) fetch(`songs/${current.slug}/tour.webm`, { method: 'HEAD' }).then(r => { if (r.ok) location.replace(location.pathname + '?video=1'); }).catch(() => {}); } }
+    if (now - fpsT0 > 10) { fpsChecked = true; const fps = fpsN / (now - fpsT0);
+      if (fps < 12 && !Q.has('live') && localStorage.getItem('noir-live') !== '1') fetch(`songs/${current.slug}/tour.webm`, { method: 'HEAD' }).then(r => { if (r.ok) location.replace(location.pathname + '?video=1'); }).catch(() => {}); } }
   const t = LANDING ? 6 : audio.currentTime;                             // the front page holds the city at the moment the credits hang in the sky
   const DUR = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : (current.duration || 0);
   if (DUR) $('fill').style.width = `${(t / DUR) * 100}%`;
@@ -244,7 +260,7 @@ function resize() {
   renderer.setSize(w, h, false); composer.setSize(w, h); bloom.setSize(w, h);
   song.camera.aspect = w / h;
   // with the lyrics panel open, frame the scene in the visible part of the screen
-  const panel = $('lyrics').classList.contains('open') ? $('lyrics').offsetWidth : 0;
+  const panel = ($('lyrics').classList.contains('open') && innerWidth > 760) ? $('lyrics').offsetWidth : 0;
   if (panel) song.camera.setViewOffset(w, h, -panel / 2, 0, w, h); else song.camera.clearViewOffset();
   song.camera.updateProjectionMatrix();
   noir.uniforms.uAspect.value = w / h; city.resize(w, h);

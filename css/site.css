@@ -86,7 +86,6 @@ button:hover { opacity: 1; }
 #lylist li.now { color: var(--paper); }
 #lylist li.now time { color: var(--red); }
 #lylist li.now span { border-left: 2px solid var(--red); margin-left: -10px; padding-left: 8px; }
-#lyopen { position: fixed; left: 18px; top: 48px; z-index: 3; }
 @media (max-width: 1100px) { #lyrics { width: 290px; } }
 
 /* the front page: a quiet header over the city; the bills on the wall do the rest */
@@ -103,17 +102,8 @@ body.home #lyopen, body.home #player { display: none; }
 #about .sig { margin-top: 44px; font-style: italic; color: var(--dim); } #about .sig a { color: var(--red); }
 @media (max-width: 760px) { #about { background: rgba(5,6,8,.94); } #about .inner { padding: 72px 22px 90px; } }
 
-#lyhead .back { margin-left: auto; margin-right: 14px; font-size: 11px; letter-spacing: .25em; text-transform: uppercase; color: var(--dim); text-decoration: none; font-style: normal; }
-#lyhead .back:hover { color: var(--red); }
-#homelink { position: fixed; right: 26px; top: 26px; z-index: 3; font-size: 12px; letter-spacing: .25em; text-transform: uppercase; color: var(--dim); text-decoration: none; border: 1px solid rgba(236,232,225,.18); border-radius: 999px; padding: 7px 13px; }
-#homelink:hover { color: var(--red); border-color: rgba(216,40,31,.5); }
 
 /* the front page bar: one thin line over the city */
-#home { position: fixed; left: 0; right: 0; top: 0; z-index: 3; }
-#home .bar { display: flex; align-items: center; gap: 22px; height: 48px; padding: 0 22px 0 18px; background: rgba(5,6,8,.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid rgba(236,232,225,.08); }
-#home .logo { display: flex; line-height: 0; }
-#home nav { margin-left: auto; display: flex; gap: 22px; font-size: 12px; letter-spacing: .25em; text-transform: uppercase; }
-#home nav a { color: rgba(236,232,225,.75); text-decoration: none; } #home nav a:hover { color: var(--red); }
 #about .wa { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; color: var(--red); text-decoration: none; font-size: 15px; letter-spacing: .08em; font-style: normal; border: 1px solid rgba(216,40,31,.45); border-radius: 999px; padding: 9px 16px; }
 #about .wa:hover { background: rgba(216,40,31,.12); }
 #about .sig { margin-bottom: 4px; }
@@ -131,18 +121,82 @@ body.home #lyopen, body.home #player { display: none; }
 @keyframes sheen { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
 #home .who { margin: 18px 0 0 .25em; font-style: italic; font-size: clamp(20px, 2vw, 30px); color: var(--paper); letter-spacing: .04em; text-shadow: 0 1px 0 #000, 0 0 18px rgba(0,0,0,.8); }
 #home .tag { margin: 6px 0 0 .3em; font-size: 14px; letter-spacing: .3em; text-transform: uppercase; color: rgba(236,232,225,.6); text-shadow: 0 1px 0 #000; }
-@media (max-width: 640px) { #home .hero { left: 18px; bottom: 28px; } #home .mark span + span { margin-left: .4em; } #home .bar { gap: 14px; } }
-
 /* the player: a row of small controls */
-#pctl button, #pctl a { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--dim); background: none; border: 0; padding: 6px 8px; cursor: pointer; text-decoration: none; font-style: normal; font-family: inherit; }
-#pctl button:hover, #pctl a:hover { color: var(--paper); }
-#pctl #pp { color: var(--paper); }
-#pctl button.on { color: var(--red); }
-#pctl #nextsong { color: var(--red); }
 /* the low-power fallback: the recorded tour, with a small sign of it */
 #tourvideo { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 0; background: #000; }
-#lowpower { position: fixed; right: 22px; bottom: 54px; z-index: 4; display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); background: rgba(5,6,8,.72); border: 1px solid rgba(236,232,225,.12); border-radius: 999px; padding: 7px 12px 7px 10px; }
-#lowpower .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); box-shadow: 0 0 10px rgba(216,40,31,.8); }
-#lowpower a { color: var(--paper); text-decoration: none; margin-left: 4px; border-left: 1px solid rgba(236,232,225,.15); padding-left: 10px; }
-#lowpower a:hover { color: var(--red); }
-@media (max-width: 760px) { #pctl #restart, #pctl #fs { display: none; } }
+
+/* the playlist page: a plain, legible list over the city at rest */
+#playlist { position: fixed; inset: 0; z-index: 4; overflow-y: auto; background: linear-gradient(90deg, rgba(5,6,8,.92) 0 62%, rgba(5,6,8,.5)); }
+#playlist .inner { max-width: 720px; padding: 84px 48px 100px 72px; }
+#playlist .kicker { font-size: 12px; letter-spacing: .35em; text-transform: uppercase; color: var(--red); margin: 0 0 14px; font-style: normal; }
+#playlist h1 { font-size: clamp(32px, 4vw, 54px); margin: 0 0 10px; font-weight: 700; }
+#playlist .lead { font-size: 17px; color: var(--dim); margin: 0 0 26px; font-style: italic; }
+#playlist .playall { font: inherit; font-style: normal; font-size: 13px; letter-spacing: .28em; text-transform: uppercase; color: var(--paper); background: linear-gradient(100deg, #5a0a0e, #a8161c 50%, #5a0a0e); border: 1px solid rgba(255,120,120,.25); border-radius: 999px; padding: 13px 26px; cursor: pointer; opacity: 1; }
+#playlist .playall:hover { filter: brightness(1.25); }
+#plsongs { list-style: none; margin: 34px 0 0; padding: 0; }
+#plsongs li { display: grid; grid-template-columns: 44px 1fr auto; gap: 18px; align-items: baseline; padding: 18px 0; border-top: 1px solid rgba(236,232,225,.1); cursor: pointer; }
+#plsongs li:last-child { border-bottom: 1px solid rgba(236,232,225,.1); }
+#plsongs .n { font-size: 13px; letter-spacing: .2em; color: var(--red); font-variant-numeric: tabular-nums; }
+#plsongs .t { font-size: 24px; font-weight: 700; color: var(--paper); margin: 0; }
+#plsongs .d { font-size: 15px; color: var(--dim); font-style: italic; margin: 4px 0 0; }
+#plsongs .len { font-size: 13px; color: var(--dim); font-variant-numeric: tabular-nums; }
+#plsongs li:hover .t { color: #e8b4b7; }
+#playlist .foot { margin-top: 36px; font-size: 12px; letter-spacing: .25em; text-transform: uppercase; } #playlist .foot a { color: var(--dim); text-decoration: none; } #playlist .foot a:hover { color: var(--red); }
+/* the mini playlist during the tours */
+#plist { position: fixed; right: 14px; top: 64px; z-index: 4; width: 240px; background: rgba(5,6,8,.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(236,232,225,.1); border-radius: 10px; padding: 10px 0 6px; }
+#plist .head { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: rgba(236,232,225,.45); padding: 0 14px 8px; }
+#plist ol { list-style: none; margin: 0; padding: 0; }
+#plist li { display: grid; grid-template-columns: 20px 1fr; gap: 8px; padding: 7px 14px; font-size: 14px; color: rgba(236,232,225,.6); cursor: pointer; }
+#plist li:hover { color: var(--paper); } #plist li.now { color: var(--paper); } #plist li.now .n { color: var(--red); }
+#plist .n { font-size: 11px; letter-spacing: .1em; padding-top: 3px; color: rgba(236,232,225,.35); }
+#plist .head { cursor: pointer; }
+@media (max-width: 760px) { #playlist { background: rgba(5,6,8,.94); } #playlist .inner { padding: 72px 22px 80px; }
+  #plist { right: 0; top: 60px; width: auto; max-width: 78vw; border-radius: 10px 0 0 10px; padding: 8px 0 4px; }
+  #plist ol { display: none; } #plist.open ol { display: block; } #plist .head { padding: 4px 14px; } }
+
+/* ---------- one control language: thin red line icons, 44px targets, nothing stacked ---------- */
+.ic { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; background: none; color: var(--red); cursor: pointer; opacity: .78; transition: opacity .2s, transform .2s; text-decoration: none; }
+.ic svg { width: 22px; height: 22px; display: block; filter: drop-shadow(0 0 6px rgba(216,40,31,.35)); }
+.ic:hover, .ic:focus-visible { opacity: 1; transform: translateY(-1px); outline: none; }
+.ic.big svg { width: 30px; height: 30px; }
+#pp .when-playing, #pp.playing .when-paused { display: none; } #pp.playing .when-playing { display: block; }
+#mute .when-muted, #mute.muted .when-sound { display: none; } #mute.muted .when-muted { display: block; }
+/* top bar, every page */
+#topbar { position: fixed; left: 0; right: 0; top: 0; z-index: 5; display: flex; align-items: center; gap: 2px; height: 52px; padding: 0 6px 0 4px; background: linear-gradient(180deg, rgba(5,6,8,.78), rgba(5,6,8,.35) 70%, rgba(5,6,8,0)); }
+#topbar .brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+#topbar .brand a { font-size: 13px; letter-spacing: .22em; text-transform: uppercase; color: var(--paper); text-decoration: none; opacity: .9; }
+#topbar .brand em { font-size: 13px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 42vw; }
+#topbar .grow { flex: 1; }
+@keyframes pulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+body.home #topbar #lyr { display: none; }
+/* the player: a slim strip at the bottom */
+#pbottom { position: fixed; left: 0; right: 0; bottom: 0; padding: 0 8px calc(6px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(0deg, rgba(5,6,8,.82), rgba(5,6,8,0)); }
+#pctl { display: flex; align-items: center; gap: 0; margin-top: 2px; }
+#pctl .grow { flex: 1; }
+#clock { font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; min-width: 86px; padding-left: 8px; }
+#tools button { font-size: 11px; color: var(--dim); }
+/* the lyrics panel: a sheet on phones, a side panel on wide screens */
+#lyhead { padding: 60px 8px 6px 22px; }
+#lyhead .ic { margin-left: auto; }
+#lyrics { width: min(340px, 100vw); }
+#lycred { padding-top: 0; }
+@media (max-width: 760px) {
+  #lyrics { top: auto; bottom: 0; height: 46vh; width: 100vw; border-right: 0; border-top: 1px solid rgba(236,232,225,.08); transform: translateY(100%); }
+  #lyrics.open { transform: none; }
+  #lyhead { padding: 10px 8px 4px 18px; }
+  #lylist li { font-size: 16px; grid-template-columns: 48px 1fr; }
+  #clock { min-width: 70px; }
+  #pctl #restart, #pctl #fs { display: none; }
+  #home .hero { left: 16px; bottom: 76px; } #home .mark { font-size: clamp(44px, 14vw, 72px); } #home .mark span + span { margin-left: .4em; }
+  #topbar .brand em { display: none; }
+}
+
+[hidden] { display: none !important; }
+/* the recorded-tour sign: a dot and three letters in the strip; tap for the live city */
+#lowpower { display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 6px 0 10px; border: 0; background: none; color: var(--red); cursor: pointer; opacity: .8; font: inherit; font-style: normal; }
+#lowpower i { width: 7px; height: 7px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px rgba(216,40,31,.8); animation: pulse 2.4s ease-in-out infinite; }
+#lowpower span { font-size: 10px; letter-spacing: .3em; text-transform: uppercase; }
+#lowpower:hover { opacity: 1; }
+
+/* with the side panel open the strip starts to its right (wide screens only) */
+@media (min-width: 761px) { body.panel-open #pbottom { left: min(340px, 100vw); } }

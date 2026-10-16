@@ -4,7 +4,7 @@ import http.server, os, re, sys
 
 class RangeHandler(http.server.SimpleHTTPRequestHandler):
     def send_head(self):
-        if re.search(r'^/[a-z0-9-]+/?(line/\d+/?)?$', self.path.split('?')[0]): self.path = '/index.html'     # deep links: /<song>/ and /<song>/line/<n>
+        if re.search(r'^/[a-z0-9-]+/?(line/\d+/?)?$', self.path.split('?')[0]) and not self.path.startswith('/listen'): self.path = '/index.html'     # deep links: /<song>/ and /<song>/line/<n> (listen/ is a real folder)
         rng = self.headers.get('Range')
         path = self.translate_path(self.path)
         if not rng or not os.path.isfile(path):
