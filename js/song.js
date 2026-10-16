@@ -2,17 +2,17 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261017005048';
-import { fxFor, applyFx } from './fx.js?v=20261017005048';
-import { FACADE } from './layout.js?v=20261017005048';
-import { LOOKS } from './songs.js?v=20261017005048';
+import { clamp, easeOutExpo } from './util.js?v=20261017010226';
+import { fxFor, applyFx } from './fx.js?v=20261017010226';
+import { FACADE } from './layout.js?v=20261017010226';
+import { LOOKS, MOODS } from './songs.js?v=20261017010226';
 
 // every word appears 0.2 s before its timestamp: Roman's ear test (the aligner marks vowel onsets a touch late); ?lead= overrides
 const LEAD_PARAM = parseFloat(new URLSearchParams(location.search).get('lead'));
 export const LEAD = Number.isFinite(LEAD_PARAM) ? Math.max(-1, Math.min(1, LEAD_PARAM)) : 0.2;
 const FLAT = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));   // text laid flat on the ground
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
-const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607);
+const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607), COLD = new THREE.Color(0.62, 0.74, 0.9);
 const SMALL = new Set(['the','a','an','to','and','of','in','on','for','by','with','as','at','or','so','but','i','i\'m','i\'ll','you','your','you\'re','me','my','he','his','they','them','their','it','is','was','be','that','what','when','then','than','though','if','all','do','don\'t','who','there','were','will','would','we']);
 const KEYS = ['rain', 'warm', 'red', 'beam', 'dawn', 'cut', 'fog'];
 
@@ -73,11 +73,12 @@ export function createSong(fonts, scene, route, occluders = []) {
 
   function build(i) {
     const L = lines[i], act = actAt(L.t), a = route.anchorFor(i);
+    const mood = ((MOODS[song.slug] || []).find(([re]) => re.test(L.text)) || [null, {}])[1];   // how this line is set: its emotional typography
     const raw = L.words || L.text.split(/\s+/).map(w => ({ w }));
     const accentSet = new Set(song.accents || []); let accents = 0;
     const toks = raw.map(x => { const clean = x.w.replace(/[*]/g, '');
       const acc = /^\*.+\*$/.test(x.w) || (accents < 2 && accentSet.has(clean.replace(/[^a-z']/gi, '').toLowerCase()) && ++accents);
-      return { ...x, w: clean, acc: !!acc || !!L.title }; });
+      return { ...x, w: clean, acc: !!acc || !!L.title || mood.tone === 'blood' }; });
     // word size: meaning (small connectors, big key words) × singing (held notes grow, fast rap shrinks)
     toks.forEach((tk, k) => {
       const bare = tk.w.toLowerCase().replace(/[^a-z']/g, '');
@@ -90,12 +91,12 @@ export function createSong(fonts, scene, route, occluders = []) {
     const maxW = MAXW * (a.kind === 'room' ? 1.0 : a.kind === 'wall' ? 0.9 : 1);
     const rows = [[]]; let rw = 0;
     for (const tk of toks) {
-      tk.geo = wordGeo(tk.w, tk.acc && !L.title); tk.wd = tk.geo.width * tk.ws;
+      tk.geo = wordGeo(tk.w, (tk.acc || !!mood.italic) && !L.title); tk.wd = tk.geo.width * tk.ws;
       if (rw > 0 && rw + SPACE + tk.wd > maxW) { rows.push([]); rw = 0; }
       rows.at(-1).push(tk); rw += (rw ? SPACE : 0) + tk.wd;
     }
     const rowH = rows.map(row => LINE_H * Math.max(...row.map(tk => tk.ws))), totH = rowH.reduce((s, b) => s + b, 0);
-    const group = new THREE.Group(); group.position.copy(a.pos); group.quaternion.copy(a.q); group.scale.setScalar(a.scale);
+    const group = new THREE.Group(); group.position.copy(a.pos); group.quaternion.copy(a.q); group.scale.setScalar(a.scale * (mood.size || 1));
     if ((a.kind === 'banner' || a.kind === 'ahead') && Math.abs(a.pos.x) < FACADE - 1) {
       // on the avenue the whole line stays inside the kerb line: nothing hugs a facade, its awnings or its shop signs
       const hw = Math.max(...rows.map(row => row.reduce((s2, tk) => s2 + tk.wd, 0) + SPACE * (row.length - 1))) * a.scale / 2;
@@ -131,7 +132,7 @@ export function createSong(fonts, scene, route, occluders = []) {
         const mesh = new THREE.Mesh(tk.geo.g, mat); mesh.castShadow = true;
         const home = new THREE.Vector3(x + tk.wd / 2, y - (rowH[ri] / LINE_H - tk.ws) * SIZE * 0.4, 0);
         const seed = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
-        mesh.userData = { w: tk.w, home, seed, reveal: (tk.t ?? (L.t + wi * step)) - LEAD, acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : (/^and so am i/i.test(L.text) && /^i\.?$/i.test(tk.w) ? 'huge' : fxFor(tk.w)), hl: 0, hov: 0 };
+        mesh.userData = { w: tk.w, home, seed, reveal: (tk.t ?? (L.t + wi * step)) - LEAD, acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : (/^and so am i/i.test(L.text) && /^i\.?$/i.test(tk.w) ? 'huge' : fxFor(tk.w)), tone: mood.tone, arrive: mood.arrive, motion: mood.motion, hl: 0, hov: 0 };
         if (mesh.userData.fx === 'tight' || mesh.userData.fx === 'home' || a.fall) {   // built letter by letter: these words move as letters
           const chars = [...tk.w], geos = chars.map(ch => wordGeo(ch, tk.acc)), gap = SIZE * 0.1;
           const natW = geos.reduce((s2, g) => s2 + g.width, 0) + gap * (chars.length - 1), sqW = geos.reduce((s2, g) => s2 + g.width * 0.86, 0);
@@ -233,14 +234,20 @@ export function createSong(fonts, scene, route, occluders = []) {
           const u = m.userData;
           u.hl += (((isActive && m === newest) ? 1 : 0) - u.hl) * Math.min(1, dt * 10);
           u.hov += ((m === hovered ? 1 : 0) - u.hov) * Math.min(1, dt * 8);
-          const k = clamp((t - u.reveal) / (u.cut ? 0.3 : 0.55));
+          const arriveT = u.arrive === 'slam' ? 0.22 : u.arrive === 'slow' ? 1.4 : (u.cut ? 0.3 : 0.55);
+          const k = clamp((t - u.reveal) / arriveT);
           if (k <= 0) { m.visible = false; continue; }
           m.visible = true;
-          const e = easeOutExpo(k);
-          // a word arrives: settles from a touch above and behind, no spin, no flash
+          const e = easeOutExpo(k), life = clamp((t - u.reveal) / Math.max(1, (lineEnd(i) - lines[i].t)));
+          // a word arrives: settles from a touch above and behind (slow: rises from below; slam: lands from large), no spin, no flash
           m.position.copy(u.home);
-          m.position.y += (1 - e) * 0.35 + Math.sin(now * 0.8 + u.seed.x * 9) * 0.012;
-          m.position.z += (1 - e) * -0.6 + u.hl * 0.12 + u.hov * 0.4 - leave * 0.8;
+          const still = u.motion === 'still';
+          m.position.y += (u.arrive === 'slow' ? -(1 - e) * 0.3 : (1 - e) * 0.35) + (still ? 0 : Math.sin(now * 0.8 + u.seed.x * 9) * 0.012);
+          m.position.z += (1 - e) * (u.arrive === 'slam' ? -1.2 : -0.6) + u.hl * 0.12 + u.hov * 0.4 - leave * 0.8;
+          if (u.motion === 'tremble') { m.position.x += Math.sin(now * 24 + u.seed.x * 7) * 0.011; m.position.y += Math.cos(now * 31 + u.seed.y * 5) * 0.009; }
+          else if (u.motion === 'drift') { m.position.x += Math.sin(now * 0.45 + u.seed.x * 6) * 0.09; m.position.y += Math.sin(now * 0.3 + u.seed.y * 6) * 0.05; }
+          else if (u.motion === 'sink') m.position.y -= life * 0.35;
+          else if (u.motion === 'rise') m.position.y += life * 0.4;
           m.rotation.set(0, 0, 0);
           if (u.scatter && route.fallAt) {                                    // after the line: the letter drops to the road, tumbles, lands flat on its own spot
             const q = clamp((route.fallAt(t) * 1.45 - u.scatter.delay) / 1.0), g = q * q;               // gravity: slow, then fast (each letter lets go in its own moment)
@@ -251,9 +258,12 @@ export function createSong(fonts, scene, route, occluders = []) {
             m.rotation.x = -Math.PI / 2 * clamp(q * 1.25); m.rotation.z = u.scatter.yaw * q; m.rotation.y = u.scatter.spin * Math.sin(q * Math.PI) * 0.6;
             m.material.opacity = Math.max(m.material.opacity, (1 - leave) * e);
           }
-          m.scale.setScalar(Math.max(0.001, u.ws * (0.82 + 0.18 * e) * (1 + u.hl * 0.06 + u.hov * 0.2)));
+          m.scale.setScalar(Math.max(0.001, u.ws * (u.arrive === 'slam' ? 1.3 - 0.3 * e : 0.82 + 0.18 * e) * (1 + u.hl * 0.06 + u.hov * 0.2)));
+          if (u.dup) m.scale.multiplyScalar(Math.max(0.001, 1 - leave * 1.6));   // the knocked-in copies are the first to go: never a wall of them at the lens while the next line speaks
           m.material.opacity = e * (1 - leave);
-          if (!u.acc) { m.material.color.copy(PAPER).multiplyScalar(isActive ? 0.72 + 0.28 * Math.max(u.hl, u.hov) : 0.82).lerp(INK, P.dawn * 0.9); m.material.emissive.copy(m.material.color); }
+          if (!u.acc) { m.material.color.copy(PAPER).multiplyScalar(isActive ? 0.72 + 0.28 * Math.max(u.hl, u.hov) : 0.82).lerp(INK, P.dawn * 0.9);
+            if (u.tone === 'ash') m.material.color.multiplyScalar(0.42); else if (u.tone === 'cold') m.material.color.multiply(COLD);   // ash: half-swallowed by the dark; cold: under water, in the storm
+            m.material.emissive.copy(m.material.color); }
           m.material.emissiveIntensity = (u.acc ? 1 : 1 - P.dawn * 0.95) * u.base;
           if (u.fx) applyFx(u.fx, m, u, t - u.reveal, { now, bass: env.bass });
         }
