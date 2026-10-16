@@ -2,7 +2,7 @@
 // black paper under one hard street light. Hover brightens a bill; a click walks into that song.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FACADE } from './layout.js?v=20261016234717';
+import { FACADE } from './layout.js?v=20261016235123';
 
 const EYE = 1.7;
 export function createLanding(scene, fonts, songs, root) {
@@ -24,9 +24,12 @@ export function createLanding(scene, fonts, songs, root) {
     const plate = new THREE.Mesh(new THREE.PlaneGeometry(W, H), paper); bill.add(plate);
     const frame = new THREE.Mesh(new THREE.RingGeometry(0.1, 0.11, 4), new THREE.MeshBasicMaterial({ color: 0x3a0a0c })); frame.visible = false; bill.add(frame);
     const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(W - 0.2, H - 0.2)), new THREE.LineBasicMaterial({ color: 0x5a0c10 })); edge.position.z = 0.01; bill.add(edge);
-    const lines = wrap(s.title), size = lines.length > 2 ? 0.34 : 0.42, lh = size * 1.35;
-    const mats = [];
-    lines.forEach((ln, k) => { const m = text(ln, size, blood()); m.position.set(0, 0.55 + (lines.length - 1) * lh / 2 - k * lh, 0.03); bill.add(m); mats.push(m.material); });
+    const lines = wrap(s.title, 16), size = lines.length > 2 ? 0.34 : 0.42, lh = size * 1.35;
+    const mats = [], title = new THREE.Group(); bill.add(title);
+    let widest = 0;
+    lines.forEach((ln, k) => { const m = text(ln, size, blood()); m.position.set(0, (lines.length - 1) * lh / 2 - k * lh, 0.03); title.add(m); mats.push(m.material);
+      m.geometry.computeBoundingBox(); widest = Math.max(widest, m.geometry.boundingBox.max.x - m.geometry.boundingBox.min.x); });
+    const fit = Math.min(1, (W - 0.7) / widest); title.scale.setScalar(fit); title.position.y = 0.55;      // the whole title stays inside the bill
     const by = text('ROMAN SHIKHRI', 0.17, pale); by.position.set(0, -0.75, 0.03); bill.add(by);
     const hint = text('play', 0.15, pale, true); hint.position.set(0, -1.15, 0.03); bill.add(hint);
     // one hard street light on the bill

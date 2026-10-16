@@ -90,16 +90,8 @@ button:hover { opacity: 1; }
 @media (max-width: 1100px) { #lyrics { width: 290px; } }
 
 /* the front page: a quiet header over the city; the bills on the wall do the rest */
-#home { position: fixed; left: 0; right: 0; top: 0; z-index: 3; display: flex; justify-content: space-between; align-items: flex-start; padding: 44px 48px; pointer-events: none; }
-#home h1 { margin: 0; font-size: clamp(26px, 3vw, 40px); font-weight: 700; letter-spacing: .02em; color: var(--paper); }
-#home p { margin: 6px 0 0; font-style: italic; font-size: 17px; color: var(--dim); }
-#home p.hint { font-style: normal; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; margin-top: 18px; color: rgba(236,232,225,.35); }
-#home .wa { pointer-events: auto; font-size: 12px; letter-spacing: .25em; text-transform: uppercase; color: var(--red); text-decoration: none; border: 1px solid rgba(216,40,31,.5); border-radius: 999px; padding: 8px 14px; }
 body.home #lyopen, body.home #player { display: none; }
 
-#home nav { margin-top: 22px; font-size: 13px; letter-spacing: .18em; text-transform: uppercase; pointer-events: auto; }
-#home nav a { color: var(--paper); text-decoration: none; opacity: .75; } #home nav a:hover { opacity: 1; color: var(--red); }
-#home nav span { margin: 0 12px; color: rgba(236,232,225,.3); }
 /* the about page: a long dark sheet over the city at rest */
 #about { position: fixed; inset: 0; z-index: 4; overflow-y: auto; background: linear-gradient(90deg, rgba(5,6,8,.93) 0 58%, rgba(5,6,8,.55)); }
 #about .close { position: fixed; right: 34px; top: 26px; font-size: 34px; color: var(--dim); text-decoration: none; font-style: normal; } #about .close:hover { color: var(--red); }
@@ -115,3 +107,16 @@ body.home #lyopen, body.home #player { display: none; }
 #lyhead .back:hover { color: var(--red); }
 #homelink { position: fixed; right: 26px; top: 26px; z-index: 3; font-size: 12px; letter-spacing: .25em; text-transform: uppercase; color: var(--dim); text-decoration: none; border: 1px solid rgba(236,232,225,.18); border-radius: 999px; padding: 7px 13px; }
 #homelink:hover { color: var(--red); border-color: rgba(216,40,31,.5); }
+
+/* the front page bar: one thin line over the city */
+#home { position: fixed; left: 0; right: 0; top: 0; z-index: 3; }
+#home .bar { display: flex; align-items: center; gap: 22px; height: 48px; padding: 0 22px 0 18px; background: rgba(5,6,8,.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid rgba(236,232,225,.08); }
+#home .logo { display: flex; line-height: 0; }
+#home .site { font-size: 15px; letter-spacing: .22em; text-transform: uppercase; color: var(--paper); text-decoration: none; }
+#home .me { font-size: 14px; font-style: italic; color: var(--dim); }
+#home nav { margin-left: auto; display: flex; gap: 22px; font-size: 12px; letter-spacing: .25em; text-transform: uppercase; }
+#home nav a { color: rgba(236,232,225,.75); text-decoration: none; } #home nav a:hover { color: var(--red); }
+@media (max-width: 640px) { #home .me { display: none; } #home .bar { gap: 14px; } }
+#about .wa { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; color: var(--red); text-decoration: none; font-size: 15px; letter-spacing: .08em; font-style: normal; border: 1px solid rgba(216,40,31,.45); border-radius: 999px; padding: 9px 16px; }
+#about .wa:hover { background: rgba(216,40,31,.12); }
+#about .sig { margin-bottom: 4px; }
