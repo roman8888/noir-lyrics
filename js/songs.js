@@ -24,4 +24,11 @@ export const SONGS = [
       'lies', 'pretend', 'trust', 'defeat', 'standing', 'silence', 'call', 'sun', 'breathe', 'cost', 'flame', 'shame',
       'break', 'scars', 'hell', 'chain', 'beats', 'home', 'broken', 'hope', 'soul', 'whole', 'morning', 'free', 'pray', 'way', 'here'],
   },
+  {
+    slug: 'on-my-way-to-you',
+    title: 'On My Way to You',
+    pool: 2,                                                           // the water: where the third alley meets the back lane
+    accents: ['coming', 'save', 'alone', 'venom', 'rotten', 'evil', 'lies', 'darkness', 'swallow', 'karma', 'fists', 'fire', 'tear',
+      'silence', 'shock', 'frozen', 'arrow', 'truth', 'drown', 'underwater', 'air', 'breath', 'broken', 'storm', 'poison', 'abandon', 'fighting', 'lost'],
+  },
 ];

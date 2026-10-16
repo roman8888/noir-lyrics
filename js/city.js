@@ -2,8 +2,8 @@
 // interior-mapped windows (every lit window is a small parallax room), street lamps, traffic, rain.
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
-import { rng, makeRain } from './util.js?v=20261016232009';
-import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261016232009';
+import { rng, makeRain } from './util.js?v=20261016234512';
+import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261016234512';
 
 const buildingVS = /* glsl */`
   varying vec3 vW; varying vec3 vN; varying float vSeed;
@@ -144,7 +144,7 @@ export function createCity() {
   for (const side of [-1, 1]) for (let row = 0; row < 2; row++) {
     let z = Z_START;
     while (z > Z_END - 20) {
-      const d = 8 + r() * 10, wd = 8 + r() * 9;
+      const d = 8 + r() * 10, wd = (side < 0 && row === 0) ? Math.min(10, 8 + r() * 9) : 8 + r() * 9;   // behind the left row runs the back lane: its rear faces stop at x -19
       const cz = z - d / 2;
       const off = row === 0 ? FACADE : ROW2 + r() * 6;
       const ht = row === 0 ? 10 + r() * 26 : 30 + r() * 50;
@@ -262,6 +262,7 @@ export function createCity() {
     part(m) { placeBoxes(m); },
     setDark(amount, z) { bMat.uniforms.uDark.value = amount; bMat.uniforms.uDarkZ.value = z; },
     dimLamp(i, v) { dim[i] = v; cones.geometry.attributes.aDim.needsUpdate = true; bulbColor.setRGB(v, v, v); bulbs.setColorAt(i, bulbColor); bulbs.instanceColor.needsUpdate = true; },
+    rainSpeed: 1,
     chaseAt(p, camera) { if (!p) { chase.visible = false; return; } chase.visible = true; chase.position.set(p.x, 0, p.z);
       const d = camera ? Math.max(4, camera.position.distanceTo(chase.position)) : 40, sc = Math.min(4.5, 1.4 + 40 / d);   // the glare grows as it bears down, never a white-out
       beams.forEach(b => { b.scale.set(sc, sc, 1); b.material.opacity = Math.min(0.8, 0.35 + 14 / d); }); },
@@ -282,7 +283,7 @@ export function createCity() {
         if (u.z < Z_END) u.z = Z_START; if (u.z > Z_START) u.z = Z_END;
         c.position.set(u.x, 0, u.z);
       }
-      rain.update(dt, camera.position, 1); rain.mat.opacity = 0.3 * Math.min(1, sky.rain);
+      rain.update(dt * this.rainSpeed, camera.position, 1); rain.mat.opacity = 0.3 * Math.min(1, sky.rain);   // rainSpeed 0 = the rain hangs frozen in the air
     },
     resize(w, h) { mirror.getRenderTarget().setSize(w * 0.5, h * 0.5); },
   };

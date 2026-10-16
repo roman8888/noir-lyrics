@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261016232009';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261016232009';
+import { clamp } from './util.js?v=20261016234512';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261016234512';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0], A2 = ALLEYS[1];
@@ -11,7 +11,7 @@ const W = ROOM.win;
 const Z = z => z * ZS, CZ = CHURCH.z, TZ = TOWER.z;   // street positions scale with the stretched city; the gateway and tower keep their own distances
 
 // place kinds: banner (across the way, a little high), ahead (eye level), sky (big and far), room (inside the apartment)
-const BEATS = {
+const BEATS1 = {
   Pre:     { sky: 'night', keys: [[0, 0, 92, 120], [0.5, 0, 40, 70], [0.85, 0, 8, 40], [1, 0, EYE + 0.3, 30]], place: ['sky'], lookAt: new THREE.Vector3(0, 44, -40), lookMix: 0.85 },
   Intro:   { sky: 'night', keys: [[0, 0, EYE, 30], [0.5, 0, EYE, Z(-6)], [1, 0, EYE, Z(-41)]], walk: 1,
              place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 22 },
@@ -52,11 +52,49 @@ const BEATS = {
   End:     { sky: 'night', keys: [[0, 0, EYE, CZ + 30], [0.12, 0, EYE, CZ + 8], [0.2, 0, EYE + 0.4, CZ - 12], [0.45, 0, 26, CZ - 42], [0.74, 0, 56, CZ - 52], [1, 0, 56.5, CZ - 48]], place: ['ahead'],
              looks: [[0, 0, 2.3, CZ + 7, 0.95], [0.12, 0, 2.6, CZ - 12, 0.95], [0.2, 0, 30, TZ, 0.9], [0.45, 0, 62, TZ, 1], [1, 0, 62.5, TZ, 1]] },
 };
-const ORDER = ['Pre', 'Intro', 'Verse 1', 'Rap 1', 'Pre-Chorus', 'Chorus', 'Verse 2', 'Rap 2', 'Bridge', 'Final Chorus', 'Outro', 'End'];
+const ORDER1 = ['Pre', 'Intro', 'Verse 1', 'Rap 1', 'Pre-Chorus', 'Chorus', 'Verse 2', 'Rap 2', 'Bridge', 'Final Chorus', 'Outro', 'End'];
+
+// ---- "On My Way to You": the same city, a harder walk. Spoken intro down the avenue toward one lit figure; the words
+// rain down and bury the road; the LIES wall ahead is torn through; the chorus runs; the hands and the water again, but
+// this time you come up; the cold bridge at the alley mouth; the storm run to the gate; the door closes on the last line.
+// The back lane: x = LANE behind the left row, from the landing at z -300 down past the overpass' latitude. The third
+// alley meets it at z -672, flooded. No street lamps here, only bulbs on wires (props2).
+const LANE = -23, A3 = ALLEYS[2];
+const BEATS2 = {
+  Pre:     { sky: 'night', keys: [[0, LANE, 92, -210], [0.5, LANE, 40, -260], [0.85, LANE, 8, -290], [1, LANE, EYE + 0.3, -300]], place: ['sky'], lookAt: new THREE.Vector3(LANE, 44, -370), lookMix: 0.85 },
+  Intro:   { sky: 'night', keys: [[0, LANE, EYE, -300], [0.5, LANE, EYE, -322], [1, LANE, EYE, -345]], walk: 1,
+             place: ['ahead', 'ahead', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'ahead'], dist: 16 },
+  'Verse 1': { sky: 'verse', keys: [[0, LANE, EYE, -345], [0.5, LANE, EYE, -375], [1, LANE, EYE, -405]], walk: 1,
+             place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'banner', 'ahead', 'banner'], dist: 17 },
+  'Pre-Chorus': { sky: 'storm', keys: [[0, LANE, EYE, -405], [1, LANE, EYE, -500]], walk: 1,
+             place: ['ahead', 'sky', 'ahead', 'banner', 'banner', 'ahead', 'ahead'], dist: 20 },
+  Chorus:  { sky: 'storm', keys: [[0, LANE, EYE, -500], [1, LANE, EYE, -640]], stride: 1,
+             place: ['ahead', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 20 },
+  // the flooded crossing: the hands and the water again, and this time you come up
+  'Verse 2': { sky: 'storm', keys: [[0, LANE, EYE, -640], [0.2, LANE + 1, EYE, A3.z + 6], [0.26, LANE + 2, 0.9, A3.z + 3.6], [0.62, LANE + 2.2, 0.75, A3.z + 3.4], [0.8, LANE + 1.5, 1.2, A3.z + 2.5], [1, LANE, EYE, A3.z - 2]],
+             place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner'], dist: 9, walk: 1,
+             looks: [[0, LANE, 1.6, -690, 0.9], [0.2, LANE + 2, 0.9, A3.z - 3, 1], [0.8, LANE + 2, 0.9, A3.z - 3, 1], [1, LANE, 1.6, A3.z - 30, 0.9]] },
+  // the cold bridge: standing past the water, the lane dark ahead; he comes to you
+  Bridge:  { sky: 'fog', keys: [[0, LANE, EYE, A3.z - 2], [0.4, LANE, EYE, A3.z - 5], [1, LANE, EYE, A3.z - 7]],
+             place: ['ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead'], dist: 11,
+             looks: [[0, LANE, 1.6, A3.z - 30, 0.95], [1, LANE, 1.6, A3.z - 40, 0.95]] },
+  // the run down the lane through the storm
+  'Final Chorus': { sky: 'storm', keys: [[0, LANE, EYE, A3.z - 7], [1, LANE, EYE, -860]], stride: 1, dist: 22,
+             place: ['ahead', 'ahead', 'banner', 'ahead', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'ahead', 'banner'] },
+  // whispered: slowing to a stop; the bulbs go out down the lane
+  Outro:   { sky: 'night', keys: [[0, LANE, EYE, -860], [0.6, LANE, EYE, -884], [1, LANE, EYE, -892]], walk: 1,
+             place: ['banner', 'banner', 'banner', 'banner'], dist: 13 },
+  End:     { sky: 'night', keys: [[0, LANE, EYE, -892], [1, LANE, EYE, -892.5]], place: ['ahead'],
+             looks: [[0, LANE, 2, -960, 0.8], [1, LANE, 6, -980, 0.9]] },
+};
+const ORDER2 = ['Pre', 'Intro', 'Verse 1', 'Pre-Chorus', 'Chorus', 'Verse 2', 'Bridge', 'Final Chorus', 'Outro', 'End'];
+const STORY = { 'when-god-wants-to-make-you-stronger': [BEATS1, ORDER1], 'on-my-way-to-you': [BEATS2, ORDER2] };
 const smooth = x => { x = clamp(x); return x * x * (3 - 2 * x); };
 
-export function createRoute(timing) {
+export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger') {
+  const [BEATS, ORDER] = STORY[slug] || STORY['when-god-wants-to-make-you-stronger'];
   const sec = Object.fromEntries(timing.sections.map(s => [s.name, s.t]));
+  if (sec.End == null) sec.End = (timing.lines.filter(l => l.t != null).slice(-1)[0]?.t ?? 0) + 5;   // no End section in the lyrics: it begins a few seconds after the last line
   const lines = timing.lines;
   const beats = [];
   ORDER.forEach((name, k) => {
@@ -177,7 +215,8 @@ export function createRoute(timing) {
   const T_FADE = lines.find(l => /light begins to fade/i.test(l.text))?.t ?? -1;
   const T_LIGHT = lines.find(l => /find my light/i.test(l.text))?.t ?? -1;
   const T_HEARS = lines.find(l => /no one hears/i.test(l.text))?.t ?? -1;
-  const T_DROWN = lines.find(l => /watched me drown/i.test(l.text))?.t ?? -1;
+  const T_DROWN = lines.find(l => /watch(ed)? me drown/i.test(l.text))?.t ?? -1;
+  const T_AIR = lines.find(l => /still got air/i.test(l.text))?.t ?? -1;      // (song 2) you come up for air on that line
   const T_ALONE = lines.find(l => /wonder why you're left alone/i.test(l.text))?.t ?? -1;
   // the cars: three times a car comes down the avenue toward you, in its own lane until the last second, then switches
   // lanes straight at you, high beams up; you break into a run for the far kerb and it tears past where you were walking
@@ -201,7 +240,7 @@ export function createRoute(timing) {
   const T_PRAY = (() => { const L = lines.find(l => /when i pray/i.test(l.text)); return L?.words?.find(w => /^pray/i.test(w.w || ''))?.t ?? L?.t ?? -1; })();
   const prayAt = t => T_PRAY < 0 ? 0 : smooth((t - (T_PRAY - 1.9)) / 1.3) * (1 - smooth((t - (T_PRAY + 0.8)) / 0.9));
   // "losing all the only way": once the line has been sung its letters drop to the road; the eyes follow them down
-  const I_FALL = lines.findIndex(l => /losing all the only way/i.test(l.text));
+  const I_FALL = lines.findIndex(l => /losing all the only way|call me broken/i.test(l.text));
   const T_FALL = I_FALL < 0 ? -1 : ((lines[I_FALL].words?.slice(-1)[0]?.t ?? lines[I_FALL].t) + 0.35);
   const fallAt = t => T_FALL < 0 ? 0 : clamp((t - T_FALL) / 0.85);                                                  // the drop itself
   // the walk slows while the eyes are on the road (the letters must not pass underfoot unseen), then catches up
@@ -229,7 +268,7 @@ export function createRoute(timing) {
     beats, pose, anchorFor, beatAt, fade, T_DOOR, gait(t) { return gaitOf(beatAt(t), t, dashAt(t)); }, carAt, dashAt, CARS, prayAt, floorAt, fallAt, T_VOID: 1e9, T_TOWER: endBeat.t0 + 0.74 * (endBeat.t1 - endBeat.t0),
     skyAt(t) { return beatAt(t).sky; },
     // how far the hands have pushed the viewer under the water (metres below the path), gasping back up after the line
-    dive(t) { if (T_DROWN < 0) return 0; const down = smooth((t - T_DROWN - 1.2) / 1.6), up = smooth((t - T_DROWN - 3.4) / 2.8); return -0.72 * down * (1 - up); },
+    dive(t) { if (T_DROWN < 0) return 0; const down = smooth((t - T_DROWN - 1.2) / 1.6), up = T_AIR > 0 ? smooth((t - T_AIR + 0.2) / 1.1) : smooth((t - T_DROWN - 3.4) / 2.8); return -0.72 * down * (1 - up); },
     cue(t, city) {
       if (T_FADE > 0) { const k = clamp((t - T_FADE - 0.3) / 2.6); const i = city.lampAt(Z(-46), -1); city.dimLamp(i, 1 - 0.97 * k * (1 - clamp((t - T_LIGHT) / 1.5))); }
       // "no one hears": the windows go dark in a wave; "left alone": the lamps go out, one stays at the alley mouth; back on at "I heard You call"

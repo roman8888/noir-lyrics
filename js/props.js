@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261016232009';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261016232009';
+import { rng, clamp } from './util.js?v=20261016234512';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261016234512';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -23,13 +23,13 @@ function figure(s = 1, mat = INK(), umbrella = false) {
   return g;
 }
 
-export function createProps(scene, city, timing, fonts, route) {
+export function createProps(scene, city, timing, fonts, route, songInfo = { title: 'When God Wants to Make You Stronger', pool: 0 }) {
   const font = fonts.italic;
   const solid = []; let roadPaint = null;
   const r = rng(99);
   const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), V = new THREE.Vector3();
   const add = (geo, mat, x, y, z, parent = scene) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); parent.add(m); return m; };
-  const lineT = text => timing.lines.find(l => l.text.toLowerCase().includes(text))?.t ?? -1;
+  const lineT = q => timing.lines.find(l => q instanceof RegExp ? q.test(l.text) : l.text.toLowerCase().includes(q))?.t ?? -1;
 
   // ---- overhead wires sagging across the street
   const wirePts = [];
@@ -136,7 +136,7 @@ export function createProps(scene, city, timing, fonts, route) {
   rGeo.computeBoundingBox(); const rb = rGeo.boundingBox; rGeo.translate(-(rb.max.x + rb.min.x) / 2, -rb.min.y, -(rb.max.z + rb.min.z) / 2);
   const steel = new THREE.MeshStandardMaterial({ color: 0x6a0c12, roughness: 0.34, metalness: 0.6, emissive: 0x3a0408, emissiveIntensity: 0.4 });
   const R = new THREE.Mesh(rGeo, steel);
-  R.position.set(0, 63.2, TOWER.z); scene.add(R);
+  R.name = 'towerR'; R.position.set(0, 63.2, TOWER.z); scene.add(R);
   add(new THREE.CylinderGeometry(1.1, 1.4, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x111115, roughness: 0.5, metalness: 0.7 }), 0, 63.2, TOWER.z);
   // the capitals that complete KARMA around the R on the spire, in the same steel; they land one by one at the end
   const karmaLetters = [];
@@ -157,12 +157,13 @@ export function createProps(scene, city, timing, fonts, route) {
   // the door: two leaves that swing outward on "free", and the light beyond them
   const doorW = 3.4, doorH = 4.6, DZ = CHURCH.z + 7.0;
   const doorLight = add(new THREE.PlaneGeometry(doorW, doorH), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.35, 0.37, 0.4) }), 0, doorH / 2, DZ + 0.02);
+  doorLight.name = 'doorLight';
   const leafMat = new THREE.MeshStandardMaterial({ color: 0x2a0d10, roughness: 0.6, metalness: 0.2 });
   const leaves = [];
   for (const sx of [-1, 1]) { const hinge = new THREE.Group(); hinge.position.set(sx * doorW / 2, 0, DZ + 0.1); scene.add(hinge);
     const leaf = new THREE.Mesh(new THREE.BoxGeometry(doorW / 2, doorH, 0.16), leafMat); leaf.position.set(-sx * doorW / 4, doorH / 2, 0); hinge.add(leaf);
     for (let k = 0; k < 3; k++) { const stud = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.06), new THREE.MeshStandardMaterial({ color: 0x6a6660, metalness: 0.8, roughness: 0.3 })); stud.position.set(-sx * doorW / 4, 0.8 + k * 1.5, 0.1); hinge.add(stud); }
-    hinge.userData.sx = sx; leaves.push(hinge); }
+    hinge.userData.sx = sx; hinge.name = 'doorLeaf'; leaves.push(hinge); }
   const glow = new THREE.PointLight(0xe8eeff, 0, 40, 1.3); glow.position.set(0, 2.5, DZ + 2); scene.add(glow);
   const inside = new THREE.Mesh(new THREE.SphereGeometry(9.5, 24, 16), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.2, 1.25, 1.35), side: THREE.BackSide, fog: false })); inside.position.set(0, 4, CHURCH.z - 1.5); inside.visible = false; scene.add(inside);
   const lastLine = timing.lines[timing.lines.length - 1];
@@ -231,12 +232,15 @@ export function createProps(scene, city, timing, fonts, route) {
   }
   nameLetters.forEach(m => { m.userData.x -= (ncx - NS * 0.1) / 2; m.position.x = m.userData.x; });
   credits.add(nameMesh);
-  const titleGeo = new TextGeometry('When God Wants to Make You Stronger', { font: fonts.italic, size: 1.45, height: 0.3, curveSegments: 10, bevelEnabled: false });
+  const titleGeo = new TextGeometry(songInfo.title, { font: fonts.italic, size: 1.45, height: 0.3, curveSegments: 10, bevelEnabled: false });
   titleGeo.computeBoundingBox(); const tb = titleGeo.boundingBox; titleGeo.translate(-(tb.max.x + tb.min.x) / 2, 0, 0);
   const titleMesh = new THREE.Mesh(titleGeo, new THREE.MeshStandardMaterial({ color: 0x6a0c12, roughness: 0.4, metalness: 0.5, emissive: 0x4a060a, emissiveIntensity: 0.8 })); titleMesh.position.y = -4.1; credits.add(titleMesh);   // the song name, same blood-steel
-  const CREDITS_AT = new THREE.Vector3(0, 44, -40);                                    // above the first-row rooftops (≤36 m) and inside the second row's gap: nothing clips it                                      // close and big above the avenue, straight ahead of the landing
+  const landKey = route?.beats?.find(b => b.name === 'Pre')?.keys.slice(-1)[0] || [1, 0, 2, 30];
+  const LANE_SONG = Math.abs(landKey[1]) > 12;                                            // landing in the back lane: the credits hang low between its walls, small
+  const CREDITS_AT = LANE_SONG ? new THREE.Vector3(landKey[1], 8.5, landKey[3] - 26) : new THREE.Vector3(landKey[1], 44, landKey[3] - 70);
+  const CREDITS_SCALE = LANE_SONG ? 0.17 : 1;
   credits.position.copy(CREDITS_AT);
-  for (const sx of [-12, 12]) { const sp = new THREE.SpotLight(0xdfe6ff, 5200, 70, 0.6, 0.5, 1.1); sp.position.set(sx, -10, 26); sp.target = nameMesh; credits.add(sp); }
+  for (const sx of [-12, 12]) { const sp = new THREE.SpotLight(0xdfe6ff, 5200 * (LANE_SONG ? 0.06 : 1), 70, 0.6, 0.5, 1.1); sp.position.set(sx, -10, 26); sp.target = nameMesh; credits.add(sp); }
   const cKey = new THREE.PointLight(0xffe6e0, 900, 60, 1.3); cKey.position.set(0, 6, 22); credits.add(cKey);
   const cRim = new THREE.PointLight(0xff2a2a, 400, 50, 1.4); cRim.position.set(0, 8, -10); credits.add(cRim);
   const T_FIRST = timing.lines[0].t;
@@ -251,9 +255,9 @@ export function createProps(scene, city, timing, fonts, route) {
   // ---- the crowd that turns its back (Rap 1, "they watched me fall and turned their backs")
   const T_CROWD = lineT('turned their backs');
   const crowd = [];
-  const A = ALLEYS[0];
+  const A = ALLEYS[songInfo.pool ?? 0];                                   // the alley with the water (per song)
   const crowdMat = new THREE.MeshStandardMaterial({ color: 0x16131a, roughness: 0.85 });
-  for (let i = 0; i < 11; i++) { const f = figure(0.95 + r() * 0.2, crowdMat); f.position.set(-(FACADE + 11.5) - (i % 2) * 1.3 - r() * 0.5, 0, A.z - A.w / 2 + 0.6 + (i / 11) * (A.w - 1.2)); f.rotation.y = Math.PI / 2; f.userData.ph = r(); scene.add(f); crowd.push(f); }
+  for (let i = 0; i < 11; i++) { const f = figure(0.95 + r() * 0.2, crowdMat); f.position.set(A.side * (FACADE + 11.5 + (i % 2) * 1.3 + r() * 0.5), 0, A.z - A.w / 2 + 0.6 + (i / 11) * (A.w - 1.2)); f.rotation.y = -A.side * Math.PI / 2; f.userData.ph = r(); scene.add(f); crowd.push(f); }
   // ---- two walking together (Pre-Chorus, "you were walking with me there")
   const T_TWO = lineT('walking with me');
   let twoZ = 0;
@@ -261,15 +265,15 @@ export function createProps(scene, city, timing, fonts, route) {
   two.forEach((f, i) => { f.position.set(-0.6 + i * 1.2, 0, -120); f.visible = false; scene.add(f); });
 
   // ---- the drowning (Rap 1, "they watched me drown"): a flooded alley, a head at the surface, twenty hands pushing down
-  const T_DROWN = lineT('watched me drown');
+  const T_DROWN = lineT(/watch(ed)? me drown/i);
   const ringAt = new THREE.Vector3();
   const pool = new THREE.Group(); scene.add(pool);
-  const PX = -(FACADE + 10), PZ = A.z;                           // the flooded end of the first alley
+  const PX = A.side * (FACADE + 10), PZ = A.z;                   // the flooded end of the alley (whichever side it opens on)
   const waterGeo = new THREE.PlaneGeometry(14, A.w + 1, 70, 24);
   const water = new THREE.Mesh(waterGeo, new THREE.MeshStandardMaterial({ color: 0x0a1218, roughness: 0.25, metalness: 0.35, transparent: true, opacity: 0.72, side: THREE.DoubleSide }));
   water.rotation.x = -Math.PI / 2; water.position.set(PX, 0.42, PZ); pool.add(water);
   const w0 = waterGeo.attributes.position.array.slice();
-  const victim = new THREE.Group(); victim.position.set(PX - 1.2, 0.42, PZ); pool.add(victim);
+  const victim = new THREE.Group(); victim.position.set(PX + A.side * 1.2, 0.42, PZ); pool.add(victim);
   const vm = new THREE.MeshStandardMaterial({ color: 0x0b0a0c, roughness: 0.9 });
   const vHead = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 12), vm); vHead.position.y = 0.12; victim.add(vHead);
   const vSh = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 0.3, 4, 12), vm); vSh.rotation.z = Math.PI / 2; vSh.position.y = -0.25; victim.add(vSh);
@@ -301,14 +305,14 @@ export function createProps(scene, city, timing, fonts, route) {
   }
   // rings on the water where the hands press
   const pressRings = [];
-  for (let i = 0; i < 10; i++) { const m = new THREE.Mesh(new THREE.RingGeometry(0.1, 0.115, 40), new THREE.MeshBasicMaterial({ color: 0x7a8494, transparent: true, opacity: 0 })); m.rotation.x = -Math.PI / 2; m.position.set(PX - 1.2, 0.44, PZ); m.userData.ph = i / 10; pool.add(m); pressRings.push(m); }
+  for (let i = 0; i < 10; i++) { const m = new THREE.Mesh(new THREE.RingGeometry(0.1, 0.115, 40), new THREE.MeshBasicMaterial({ color: 0x7a8494, transparent: true, opacity: 0 })); m.rotation.x = -Math.PI / 2; m.position.set(PX + A.side * 1.2, 0.44, PZ); m.userData.ph = i / 10; pool.add(m); pressRings.push(m); }
   const NB = 70, bPos = new Float32Array(NB * 3), bLife = new Float32Array(NB).map(() => Math.random());
   const bubbleGeo = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(bPos, 3));
   const bubbles = new THREE.Points(bubbleGeo, new THREE.PointsMaterial({ map: puffTex, size: 0.09, transparent: true, depthWrite: false, opacity: 0.8, color: 0xcfe0ee })); bubbles.visible = false; scene.add(bubbles);
-  const poolLight = new THREE.PointLight(0xcfd8ff, 0, 14, 1.6); poolLight.position.set(PX + 2, 4.5, PZ); pool.add(poolLight);
+  const poolLight = new THREE.PointLight(0xcfd8ff, 0, 14, 1.6); poolLight.position.set(PX - A.side * 2, 4.5, PZ); pool.add(poolLight);
   // a hard backlight at the end of the alley: the head and the hands become silhouettes on lit water
-  const poolBack = new THREE.PointLight(0xe8eeff, 0, 30, 1.2); poolBack.position.set(PX - 3.6, 3.0, PZ); pool.add(poolBack);
-  const backWall = add(new THREE.PlaneGeometry(A.w + 1, 7), new THREE.MeshStandardMaterial({ color: 0x3a3f48, roughness: 1 }), PX - 6.6, 3.5, PZ, pool); backWall.rotation.y = Math.PI / 2;
+  const poolBack = new THREE.PointLight(0xe8eeff, 0, 30, 1.2); poolBack.position.set(PX + A.side * 3.6, 3.0, PZ); pool.add(poolBack);
+  const backWall = add(new THREE.PlaneGeometry(A.w + 1, 7), new THREE.MeshStandardMaterial({ color: 0x3a3f48, roughness: 1 }), PX + A.side * 6.6, 3.5, PZ, pool); backWall.rotation.y = Math.PI / 2;
   pool.visible = false;
 
   // ---- "the truth behind their eyes": two eyes float ahead, look around, then flip to show their backs — hollow, bleeding
@@ -611,7 +615,7 @@ export function createProps(scene, city, timing, fonts, route) {
         m.visible = k > 0.01; const sc = 0.55 + 0.45 * k; m.scale.set(sc, sc, sc);
         m.position.set(m.userData.x * k, 63.4, TOWER.z - (1 - k) * 1.6); m.rotation.y = R.rotation.y; });                 // KARMA IS NEAR shows only from the sky
       // "free": the city slides apart to both sides and the church door opens outward into the light
-      const fk = ease((t - T_FREE) / 5), dk2 = ease((t - T_FREE - 0.6) / 2.6);
+      const fk = T_FREE > 0 ? ease((t - T_FREE) / 5) : 0, dk2 = T_FREE > 0 ? ease((t - T_FREE - 0.6) / 2.6) : 0;   // no "free" in this song: the door stays as the song's own pieces leave it
       city.part(fk * 34);
       leaves.forEach(h => { h.rotation.y = h.userData.sx * 1.9 * dk2; });
       doorLight.material.color.setRGB(0.35, 0.37, 0.4).lerp(new THREE.Color(0.5, 0.53, 0.6), dk2); doorLight.visible = dk2 < 0.5;   // once open, the passage is clear
@@ -633,7 +637,7 @@ export function createProps(scene, city, timing, fonts, route) {
       R.rotation.y = Math.sin(time * 0.12) * 0.55;
       // the credits hang over the street for the intro, then sink back into the fog before the first line
       const ck2 = clamp((t - (T_FIRST - 3.5)) / 3);
-      if (t < T_FIRST + 1) { credits.visible = t < T_FIRST; credits.position.set(0, CREDITS_AT.y - ck2 * 6, CREDITS_AT.z - ck2 * 140); nameMesh.rotation.y = Math.sin(time * 0.1) * 0.25; credits.scale.setScalar(1 - ck2 * 0.6);
+      if (t < T_FIRST + 1) { credits.visible = t < T_FIRST; credits.position.set(CREDITS_AT.x, CREDITS_AT.y - ck2 * 6 * CREDITS_SCALE, CREDITS_AT.z - ck2 * 140 * CREDITS_SCALE); nameMesh.rotation.y = Math.sin(time * 0.1) * 0.25; credits.scale.setScalar(CREDITS_SCALE * (1 - ck2 * 0.6));
         // the letters swing in one after another from behind, settle, then the title rises under them
         nameLetters.forEach(m => { const a = clamp((t - 0.5 - m.userData.i * 0.2) / 1.1), e = 1 - Math.pow(1 - a, 3);
           m.visible = a > 0; m.scale.setScalar(0.001 + e); m.rotation.y = (1 - e) * 1.5; m.position.set(m.userData.x, (1 - e) * -2.5 + Math.sin(time * 0.9 + m.userData.i * 0.7) * 0.08, (1 - e) * -16); });

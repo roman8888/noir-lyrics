@@ -7,15 +7,15 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261016232009';
-import { createProps } from './props.js?v=20261016232009';
-import { createSky } from './sky.js?v=20261016232009';
-import { createRoute } from './route.js?v=20261016232009';
-import { createSong, LEAD } from './song.js?v=20261016232009';
-import { SONGS } from './songs.js?v=20261016232009';
-import { clamp, fmt, toLRC } from './util.js?v=20261016232009';
-import { createLanding } from './landing.js?v=20261016232009';
-import { createDrops } from './drops.js?v=20261016232009';
+import { createCity } from './city.js?v=20261016234512';
+import { createProps } from './props.js?v=20261016234512';
+import { createSky } from './sky.js?v=20261016234512';
+import { createRoute } from './route.js?v=20261016234512';
+import { createSong, LEAD } from './song.js?v=20261016234512';
+import { SONGS } from './songs.js?v=20261016234512';
+import { clamp, fmt, toLRC } from './util.js?v=20261016234512';
+import { createLanding } from './landing.js?v=20261016234512';
+import { createDrops } from './drops.js?v=20261016234512';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -75,21 +75,25 @@ const ROOT = window.__root || '/';
 const SEG = location.pathname.slice(ROOT.length).split('/')[0];
 const current = SONGS.find(s => s.slug === SEG) || SONGS[0];
 const LANDING = !SONGS.some(s => s.slug === SEG);
+const ABOUT = SEG === 'about';                                           // /about/: the city at rest behind the sheet
+document.title = LANDING ? 'Roman Shikhri — hyperfeeling' : `Roman Shikhri — ${current.title}`;
+$('lytitle').textContent = current.title;                               // the panel header names the song being sung
 const timing = await fetch(`songs/${current.slug}/timing.json`).then(r => r.json());
 const city = createCity();
 const sky = createSky(city.scene);
-const route = createRoute(timing);
-const props = createProps(city.scene, city, timing, { roman, italic }, route);
-const song = createSong({ roman, italic }, city.scene, route, [city.blds, ...props.solid]);
+const route = createRoute(timing, current.slug);
+const props = createProps(city.scene, city, timing, { roman, italic }, route, current);
+const props2 = current.slug === 'on-my-way-to-you' ? (await import('./props2.js?v=0')).createProps2(city.scene, city, timing, { roman, italic }, route, props) : null;   // this song's own set pieces
+const song = createSong({ roman, italic }, city.scene, route, [city.blds, ...props.solid, ...(props2 ? props2.solid : [])]);
 props.wordAt = (i, re, out) => song.wordAt(i, re, out);                 // set pieces that ride on a word (the fire on "hell")
 song.load(current, timing);
 audio.src = `songs/${current.slug}/song.mp3`;
 renderPass.scene = city.scene; renderPass.camera = song.camera; bokeh.scene = city.scene; bokeh.camera = song.camera;
 const drops = createDrops($('glass'));
 const landing = LANDING ? createLanding(city.scene, { roman, italic }, SONGS, ROOT) : null;
-if (LANDING) { document.body.classList.add('home'); $('home').hidden = false; $('lyrics').classList.remove('open'); $('lyopen').hidden = true;
+if (LANDING) { document.body.classList.add('home'); $('home').hidden = ABOUT; $('about').hidden = !ABOUT; $('lyrics').classList.remove('open'); $('lyopen').hidden = true;
   addEventListener('pointermove', e => landing.pointer((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1));
-  addEventListener('click', e => { if (!e.target.closest('a, button')) landing.click(); }); }
+  addEventListener('click', e => { if (!ABOUT && !e.target.closest('a, button')) landing.click(); }); }
 if (new URLSearchParams(location.search).has('edit')) $('tools').hidden = false;
 
 // ---------- opening: the song starts at once; the camera descends into the city while the credits show and five blood
@@ -110,7 +114,7 @@ async function startSong() {
   catch { audio.muted = true; needUnmute = true; try { await audio.play(); } catch { /* nothing more we can do until a gesture */ } }
   if (actx) actx.resume();
 }
-if (!LANDING) { $('player').hidden = false; startSong(); }
+if (!LANDING) { $('player').hidden = false; $('homelink').hidden = false; startSong(); }
 const unlock = () => {
   ensureAudioGraph(); actx.resume();
   if (needUnmute) { needUnmute = false; audio.muted = false; }
@@ -140,6 +144,7 @@ $('save').addEventListener('click', () => {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${current.slug}.lrc`; a.click();
 });
 addEventListener('keydown', e => {
+  if (LANDING) return;                                                  // the front page has its own keys (walk)
   if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
   else if (e.code === 'ArrowRight') audio.currentTime += 5;
   else if (e.code === 'ArrowLeft') audio.currentTime = Math.max(0, audio.currentTime - 5);
@@ -191,12 +196,13 @@ function frame(once) {
   while (!LANDING && dropsFallen < 5 && t >= DROP_AT[dropsFallen]) { drops.drop(5 - dropsFallen); dropsFallen++; }
   if (t < 0.5) dropsFallen = 0;
   const sName = route.skyAt(t); if (sName !== skyName) { skyName = sName; sky.set(sName, skyName ? 7 : 0.1); }
-  if (LANDING) { landing.camera(song.camera, now); landing.update(dt, song.camera); } else song.update(dt, now, t, analyser, fbuf);
+  if (LANDING) { landing.camera(song.camera, now, dt); landing.update(dt, song.camera); } else song.update(dt, now, t, analyser, fbuf);
   const env = song.env, P = song.P;
   sky.update(dt, now, song.camera.position, env.bass);
   city.chaseAt(route.carAt(t, carPos), song.camera);                                     // the car that comes for you (Rap 2)
   city.update(dt, now, song.camera, sky);
   props.update(dt, t, now, { ...env, sun: sky.sun }, song.camera);
+  if (props2) props2.update(dt, t, now, song.camera, song);
   route.cue(t, city);
   bloom.strength = 0.45 + (sky.sun || 0) * 0.25 + env.slow * 0.2;
   noir.uniforms.uBass.value = env.bass * (0.5 + P.red * 0.5);

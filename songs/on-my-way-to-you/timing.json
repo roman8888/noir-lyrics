@@ -1,0 +1,1676 @@
+{
+ "sections": [
+  {
+   "name": "Intro",
+   "desc": "spoken, deep, steady voice, sparse bass",
+   "t": 4.23
+  },
+  {
+   "name": "Verse 1",
+   "desc": "restrained anger, deliberate rhythm",
+   "t": 51.52
+  },
+  {
+   "name": "Pre-Chorus",
+   "desc": "drums building, voice growing firmer",
+   "t": 79.03
+  },
+  {
+   "name": "Chorus",
+   "desc": "powerful, confident, rhythmic",
+   "t": 112.78
+  },
+  {
+   "name": "Verse 2",
+   "desc": "heavy groove, defiant",
+   "t": 133.61
+  },
+  {
+   "name": "Bridge",
+   "desc": "music drops, intimate and cold",
+   "t": 160.22
+  },
+  {
+   "name": "Final Chorus",
+   "desc": "full instrumentation, triumphant but dark",
+   "t": 186.29
+  },
+  {
+   "name": "Outro",
+   "desc": "drums stop, spoken, almost whispered",
+   "t": 229.76
+  }
+ ],
+ "lines": [
+  {
+   "text": "I'm coming to save you.",
+   "section": 0,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 4.23
+    },
+    {
+     "w": "coming",
+     "t": 4.67
+    },
+    {
+     "w": "to",
+     "t": 4.99
+    },
+    {
+     "w": "save",
+     "t": 5.17
+    },
+    {
+     "w": "you.",
+     "t": 5.54
+    }
+   ],
+   "t": 4.23
+  },
+  {
+   "text": "From here.",
+   "section": 0,
+   "words": [
+    {
+     "w": "From",
+     "t": 9.5
+    },
+    {
+     "w": "here.",
+     "t": 9.74
+    }
+   ],
+   "t": 9.5
+  },
+  {
+   "text": "From them.",
+   "section": 0,
+   "words": [
+    {
+     "w": "From",
+     "t": 12.29
+    },
+    {
+     "w": "them.",
+     "t": 12.57
+    }
+   ],
+   "t": 12.29
+  },
+  {
+   "text": "From standing all alone",
+   "section": 0,
+   "words": [
+    {
+     "w": "From",
+     "t": 16.75
+    },
+    {
+     "w": "standing",
+     "t": 17.01
+    },
+    {
+     "w": "all",
+     "t": 19.38
+    },
+    {
+     "w": "alone",
+     "t": 19.58
+    }
+   ],
+   "t": 16.75
+  },
+  {
+   "text": "against the venom of people.",
+   "section": 0,
+   "words": [
+    {
+     "w": "against",
+     "t": 23.14
+    },
+    {
+     "w": "the",
+     "t": 23.5
+    },
+    {
+     "w": "venom",
+     "t": 23.78
+    },
+    {
+     "w": "of",
+     "t": 26.31
+    },
+    {
+     "w": "people.",
+     "t": 28.83
+    }
+   ],
+   "t": 23.14
+  },
+  {
+   "text": "I'm on my way to you.",
+   "section": 0,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 31.35
+    },
+    {
+     "w": "on",
+     "t": 33.87
+    },
+    {
+     "w": "my",
+     "t": 36.39
+    },
+    {
+     "w": "way",
+     "t": 38.91
+    },
+    {
+     "w": "to",
+     "t": 41.43
+    },
+    {
+     "w": "you.",
+     "t": 43.95
+    }
+   ],
+   "t": 31.35
+  },
+  {
+   "text": "I'm coming.",
+   "section": 0,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 46.47
+    },
+    {
+     "w": "coming.",
+     "t": 49.0
+    }
+   ],
+   "t": 46.47
+  },
+  {
+   "text": "You said I talk too much.",
+   "section": 1,
+   "words": [
+    {
+     "w": "You",
+     "t": 51.52
+    },
+    {
+     "w": "said",
+     "t": 51.82
+    },
+    {
+     "w": "I",
+     "t": 52.12
+    },
+    {
+     "w": "talk",
+     "t": 52.3
+    },
+    {
+     "w": "too",
+     "t": 52.72
+    },
+    {
+     "w": "much.",
+     "t": 53.06
+    }
+   ],
+   "t": 51.52
+  },
+  {
+   "text": "That I bury you in words.",
+   "section": 1,
+   "words": [
+    {
+     "w": "That",
+     "t": 55.58
+    },
+    {
+     "w": "I",
+     "t": 55.74
+    },
+    {
+     "w": "bury",
+     "t": 55.98
+    },
+    {
+     "w": "you",
+     "t": 56.42
+    },
+    {
+     "w": "in",
+     "t": 56.66
+    },
+    {
+     "w": "words.",
+     "t": 56.82
+    }
+   ],
+   "t": 55.58
+  },
+  {
+   "text": "But there aren't enough words in any language",
+   "section": 1,
+   "words": [
+    {
+     "w": "But",
+     "t": 59.19
+    },
+    {
+     "w": "there",
+     "t": 59.31
+    },
+    {
+     "w": "aren't",
+     "t": 59.65
+    },
+    {
+     "w": "enough",
+     "t": 59.87
+    },
+    {
+     "w": "words",
+     "t": 60.19
+    },
+    {
+     "w": "in",
+     "t": 60.83
+    },
+    {
+     "w": "any",
+     "t": 60.99
+    },
+    {
+     "w": "language",
+     "t": 61.23
+    }
+   ],
+   "t": 59.19
+  },
+  {
+   "text": "to describe just how rotten you really are.",
+   "section": 1,
+   "words": [
+    {
+     "w": "to",
+     "t": 61.93
+    },
+    {
+     "w": "describe",
+     "t": 62.07
+    },
+    {
+     "w": "just",
+     "t": 63.37
+    },
+    {
+     "w": "how",
+     "t": 63.65
+    },
+    {
+     "w": "rotten",
+     "t": 63.99
+    },
+    {
+     "w": "you",
+     "t": 64.79
+    },
+    {
+     "w": "really",
+     "t": 64.97
+    },
+    {
+     "w": "are.",
+     "t": 66.44
+    }
+   ],
+   "t": 61.93
+  },
+  {
+   "text": "Enough of the evil.",
+   "section": 1,
+   "words": [
+    {
+     "w": "Enough",
+     "t": 67.52
+    },
+    {
+     "w": "of",
+     "t": 67.98
+    },
+    {
+     "w": "the",
+     "t": 68.12
+    },
+    {
+     "w": "evil.",
+     "t": 71.02
+    }
+   ],
+   "t": 67.52
+  },
+  {
+   "text": "Enough of the lies.",
+   "section": 1,
+   "words": [
+    {
+     "w": "Enough",
+     "t": 71.12
+    },
+    {
+     "w": "of",
+     "t": 71.58
+    },
+    {
+     "w": "the",
+     "t": 71.7
+    },
+    {
+     "w": "lies.",
+     "t": 71.88
+    }
+   ],
+   "t": 71.12
+  },
+  {
+   "text": "Even the darkness struggles",
+   "section": 1,
+   "words": [
+    {
+     "w": "Even",
+     "t": 73.47
+    },
+    {
+     "w": "the",
+     "t": 73.69
+    },
+    {
+     "w": "darkness",
+     "t": 73.95
+    },
+    {
+     "w": "struggles",
+     "t": 74.75
+    }
+   ],
+   "t": 73.47
+  },
+  {
+   "text": "to swallow what's inside.",
+   "section": 1,
+   "words": [
+    {
+     "w": "to",
+     "t": 75.41
+    },
+    {
+     "w": "swallow",
+     "t": 75.67
+    },
+    {
+     "w": "what's",
+     "t": 76.95
+    },
+    {
+     "w": "inside.",
+     "t": 77.39
+    }
+   ],
+   "t": 75.41
+  },
+  {
+   "text": "Just wait.",
+   "section": 2,
+   "words": [
+    {
+     "w": "Just",
+     "t": 79.03
+    },
+    {
+     "w": "wait.",
+     "t": 80.67
+    }
+   ],
+   "t": 79.03
+  },
+  {
+   "text": "Karma is coming.",
+   "section": 2,
+   "words": [
+    {
+     "w": "Karma",
+     "t": 82.31
+    },
+    {
+     "w": "is",
+     "t": 83.95
+    },
+    {
+     "w": "coming.",
+     "t": 85.59
+    }
+   ],
+   "t": 82.31
+  },
+  {
+   "text": "And so am I.",
+   "section": 2,
+   "words": [
+    {
+     "w": "And",
+     "t": 87.22
+    },
+    {
+     "w": "so",
+     "t": 87.7
+    },
+    {
+     "w": "am",
+     "t": 88.22
+    },
+    {
+     "w": "I.",
+     "t": 89.25
+    }
+   ],
+   "t": 87.22
+  },
+  {
+   "text": "I won't need fists.",
+   "section": 2,
+   "words": [
+    {
+     "w": "I",
+     "t": 94.53
+    },
+    {
+     "w": "won't",
+     "t": 94.57
+    },
+    {
+     "w": "need",
+     "t": 95.23
+    },
+    {
+     "w": "fists.",
+     "t": 95.59
+    }
+   ],
+   "t": 94.53
+  },
+  {
+   "text": "I won't need fire.",
+   "section": 2,
+   "words": [
+    {
+     "w": "I",
+     "t": 98.2
+    },
+    {
+     "w": "won't",
+     "t": 98.24
+    },
+    {
+     "w": "need",
+     "t": 98.74
+    },
+    {
+     "w": "fire.",
+     "t": 99.2
+    }
+   ],
+   "t": 98.2
+  },
+  {
+   "text": "I'll tear through your lies",
+   "section": 2,
+   "words": [
+    {
+     "w": "I'll",
+     "t": 100.96
+    },
+    {
+     "w": "tear",
+     "t": 101.66
+    },
+    {
+     "w": "through",
+     "t": 102.34
+    },
+    {
+     "w": "your",
+     "t": 102.62
+    },
+    {
+     "w": "lies",
+     "t": 103.42
+    }
+   ],
+   "t": 100.96
+  },
+  {
+   "text": "with every word you tried to silence.",
+   "section": 2,
+   "words": [
+    {
+     "w": "with",
+     "t": 103.94
+    },
+    {
+     "w": "every",
+     "t": 104.25
+    },
+    {
+     "w": "word",
+     "t": 104.55
+    },
+    {
+     "w": "you",
+     "t": 105.23
+    },
+    {
+     "w": "tried",
+     "t": 105.72
+    },
+    {
+     "w": "to",
+     "t": 106.21
+    },
+    {
+     "w": "silence.",
+     "t": 112.62
+    }
+   ],
+   "t": 103.94
+  },
+  {
+   "text": "I'm coming.",
+   "section": 3,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 112.78
+    },
+    {
+     "w": "coming.",
+     "t": 113.02
+    }
+   ],
+   "t": 112.78
+  },
+  {
+   "text": "I'm coming.",
+   "section": 3,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 113.32
+    },
+    {
+     "w": "coming.",
+     "t": 113.56
+    }
+   ],
+   "t": 113.32
+  },
+  {
+   "text": "I'm not preparing anymore.",
+   "section": 3,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 113.88
+    },
+    {
+     "w": "not",
+     "t": 113.96
+    },
+    {
+     "w": "preparing",
+     "t": 114.18
+    },
+    {
+     "w": "anymore.",
+     "t": 114.72
+    }
+   ],
+   "t": 113.88
+  },
+  {
+   "text": "The shock is over.",
+   "section": 3,
+   "words": [
+    {
+     "w": "The",
+     "t": 116.25
+    },
+    {
+     "w": "shock",
+     "t": 116.77
+    },
+    {
+     "w": "is",
+     "t": 117.13
+    },
+    {
+     "w": "over.",
+     "t": 117.43
+    }
+   ],
+   "t": 116.25
+  },
+  {
+   "text": "I'm not frozen anymore.",
+   "section": 3,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 118.15
+    },
+    {
+     "w": "not",
+     "t": 121.14
+    },
+    {
+     "w": "frozen",
+     "t": 121.56
+    },
+    {
+     "w": "anymore.",
+     "t": 124.53
+    }
+   ],
+   "t": 118.15
+  },
+  {
+   "text": "I'm coming.",
+   "section": 3,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 124.69
+    },
+    {
+     "w": "coming.",
+     "t": 124.77
+    }
+   ],
+   "t": 124.69
+  },
+  {
+   "text": "I'm coming.",
+   "section": 3,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 124.93
+    },
+    {
+     "w": "coming.",
+     "t": 125.01
+    }
+   ],
+   "t": 124.93
+  },
+  {
+   "text": "Straight as an arrow,",
+   "section": 3,
+   "words": [
+    {
+     "w": "Straight",
+     "t": 125.25
+    },
+    {
+     "w": "as",
+     "t": 125.75
+    },
+    {
+     "w": "an",
+     "t": 125.89
+    },
+    {
+     "w": "arrow,",
+     "t": 126.11
+    }
+   ],
+   "t": 125.25
+  },
+  {
+   "text": "locked on the truth.",
+   "section": 3,
+   "words": [
+    {
+     "w": "locked",
+     "t": 126.99
+    },
+    {
+     "w": "on",
+     "t": 127.49
+    },
+    {
+     "w": "the",
+     "t": 127.61
+    },
+    {
+     "w": "truth.",
+     "t": 127.81
+    }
+   ],
+   "t": 126.99
+  },
+  {
+   "text": "I'm coming to save",
+   "section": 3,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 128.78
+    },
+    {
+     "w": "coming",
+     "t": 128.98
+    },
+    {
+     "w": "to",
+     "t": 130.34
+    },
+    {
+     "w": "save",
+     "t": 130.4
+    }
+   ],
+   "t": 128.78
+  },
+  {
+   "text": "the man you left standing alone.",
+   "section": 3,
+   "words": [
+    {
+     "w": "the",
+     "t": 130.5
+    },
+    {
+     "w": "man",
+     "t": 130.58
+    },
+    {
+     "w": "you",
+     "t": 131.12
+    },
+    {
+     "w": "left",
+     "t": 131.48
+    },
+    {
+     "w": "standing",
+     "t": 132.19
+    },
+    {
+     "w": "alone.",
+     "t": 132.9
+    }
+   ],
+   "t": 130.5
+  },
+  {
+   "text": "No matter how many hands try to push me down,",
+   "section": 4,
+   "words": [
+    {
+     "w": "No",
+     "t": 133.61
+    },
+    {
+     "w": "matter",
+     "t": 134.32
+    },
+    {
+     "w": "how",
+     "t": 135.03
+    },
+    {
+     "w": "many",
+     "t": 135.74
+    },
+    {
+     "w": "hands",
+     "t": 136.45
+    },
+    {
+     "w": "try",
+     "t": 137.16
+    },
+    {
+     "w": "to",
+     "t": 137.87
+    },
+    {
+     "w": "push",
+     "t": 138.58
+    },
+    {
+     "w": "me",
+     "t": 139.29
+    },
+    {
+     "w": "down,",
+     "t": 140.0
+    }
+   ],
+   "t": 133.61
+  },
+  {
+   "text": "hold my head underwater, watch me drown.",
+   "section": 4,
+   "words": [
+    {
+     "w": "hold",
+     "t": 140.71
+    },
+    {
+     "w": "my",
+     "t": 141.42
+    },
+    {
+     "w": "head",
+     "t": 142.13
+    },
+    {
+     "w": "underwater,",
+     "t": 142.84
+    },
+    {
+     "w": "watch",
+     "t": 143.55
+    },
+    {
+     "w": "me",
+     "t": 144.26
+    },
+    {
+     "w": "drown.",
+     "t": 144.97
+    }
+   ],
+   "t": 140.71
+  },
+  {
+   "text": "I've still got air.",
+   "section": 4,
+   "words": [
+    {
+     "w": "I've",
+     "t": 145.68
+    },
+    {
+     "w": "still",
+     "t": 145.86
+    },
+    {
+     "w": "got",
+     "t": 146.34
+    },
+    {
+     "w": "air.",
+     "t": 146.7
+    }
+   ],
+   "t": 145.68
+  },
+  {
+   "text": "I've still got breath.",
+   "section": 4,
+   "words": [
+    {
+     "w": "I've",
+     "t": 147.36
+    },
+    {
+     "w": "still",
+     "t": 147.6
+    },
+    {
+     "w": "got",
+     "t": 148.14
+    },
+    {
+     "w": "breath.",
+     "t": 148.6
+    }
+   ],
+   "t": 147.36
+  },
+  {
+   "text": "I've still got words you haven't heard yet.",
+   "section": 4,
+   "words": [
+    {
+     "w": "I've",
+     "t": 149.16
+    },
+    {
+     "w": "still",
+     "t": 149.41
+    },
+    {
+     "w": "got",
+     "t": 149.97
+    },
+    {
+     "w": "words",
+     "t": 150.41
+    },
+    {
+     "w": "you",
+     "t": 150.87
+    },
+    {
+     "w": "haven't",
+     "t": 151.11
+    },
+    {
+     "w": "heard",
+     "t": 151.55
+    },
+    {
+     "w": "yet.",
+     "t": 152.19
+    }
+   ],
+   "t": 149.16
+  },
+  {
+   "text": "My mind is clear.",
+   "section": 4,
+   "words": [
+    {
+     "w": "My",
+     "t": 152.65
+    },
+    {
+     "w": "mind",
+     "t": 153.07
+    },
+    {
+     "w": "is",
+     "t": 153.71
+    },
+    {
+     "w": "clear.",
+     "t": 154.53
+    }
+   ],
+   "t": 152.65
+  },
+  {
+   "text": "My eyes are open.",
+   "section": 4,
+   "words": [
+    {
+     "w": "My",
+     "t": 154.67
+    },
+    {
+     "w": "eyes",
+     "t": 155.31
+    },
+    {
+     "w": "are",
+     "t": 155.68
+    },
+    {
+     "w": "open.",
+     "t": 155.9
+    }
+   ],
+   "t": 154.67
+  },
+  {
+   "text": "You don't get to break me",
+   "section": 4,
+   "words": [
+    {
+     "w": "You",
+     "t": 156.56
+    },
+    {
+     "w": "don't",
+     "t": 156.72
+    },
+    {
+     "w": "get",
+     "t": 157.18
+    },
+    {
+     "w": "to",
+     "t": 157.48
+    },
+    {
+     "w": "break",
+     "t": 157.76
+    },
+    {
+     "w": "me",
+     "t": 158.1
+    }
+   ],
+   "t": 156.56
+  },
+  {
+   "text": "and call me broken.",
+   "section": 4,
+   "words": [
+    {
+     "w": "and",
+     "t": 158.32
+    },
+    {
+     "w": "call",
+     "t": 158.52
+    },
+    {
+     "w": "me",
+     "t": 159.2
+    },
+    {
+     "w": "broken.",
+     "t": 159.44
+    }
+   ],
+   "t": 158.32
+  },
+  {
+   "text": "I remember the silence.",
+   "section": 5,
+   "words": [
+    {
+     "w": "I",
+     "t": 160.22
+    },
+    {
+     "w": "remember",
+     "t": 160.34
+    },
+    {
+     "w": "the",
+     "t": 161.02
+    },
+    {
+     "w": "silence.",
+     "t": 161.2
+    }
+   ],
+   "t": 160.22
+  },
+  {
+   "text": "I remember the shock.",
+   "section": 5,
+   "words": [
+    {
+     "w": "I",
+     "t": 162.03
+    },
+    {
+     "w": "remember",
+     "t": 162.17
+    },
+    {
+     "w": "the",
+     "t": 162.83
+    },
+    {
+     "w": "shock.",
+     "t": 163.17
+    }
+   ],
+   "t": 162.03
+  },
+  {
+   "text": "The words that came too late.",
+   "section": 5,
+   "words": [
+    {
+     "w": "The",
+     "t": 163.51
+    },
+    {
+     "w": "words",
+     "t": 163.65
+    },
+    {
+     "w": "that",
+     "t": 163.95
+    },
+    {
+     "w": "came",
+     "t": 164.13
+    },
+    {
+     "w": "too",
+     "t": 164.43
+    },
+    {
+     "w": "late.",
+     "t": 164.85
+    }
+   ],
+   "t": 163.51
+  },
+  {
+   "text": "The things I couldn't say.",
+   "section": 5,
+   "words": [
+    {
+     "w": "The",
+     "t": 165.27
+    },
+    {
+     "w": "things",
+     "t": 165.45
+    },
+    {
+     "w": "I",
+     "t": 165.81
+    },
+    {
+     "w": "couldn't",
+     "t": 165.93
+    },
+    {
+     "w": "say.",
+     "t": 166.61
+    }
+   ],
+   "t": 165.27
+  },
+  {
+   "text": "But that man isn't waiting anymore.",
+   "section": 5,
+   "words": [
+    {
+     "w": "But",
+     "t": 167.35
+    },
+    {
+     "w": "that",
+     "t": 167.43
+    },
+    {
+     "w": "man",
+     "t": 167.75
+    },
+    {
+     "w": "isn't",
+     "t": 170.98
+    },
+    {
+     "w": "waiting",
+     "t": 171.34
+    },
+    {
+     "w": "anymore.",
+     "t": 172.02
+    }
+   ],
+   "t": 167.35
+  },
+  {
+   "text": "I'm coming for him.",
+   "section": 5,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 174.7
+    },
+    {
+     "w": "coming",
+     "t": 175.04
+    },
+    {
+     "w": "for",
+     "t": 175.47
+    },
+    {
+     "w": "him.",
+     "t": 175.82
+    }
+   ],
+   "t": 174.7
+  },
+  {
+   "text": "I'm coming for me.",
+   "section": 5,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 178.39
+    },
+    {
+     "w": "coming",
+     "t": 178.51
+    },
+    {
+     "w": "for",
+     "t": 179.17
+    },
+    {
+     "w": "me.",
+     "t": 179.51
+    }
+   ],
+   "t": 178.39
+  },
+  {
+   "text": "I'm coming.",
+   "section": 6,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 186.29
+    },
+    {
+     "w": "coming.",
+     "t": 186.37
+    }
+   ],
+   "t": 186.29
+  },
+  {
+   "text": "I'm coming.",
+   "section": 6,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 186.53
+    },
+    {
+     "w": "coming.",
+     "t": 186.62
+    }
+   ],
+   "t": 186.53
+  },
+  {
+   "text": "No more standing silent in the storm.",
+   "section": 6,
+   "words": [
+    {
+     "w": "No",
+     "t": 186.75
+    },
+    {
+     "w": "more",
+     "t": 187.01
+    },
+    {
+     "w": "standing",
+     "t": 187.46
+    },
+    {
+     "w": "silent",
+     "t": 190.16
+    },
+    {
+     "w": "in",
+     "t": 196.54
+    },
+    {
+     "w": "the",
+     "t": 196.74
+    },
+    {
+     "w": "storm.",
+     "t": 197.48
+    }
+   ],
+   "t": 186.75
+  },
+  {
+   "text": "I'm coming.",
+   "section": 6,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 198.22
+    },
+    {
+     "w": "coming.",
+     "t": 201.03
+    }
+   ],
+   "t": 198.22
+  },
+  {
+   "text": "I'm coming.",
+   "section": 6,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 201.23
+    },
+    {
+     "w": "coming.",
+     "t": 201.31
+    }
+   ],
+   "t": 201.23
+  },
+  {
+   "text": "I know exactly what I'm fighting for.",
+   "section": 6,
+   "words": [
+    {
+     "w": "I",
+     "t": 201.45
+    },
+    {
+     "w": "know",
+     "t": 201.49
+    },
+    {
+     "w": "exactly",
+     "t": 201.65
+    },
+    {
+     "w": "what",
+     "t": 202.27
+    },
+    {
+     "w": "I'm",
+     "t": 202.89
+    },
+    {
+     "w": "fighting",
+     "t": 203.51
+    },
+    {
+     "w": "for.",
+     "t": 204.14
+    }
+   ],
+   "t": 201.45
+  },
+  {
+   "text": "Push me down.",
+   "section": 6,
+   "words": [
+    {
+     "w": "Push",
+     "t": 204.76
+    },
+    {
+     "w": "me",
+     "t": 205.38
+    },
+    {
+     "w": "down.",
+     "t": 206.0
+    }
+   ],
+   "t": 204.76
+  },
+  {
+   "text": "I'll find the air.",
+   "section": 6,
+   "words": [
+    {
+     "w": "I'll",
+     "t": 206.62
+    },
+    {
+     "w": "find",
+     "t": 207.25
+    },
+    {
+     "w": "the",
+     "t": 207.87
+    },
+    {
+     "w": "air.",
+     "t": 208.49
+    }
+   ],
+   "t": 206.62
+  },
+  {
+   "text": "Throw your poison.",
+   "section": 6,
+   "words": [
+    {
+     "w": "Throw",
+     "t": 209.11
+    },
+    {
+     "w": "your",
+     "t": 209.73
+    },
+    {
+     "w": "poison.",
+     "t": 210.36
+    }
+   ],
+   "t": 209.11
+  },
+  {
+   "text": "I'll still be there.",
+   "section": 6,
+   "words": [
+    {
+     "w": "I'll",
+     "t": 210.98
+    },
+    {
+     "w": "still",
+     "t": 211.6
+    },
+    {
+     "w": "be",
+     "t": 212.22
+    },
+    {
+     "w": "there.",
+     "t": 212.84
+    }
+   ],
+   "t": 210.98
+  },
+  {
+   "text": "I'm coming.",
+   "section": 6,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 213.47
+    },
+    {
+     "w": "coming.",
+     "t": 214.09
+    }
+   ],
+   "t": 213.47
+  },
+  {
+   "text": "I'm coming.",
+   "section": 6,
+   "words": [
+    {
+     "w": "I'm",
+     "t": 214.71
+    },
+    {
+     "w": "coming.",
+     "t": 215.33
+    }
+   ],
+   "t": 214.71
+  },
+  {
+   "text": "And this time I won't abandon me.",
+   "section": 6,
+   "words": [
+    {
+     "w": "And",
+     "t": 215.95
+    },
+    {
+     "w": "this",
+     "t": 216.58
+    },
+    {
+     "w": "time",
+     "t": 217.2
+    },
+    {
+     "w": "I",
+     "t": 217.82
+    },
+    {
+     "w": "won't",
+     "t": 223.99
+    },
+    {
+     "w": "abandon",
+     "t": 226.07
+    },
+    {
+     "w": "me.",
+     "t": 226.72
+    }
+   ],
+   "t": 215.95
+  },
+  {
+   "text": "Tell me...",
+   "section": 7,
+   "words": [
+    {
+     "w": "Tell",
+     "t": 229.76
+    },
+    {
+     "w": "me...",
+     "t": 230.0
+    }
+   ],
+   "t": 229.76
+  },
+  {
+   "text": "How do you speak to people so lost in evil?",
+   "section": 7,
+   "words": [
+    {
+     "w": "How",
+     "t": 232.93
+    },
+    {
+     "w": "do",
+     "t": 233.11
+    },
+    {
+     "w": "you",
+     "t": 233.23
+    },
+    {
+     "w": "speak",
+     "t": 233.43
+    },
+    {
+     "w": "to",
+     "t": 233.87
+    },
+    {
+     "w": "people",
+     "t": 234.05
+    },
+    {
+     "w": "so",
+     "t": 236.77
+    },
+    {
+     "w": "lost",
+     "t": 237.07
+    },
+    {
+     "w": "in",
+     "t": 237.65
+    },
+    {
+     "w": "evil?",
+     "t": 237.85
+    }
+   ],
+   "t": 232.93
+  },
+  {
+   "text": "Maybe you don't.",
+   "section": 7,
+   "words": [
+    {
+     "w": "Maybe",
+     "t": 247.86
+    },
+    {
+     "w": "you",
+     "t": 248.24
+    },
+    {
+     "w": "don't.",
+     "t": 248.29
+    }
+   ],
+   "t": 247.86
+  },
+  {
+   "text": "Maybe you just stop letting them speak for you.",
+   "section": 7,
+   "words": [
+    {
+     "w": "Maybe",
+     "t": 248.33
+    },
+    {
+     "w": "you",
+     "t": 248.38
+    },
+    {
+     "w": "just",
+     "t": 248.42
+    },
+    {
+     "w": "stop",
+     "t": 252.39
+    },
+    {
+     "w": "letting",
+     "t": 252.81
+    },
+    {
+     "w": "them",
+     "t": 253.13
+    },
+    {
+     "w": "speak",
+     "t": 261.24
+    },
+    {
+     "w": "for",
+     "t": 269.35
+    },
+    {
+     "w": "you.",
+     "t": 277.46
+    }
+   ],
+   "t": 248.33
+  }
+ ]
+}

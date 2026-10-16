@@ -1,0 +1,1207 @@
+{
+ "segments": [
+  {
+   "start": 4.233,
+   "end": 24.064,
+   "text": " I'm coming to save you From here From them From standing All alone Against the venom",
+   "words": [
+    {
+     "word": "I'm",
+     "start": 4.233,
+     "end": 4.614
+    },
+    {
+     "word": "coming",
+     "start": 4.674,
+     "end": 4.954
+    },
+    {
+     "word": "to",
+     "start": 4.994,
+     "end": 5.094
+    },
+    {
+     "word": "save",
+     "start": 5.174,
+     "end": 5.475
+    },
+    {
+     "word": "you",
+     "start": 5.535,
+     "end": 9.401
+    },
+    {
+     "word": "From",
+     "start": 9.501,
+     "end": 9.661
+    },
+    {
+     "word": "here",
+     "start": 9.742,
+     "end": 12.266
+    },
+    {
+     "word": "From",
+     "start": 12.286,
+     "end": 12.466
+    },
+    {
+     "word": "them",
+     "start": 12.566,
+     "end": 12.806
+    },
+    {
+     "word": "From",
+     "start": 16.753,
+     "end": 16.913
+    },
+    {
+     "word": "standing",
+     "start": 17.013,
+     "end": 19.357
+    },
+    {
+     "word": "All",
+     "start": 19.377,
+     "end": 19.517
+    },
+    {
+     "word": "alone",
+     "start": 19.577,
+     "end": 20.038
+    },
+    {
+     "word": "Against",
+     "start": 23.143,
+     "end": 23.483
+    },
+    {
+     "word": "the",
+     "start": 23.503,
+     "end": 23.583
+    },
+    {
+     "word": "venom",
+     "start": 23.784,
+     "end": 24.064
+    }
+   ]
+  },
+  {
+   "start": 51.517,
+   "end": 81.456,
+   "text": " You said I talk too much That I bury you in words But there aren't enough words in any language to describe Just how rotten you really are Enough of the evil Enough of the lies Even the darkness struggles to swallow what's inside",
+   "words": [
+    {
+     "word": "You",
+     "start": 51.517,
+     "end": 51.737
+    },
+    {
+     "word": "said",
+     "start": 51.817,
+     "end": 52.038
+    },
+    {
+     "word": "I",
+     "start": 52.118,
+     "end": 52.238
+    },
+    {
+     "word": "talk",
+     "start": 52.298,
+     "end": 52.679
+    },
+    {
+     "word": "too",
+     "start": 52.719,
+     "end": 53.039
+    },
+    {
+     "word": "much",
+     "start": 53.059,
+     "end": 53.58
+    },
+    {
+     "word": "That",
+     "start": 55.582,
+     "end": 55.722
+    },
+    {
+     "word": "I",
+     "start": 55.743,
+     "end": 55.903
+    },
+    {
+     "word": "bury",
+     "start": 55.983,
+     "end": 56.343
+    },
+    {
+     "word": "you",
+     "start": 56.423,
+     "end": 56.584
+    },
+    {
+     "word": "in",
+     "start": 56.664,
+     "end": 56.744
+    },
+    {
+     "word": "words",
+     "start": 56.824,
+     "end": 59.167
+    },
+    {
+     "word": "But",
+     "start": 59.187,
+     "end": 59.267
+    },
+    {
+     "word": "there",
+     "start": 59.307,
+     "end": 59.547
+    },
+    {
+     "word": "aren't",
+     "start": 59.648,
+     "end": 59.828
+    },
+    {
+     "word": "enough",
+     "start": 59.868,
+     "end": 60.128
+    },
+    {
+     "word": "words",
+     "start": 60.188,
+     "end": 60.709
+    },
+    {
+     "word": "in",
+     "start": 60.829,
+     "end": 60.889
+    },
+    {
+     "word": "any",
+     "start": 60.989,
+     "end": 61.13
+    },
+    {
+     "word": "language",
+     "start": 61.23,
+     "end": 61.81
+    },
+    {
+     "word": "to",
+     "start": 61.931,
+     "end": 62.031
+    },
+    {
+     "word": "describe",
+     "start": 62.071,
+     "end": 62.712
+    },
+    {
+     "word": "Just",
+     "start": 63.372,
+     "end": 63.613
+    },
+    {
+     "word": "how",
+     "start": 63.653,
+     "end": 63.913
+    },
+    {
+     "word": "rotten",
+     "start": 63.993,
+     "end": 64.374
+    },
+    {
+     "word": "you",
+     "start": 64.794,
+     "end": 64.955
+    },
+    {
+     "word": "really",
+     "start": 64.975,
+     "end": 65.455
+    },
+    {
+     "word": "are",
+     "start": 66.436,
+     "end": 67.498
+    },
+    {
+     "word": "Enough",
+     "start": 67.518,
+     "end": 67.878
+    },
+    {
+     "word": "of",
+     "start": 67.978,
+     "end": 68.059
+    },
+    {
+     "word": "the",
+     "start": 68.119,
+     "end": 71.002
+    },
+    {
+     "word": "evil",
+     "start": 71.022,
+     "end": 71.103
+    },
+    {
+     "word": "Enough",
+     "start": 71.123,
+     "end": 71.503
+    },
+    {
+     "word": "of",
+     "start": 71.583,
+     "end": 71.663
+    },
+    {
+     "word": "the",
+     "start": 71.703,
+     "end": 71.783
+    },
+    {
+     "word": "lies",
+     "start": 71.884,
+     "end": 73.325
+    },
+    {
+     "word": "Even",
+     "start": 73.466,
+     "end": 73.646
+    },
+    {
+     "word": "the",
+     "start": 73.686,
+     "end": 73.826
+    },
+    {
+     "word": "darkness",
+     "start": 73.946,
+     "end": 74.627
+    },
+    {
+     "word": "struggles",
+     "start": 74.747,
+     "end": 75.328
+    },
+    {
+     "word": "to",
+     "start": 75.408,
+     "end": 75.528
+    },
+    {
+     "word": "swallow",
+     "start": 75.668,
+     "end": 76.209
+    },
+    {
+     "word": "what's",
+     "start": 76.95,
+     "end": 77.371
+    },
+    {
+     "word": "inside",
+     "start": 77.391,
+     "end": 81.456
+    }
+   ]
+  },
+  {
+   "start": 87.224,
+   "end": 115.78,
+   "text": " And so am I I won't need fists I won't need fire I'll tear through your lies With every word you try to silence I'm coming, I'm coming I'm not preparing anymore",
+   "words": [
+    {
+     "word": "And",
+     "start": 87.224,
+     "end": 87.584
+    },
+    {
+     "word": "so",
+     "start": 87.705,
+     "end": 88.205
+    },
+    {
+     "word": "am",
+     "start": 88.225,
+     "end": 88.305
+    },
+    {
+     "word": "I",
+     "start": 89.247,
+     "end": 89.267
+    },
+    {
+     "word": "I",
+     "start": 94.533,
+     "end": 94.553
+    },
+    {
+     "word": "won't",
+     "start": 94.573,
+     "end": 95.034
+    },
+    {
+     "word": "need",
+     "start": 95.234,
+     "end": 95.434
+    },
+    {
+     "word": "fists",
+     "start": 95.595,
+     "end": 98.178
+    },
+    {
+     "word": "I",
+     "start": 98.198,
+     "end": 98.218
+    },
+    {
+     "word": "won't",
+     "start": 98.238,
+     "end": 98.678
+    },
+    {
+     "word": "need",
+     "start": 98.739,
+     "end": 99.039
+    },
+    {
+     "word": "fire",
+     "start": 99.199,
+     "end": 99.72
+    },
+    {
+     "word": "I'll",
+     "start": 100.961,
+     "end": 101.041
+    },
+    {
+     "word": "tear",
+     "start": 101.662,
+     "end": 102.303
+    },
+    {
+     "word": "through",
+     "start": 102.343,
+     "end": 102.563
+    },
+    {
+     "word": "your",
+     "start": 102.623,
+     "end": 102.784
+    },
+    {
+     "word": "lies",
+     "start": 103.424,
+     "end": 103.505
+    },
+    {
+     "word": "With",
+     "start": 103.945,
+     "end": 104.165
+    },
+    {
+     "word": "every",
+     "start": 104.245,
+     "end": 104.526
+    },
+    {
+     "word": "word",
+     "start": 104.546,
+     "end": 105.087
+    },
+    {
+     "word": "you",
+     "start": 105.227,
+     "end": 105.427
+    },
+    {
+     "word": "try",
+     "start": 105.487,
+     "end": 106.028
+    },
+    {
+     "word": "to",
+     "start": 106.208,
+     "end": 108.631
+    },
+    {
+     "word": "silence",
+     "start": 112.616,
+     "end": 112.756
+    },
+    {
+     "word": "I'm",
+     "start": 112.776,
+     "end": 112.836
+    },
+    {
+     "word": "coming,",
+     "start": 113.017,
+     "end": 113.297
+    },
+    {
+     "word": "I'm",
+     "start": 113.317,
+     "end": 113.477
+    },
+    {
+     "word": "coming",
+     "start": 113.557,
+     "end": 113.677
+    },
+    {
+     "word": "I'm",
+     "start": 113.878,
+     "end": 113.938
+    },
+    {
+     "word": "not",
+     "start": 113.958,
+     "end": 114.158
+    },
+    {
+     "word": "preparing",
+     "start": 114.178,
+     "end": 114.699
+    },
+    {
+     "word": "anymore",
+     "start": 114.719,
+     "end": 115.78
+    }
+   ]
+  },
+  {
+   "start": 116.249,
+   "end": 133.245,
+   "text": " The shock is over I'm not frozen anymore I'm coming, I'm coming Straight as an arrow, locked on the truth I'm coming to save the man you left",
+   "words": [
+    {
+     "word": "The",
+     "start": 116.249,
+     "end": 116.65
+    },
+    {
+     "word": "shock",
+     "start": 116.77,
+     "end": 117.111
+    },
+    {
+     "word": "is",
+     "start": 117.131,
+     "end": 117.291
+    },
+    {
+     "word": "over",
+     "start": 117.432,
+     "end": 117.732
+    },
+    {
+     "word": "I'm",
+     "start": 118.153,
+     "end": 118.213
+    },
+    {
+     "word": "not",
+     "start": 121.139,
+     "end": 121.54
+    },
+    {
+     "word": "frozen",
+     "start": 121.56,
+     "end": 121.761
+    },
+    {
+     "word": "anymore",
+     "start": 124.527,
+     "end": 124.667
+    },
+    {
+     "word": "I'm",
+     "start": 124.687,
+     "end": 124.747
+    },
+    {
+     "word": "coming,",
+     "start": 124.767,
+     "end": 124.907
+    },
+    {
+     "word": "I'm",
+     "start": 124.927,
+     "end": 124.988
+    },
+    {
+     "word": "coming",
+     "start": 125.008,
+     "end": 125.148
+    },
+    {
+     "word": "Straight",
+     "start": 125.248,
+     "end": 125.729
+    },
+    {
+     "word": "as",
+     "start": 125.749,
+     "end": 125.809
+    },
+    {
+     "word": "an",
+     "start": 125.889,
+     "end": 125.97
+    },
+    {
+     "word": "arrow,",
+     "start": 126.11,
+     "end": 126.33
+    },
+    {
+     "word": "locked",
+     "start": 126.992,
+     "end": 127.473
+    },
+    {
+     "word": "on",
+     "start": 127.493,
+     "end": 127.593
+    },
+    {
+     "word": "the",
+     "start": 127.613,
+     "end": 127.673
+    },
+    {
+     "word": "truth",
+     "start": 127.814,
+     "end": 128.114
+    },
+    {
+     "word": "I'm",
+     "start": 128.776,
+     "end": 128.836
+    },
+    {
+     "word": "coming",
+     "start": 128.976,
+     "end": 130.319
+    },
+    {
+     "word": "to",
+     "start": 130.339,
+     "end": 130.379
+    },
+    {
+     "word": "save",
+     "start": 130.399,
+     "end": 130.479
+    },
+    {
+     "word": "the",
+     "start": 130.499,
+     "end": 130.559
+    },
+    {
+     "word": "man",
+     "start": 130.579,
+     "end": 131.04
+    },
+    {
+     "word": "you",
+     "start": 131.121,
+     "end": 131.421
+    },
+    {
+     "word": "left",
+     "start": 131.481,
+     "end": 133.245
+    }
+   ]
+  },
+  {
+   "start": 145.679,
+   "end": 172.783,
+   "text": " I've still got air, I've still got breath I've still got words you haven't heard yet My mind is clear, my eyes are open You don't get to break me and call me broken I remember the silence, I remember the shot The words that came too late, the things I couldn't say But that man isn't waiting anymore",
+   "words": [
+    {
+     "word": "I've",
+     "start": 145.679,
+     "end": 145.839
+    },
+    {
+     "word": "still",
+     "start": 145.859,
+     "end": 146.14
+    },
+    {
+     "word": "got",
+     "start": 146.34,
+     "end": 146.58
+    },
+    {
+     "word": "air,",
+     "start": 146.701,
+     "end": 147.041
+    },
+    {
+     "word": "I've",
+     "start": 147.362,
+     "end": 147.502
+    },
+    {
+     "word": "still",
+     "start": 147.602,
+     "end": 147.943
+    },
+    {
+     "word": "got",
+     "start": 148.143,
+     "end": 148.363
+    },
+    {
+     "word": "breath",
+     "start": 148.604,
+     "end": 148.944
+    },
+    {
+     "word": "I've",
+     "start": 149.165,
+     "end": 149.305
+    },
+    {
+     "word": "still",
+     "start": 149.405,
+     "end": 149.866
+    },
+    {
+     "word": "got",
+     "start": 149.966,
+     "end": 150.206
+    },
+    {
+     "word": "words",
+     "start": 150.407,
+     "end": 150.827
+    },
+    {
+     "word": "you",
+     "start": 150.867,
+     "end": 151.068
+    },
+    {
+     "word": "haven't",
+     "start": 151.108,
+     "end": 151.468
+    },
+    {
+     "word": "heard",
+     "start": 151.549,
+     "end": 152.129
+    },
+    {
+     "word": "yet",
+     "start": 152.19,
+     "end": 152.51
+    },
+    {
+     "word": "My",
+     "start": 152.65,
+     "end": 152.911
+    },
+    {
+     "word": "mind",
+     "start": 153.071,
+     "end": 153.692
+    },
+    {
+     "word": "is",
+     "start": 153.712,
+     "end": 153.772
+    },
+    {
+     "word": "clear,",
+     "start": 154.533,
+     "end": 154.654
+    },
+    {
+     "word": "my",
+     "start": 154.674,
+     "end": 154.894
+    },
+    {
+     "word": "eyes",
+     "start": 155.315,
+     "end": 155.535
+    },
+    {
+     "word": "are",
+     "start": 155.675,
+     "end": 155.755
+    },
+    {
+     "word": "open",
+     "start": 155.896,
+     "end": 156.477
+    },
+    {
+     "word": "You",
+     "start": 156.557,
+     "end": 156.657
+    },
+    {
+     "word": "don't",
+     "start": 156.717,
+     "end": 157.138
+    },
+    {
+     "word": "get",
+     "start": 157.178,
+     "end": 157.418
+    },
+    {
+     "word": "to",
+     "start": 157.478,
+     "end": 157.658
+    },
+    {
+     "word": "break",
+     "start": 157.759,
+     "end": 158.059
+    },
+    {
+     "word": "me",
+     "start": 158.099,
+     "end": 158.239
+    },
+    {
+     "word": "and",
+     "start": 158.32,
+     "end": 158.42
+    },
+    {
+     "word": "call",
+     "start": 158.52,
+     "end": 159.161
+    },
+    {
+     "word": "me",
+     "start": 159.201,
+     "end": 159.361
+    },
+    {
+     "word": "broken",
+     "start": 159.441,
+     "end": 160.082
+    },
+    {
+     "word": "I",
+     "start": 160.223,
+     "end": 160.303
+    },
+    {
+     "word": "remember",
+     "start": 160.343,
+     "end": 160.964
+    },
+    {
+     "word": "the",
+     "start": 161.024,
+     "end": 161.084
+    },
+    {
+     "word": "silence,",
+     "start": 161.204,
+     "end": 161.865
+    },
+    {
+     "word": "I",
+     "start": 162.026,
+     "end": 162.106
+    },
+    {
+     "word": "remember",
+     "start": 162.166,
+     "end": 162.767
+    },
+    {
+     "word": "the",
+     "start": 162.827,
+     "end": 162.887
+    },
+    {
+     "word": "shot",
+     "start": 163.027,
+     "end": 163.488
+    },
+    {
+     "word": "The",
+     "start": 163.508,
+     "end": 163.608
+    },
+    {
+     "word": "words",
+     "start": 163.648,
+     "end": 163.909
+    },
+    {
+     "word": "that",
+     "start": 163.949,
+     "end": 164.069
+    },
+    {
+     "word": "came",
+     "start": 164.129,
+     "end": 164.369
+    },
+    {
+     "word": "too",
+     "start": 164.429,
+     "end": 164.83
+    },
+    {
+     "word": "late,",
+     "start": 164.85,
+     "end": 165.191
+    },
+    {
+     "word": "the",
+     "start": 165.271,
+     "end": 165.391
+    },
+    {
+     "word": "things",
+     "start": 165.451,
+     "end": 165.732
+    },
+    {
+     "word": "I",
+     "start": 165.812,
+     "end": 165.892
+    },
+    {
+     "word": "couldn't",
+     "start": 165.932,
+     "end": 166.513
+    },
+    {
+     "word": "say",
+     "start": 166.613,
+     "end": 167.094
+    },
+    {
+     "word": "But",
+     "start": 167.354,
+     "end": 167.414
+    },
+    {
+     "word": "that",
+     "start": 167.434,
+     "end": 167.615
+    },
+    {
+     "word": "man",
+     "start": 167.755,
+     "end": 168.396
+    },
+    {
+     "word": "isn't",
+     "start": 170.98,
+     "end": 171.22
+    },
+    {
+     "word": "waiting",
+     "start": 171.341,
+     "end": 171.922
+    },
+    {
+     "word": "anymore",
+     "start": 172.022,
+     "end": 172.783
+    }
+   ]
+  },
+  {
+   "start": 174.704,
+   "end": 202.669,
+   "text": " I'm coming for him I'm coming for me I'm coming, I'm coming No more standing Silent in the stars I'm coming, I'm coming I know exactly",
+   "words": [
+    {
+     "word": "I'm",
+     "start": 174.704,
+     "end": 175.024
+    },
+    {
+     "word": "coming",
+     "start": 175.044,
+     "end": 175.385
+    },
+    {
+     "word": "for",
+     "start": 175.465,
+     "end": 175.765
+    },
+    {
+     "word": "him",
+     "start": 175.825,
+     "end": 176.245
+    },
+    {
+     "word": "I'm",
+     "start": 178.387,
+     "end": 178.447
+    },
+    {
+     "word": "coming",
+     "start": 178.507,
+     "end": 179.088
+    },
+    {
+     "word": "for",
+     "start": 179.168,
+     "end": 179.448
+    },
+    {
+     "word": "me",
+     "start": 179.508,
+     "end": 186.274
+    },
+    {
+     "word": "I'm",
+     "start": 186.294,
+     "end": 186.354
+    },
+    {
+     "word": "coming,",
+     "start": 186.374,
+     "end": 186.515
+    },
+    {
+     "word": "I'm",
+     "start": 186.535,
+     "end": 186.595
+    },
+    {
+     "word": "coming",
+     "start": 186.615,
+     "end": 186.735
+    },
+    {
+     "word": "No",
+     "start": 186.755,
+     "end": 186.995
+    },
+    {
+     "word": "more",
+     "start": 187.015,
+     "end": 187.255
+    },
+    {
+     "word": "standing",
+     "start": 187.455,
+     "end": 190.138
+    },
+    {
+     "word": "Silent",
+     "start": 190.158,
+     "end": 192.06
+    },
+    {
+     "word": "in",
+     "start": 196.544,
+     "end": 196.584
+    },
+    {
+     "word": "the",
+     "start": 196.744,
+     "end": 197.384
+    },
+    {
+     "word": "stars",
+     "start": 198.065,
+     "end": 198.205
+    },
+    {
+     "word": "I'm",
+     "start": 198.225,
+     "end": 198.285
+    },
+    {
+     "word": "coming,",
+     "start": 201.028,
+     "end": 201.208
+    },
+    {
+     "word": "I'm",
+     "start": 201.228,
+     "end": 201.288
+    },
+    {
+     "word": "coming",
+     "start": 201.308,
+     "end": 201.428
+    },
+    {
+     "word": "I",
+     "start": 201.448,
+     "end": 201.468
+    },
+    {
+     "word": "know",
+     "start": 201.488,
+     "end": 201.628
+    },
+    {
+     "word": "exactly",
+     "start": 201.648,
+     "end": 202.669
+    }
+   ]
+  },
+  {
+   "start": 217.82,
+   "end": 238.174,
+   "text": " I won't abandon me Tell me How do you speak to people So lost in evil",
+   "words": [
+    {
+     "word": "I",
+     "start": 217.82,
+     "end": 223.97
+    },
+    {
+     "word": "won't",
+     "start": 223.99,
+     "end": 225.974
+    },
+    {
+     "word": "abandon",
+     "start": 226.074,
+     "end": 226.655
+    },
+    {
+     "word": "me",
+     "start": 226.715,
+     "end": 226.935
+    },
+    {
+     "word": "Tell",
+     "start": 229.76,
+     "end": 229.96
+    },
+    {
+     "word": "me",
+     "start": 230.0,
+     "end": 230.101
+    },
+    {
+     "word": "How",
+     "start": 232.925,
+     "end": 233.065
+    },
+    {
+     "word": "do",
+     "start": 233.106,
+     "end": 233.186
+    },
+    {
+     "word": "you",
+     "start": 233.226,
+     "end": 233.346
+    },
+    {
+     "word": "speak",
+     "start": 233.426,
+     "end": 233.807
+    },
+    {
+     "word": "to",
+     "start": 233.867,
+     "end": 233.967
+    },
+    {
+     "word": "people",
+     "start": 234.047,
+     "end": 234.488
+    },
+    {
+     "word": "So",
+     "start": 236.772,
+     "end": 236.972
+    },
+    {
+     "word": "lost",
+     "start": 237.072,
+     "end": 237.513
+    },
+    {
+     "word": "in",
+     "start": 237.653,
+     "end": 237.733
+    },
+    {
+     "word": "evil",
+     "start": 237.853,
+     "end": 238.174
+    }
+   ]
+  },
+  {
+   "start": 247.857,
+   "end": 253.497,
+   "text": " Maybe you just... Stop letting them.",
+   "words": [
+    {
+     "word": "Maybe",
+     "start": 247.857,
+     "end": 248.199
+    },
+    {
+     "word": "you",
+     "start": 248.24,
+     "end": 248.361
+    },
+    {
+     "word": "just...",
+     "start": 248.421,
+     "end": 252.107
+    },
+    {
+     "word": "Stop",
+     "start": 252.389,
+     "end": 252.752
+    },
+    {
+     "word": "letting",
+     "start": 252.812,
+     "end": 253.114
+    },
+    {
+     "word": "them.",
+     "start": 253.135,
+     "end": 253.497
+    }
+   ]
+  },
+  {
+   "start": 277.456,
+   "end": 279.973,
+   "text": " you",
+   "words": [
+    {
+     "word": "you",
+     "start": 277.456,
+     "end": 279.973
+    }
+   ]
+  }
+ ]
+}
