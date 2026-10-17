@@ -58,6 +58,40 @@ _Written 2026-10-17. Plan only; nothing in it is built yet. Roman decides the or
 3. Each release is checked out into `releases/<sha>/`; a symlink `current` is switched atomically. Rollback = pin an older SHA. The last five releases are kept.
 4. After switching, the job requests the front page and both songs through the tunnel and switches back if any fails.
 
+**Alternative: push from this Mac over SSH (Roman's preferred flow, 2026-10-17).** Instead of the Air pulling from a repo, this Mac builds and pushes; the Air never holds the source or a repo at all.
+
+| Command | What it does |
+|---|---|
+| `./deploy.sh` | Deploys the latest commit |
+| `./deploy.sh <sha>` | Deploys that exact version |
+| `./deploy.sh rollback` | Puts the previous release back |
+| `./deploy.sh list` | Shows the releases on the Air and which one is live |
+
+One deploy:
+1. Checks the commit out into a temporary worktree, runs the build tool and the gates (O2–O9). Any failure: nothing is sent.
+2. `rsync` over SSH of `dist/` only into `releases/<sha>/` on the Air.
+3. Switches the `current` link in one step (`ln -shf`); Caddy always serves `current`, so no visitor sees a half-copied site.
+4. Health check through the public address (front page and both songs); on failure it switches straight back.
+5. Appends time and SHA to a deploy log on the Air; keeps the last five releases.
+
+Triggers, any combination:
+- **Tag:** `git tag live-<name>` deploys that commit (the clearest "this goes live").
+- **Push to main:** a local git hook deploys after each push.
+- **Manual:** the command only.
+
+SSH, set up once:
+- The Air: Remote Login on, for a dedicated non-admin user `web`.
+- This Mac: a deploy-only ed25519 key; on the Air its `authorized_keys` entry is limited to the home network (`from=`), with no port, agent or X11 forwarding and no shell beyond the copy and the switch.
+- `~/.ssh/config` host `air` → `MacBook-Air.local`.
+- **Away from home:** the tunnel carries only the website, not SSH. Tailscale (free) gives both Macs private addresses that work from anywhere without opening ports; Cloudflare Access for SSH also works with more setup.
+
+| # | Step | Effort | Tokens |
+|---|---|---|---|
+| S4b | `deploy.sh` (build in a worktree, gates, rsync, atomic switch, health check, rollback, list) + git hook + Air-side switch script + restricted key | M | 70–110k |
+| S4c | Tailscale for deploys from outside home (optional) | S | 15–25k |
+
+S4b replaces S4 (the pull-based puller) if this flow is chosen.
+
 **What the server can do that Pages can't.** Real headers (CSP, anti-framing, HSTS, permissions policy), real rewrites (line addresses could return without 404s), compression, cache rules per file type, and per-load renaming later if wanted.
 
 **Preparing the spare Mac.**

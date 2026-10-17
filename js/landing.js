@@ -2,8 +2,8 @@
 // black paper under one hard street light. Hover brightens a bill; a click walks into that song.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FACADE } from './layout.js?v=20261017140116';
-import { LINE_URLS } from './songs.js?v=20261017140116';
+import { FACADE } from './layout.js?v=20261017144812';
+import { LINE_URLS } from './songs.js?v=20261017144812';
 
 const EYE = 1.7;
 export function createLanding(scene, fonts, songs, root) {
