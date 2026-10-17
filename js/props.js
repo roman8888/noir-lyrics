@@ -2,8 +2,8 @@
 // awnings, figures (walkers, the crowd that turns its back, the two walking together), the drowning, embers, birds.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { rng, clamp } from './util.js?v=20261017124428';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261017124428';
+import { rng, clamp } from './util.js?v=20261017134008';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, LAMP_H, HERO, ZS, Z_START, Z_END } from './layout.js?v=20261017134008';
 
 const INK = () => new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
 const STEEL = () => new THREE.MeshStandardMaterial({ color: 0x1a1b1f, roughness: 0.55, metalness: 0.8 });
@@ -301,7 +301,7 @@ export function createProps(scene, city, timing, fonts, route, songInfo = { titl
     const tp = new THREE.Mesh(new THREE.CapsuleGeometry(0.028, 0.16, 3, 6), handMat); tp.rotation.x = Math.PI / 2; tp.position.z = 0.1; thumb.add(tp);
     const ang = (i / 12) * Math.PI * 2 + (r() - 0.5) * 0.3, radius = 0.16 + (i % 3) * 0.07, tilt = 0.55 + r() * 0.5;   // a ring of hands around the lens, the centre stays clear
     arm.userData = { ang, radius, tilt, delay: r(), ph: r() * 6, elbow, wrist, fingers, thumb, sway: (r() - 0.5) * 0.4 };
-    pool.add(arm); hands.push(arm);
+    arm.userData.noPull = true; pool.add(arm); hands.push(arm);   // the hands reach for the lens by design: a line is never pulled in front of them
   }
   // rings on the water where the hands press
   const pressRings = [];
@@ -335,7 +335,7 @@ export function createProps(scene, city, timing, fonts, route, songInfo = { titl
     const drip = new THREE.Mesh(new THREE.CapsuleGeometry(0.03, 0.55, 4, 8), new THREE.MeshStandardMaterial({ color: 0x5a060a, roughness: 0.3 })); drip.position.set(-0.06, -0.55, 0.004); back.add(drip);
   }
   let eyesPlaced = false;
-  solid.push(...crowd, victim, ...hands, eyes);
+  solid.push(...crowd, victim, ...hands, eyes, backWall);   // (the backdrop wall stands inside the back lane in song 2: lines must not slip behind it)
 
   // ---- "my heart still breaks, but still it beats": a heart hangs by a chain from the wires under the line, beating, dripping
   const T_HEART = lineT('heart still breaks');

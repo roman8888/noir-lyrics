@@ -2,17 +2,17 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261017124428';
-import { fxFor, applyFx } from './fx.js?v=20261017124428';
-import { FACADE } from './layout.js?v=20261017124428';
-import { LOOKS, MOODS } from './songs.js?v=20261017124428';
+import { clamp, easeOutExpo } from './util.js?v=20261017134008';
+import { fxFor, applyFx } from './fx.js?v=20261017134008';
+import { FACADE } from './layout.js?v=20261017134008';
+import { LOOKS, MOODS } from './songs.js?v=20261017134008';
 
 // every word appears 0.2 s before its timestamp: Roman's ear test (the aligner marks vowel onsets a touch late); ?lead= overrides
 const LEAD_PARAM = parseFloat(new URLSearchParams(location.search).get('lead'));
 export const LEAD = Number.isFinite(LEAD_PARAM) ? Math.max(-1, Math.min(1, LEAD_PARAM)) : 0.2;
 const FLAT = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));   // text laid flat on the ground
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
-const edgeR = new THREE.Vector3(), edgeP = new THREE.Vector3();
+const edgeR = new THREE.Vector3(), edgeP = new THREE.Vector3(), occR = new THREE.Vector3(), occP = new THREE.Vector3(); let occTick = 0;
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607), COLD = new THREE.Color(0.62, 0.74, 0.9);
 const SMALL = new Set(['the','a','an','to','and','of','in','on','for','by','with','as','at','or','so','but','i','i\'m','i\'ll','you','your','you\'re','me','my','he','his','they','them','their','it','is','was','be','that','what','when','then','than','though','if','all','do','don\'t','who','there','were','will','would','we']);
 const KEYS = ['rain', 'warm', 'red', 'beam', 'dawn', 'cut', 'fog'];
@@ -237,6 +237,18 @@ export function createSong(fonts, scene, route, occluders = []) {
         if (want && !live.has(i)) build(i); else if (!want && live.has(i)) drop(i);
       }
 
+      // a building that comes between you and a line as you walk or turn: the line steps in front of it (checked every 4th frame,
+      // three rays: both ends and the middle), keeping its size on screen
+      if ((occTick++ & 3) === 0) for (const e of live.values()) {
+        if (e.a.noOcc || e.a.kind === 'room' || e.a.fall || !e.lineW) { e.wantD = 0; continue; }
+        const gp = e.group.position, d0 = gp.distanceTo(camera.position); let near = Infinity;
+        occR.set(1, 0, 0).applyQuaternion(e.group.quaternion).multiplyScalar(e.lineW * 0.5);
+        for (const sg of [-1, 0, 1]) { occP.copy(gp).addScaledVector(occR, sg).sub(camera.position); const Lr = occP.length(); occP.normalize(); occ.set(camera.position, occP); occ.far = Lr;
+          const hit = occ.intersectObjects(occluders, true).find(h => { for (let o = h.object; o; o = o.parent) if (!o.visible || o.userData?.noPull) return false; return true; });
+          if (hit && hit.distance < Lr - 0.3) near = Math.min(near, hit.distance * d0 / Lr); }
+        e.wantD = near < Infinity ? Math.max(1.6, near - 0.7) : 0; }
+      for (const e of live.values()) { if (!e.wantD) continue; const gp = e.group.position, d = gp.distanceTo(camera.position); if (d <= e.wantD + 0.05) continue;
+        const nd = d + (e.wantD - d) * Math.min(1, dt * 5); gp.sub(camera.position).multiplyScalar(nd / d).add(camera.position); e.group.scale.multiplyScalar(nd / d); e.hgt *= nd / d; if (e.lineW) e.lineW *= nd / d; }
       // under the water the line rides the gaze itself: 3 m along wherever the eyes are (they look up at the hands)
       for (const e of live.values()) { if (!e.a.noOcc) continue; camera.getWorldDirection(edgeR); e.group.position.copy(camera.position).addScaledVector(edgeR, 3.0); e.group.quaternion.copy(camera.quaternion); }
       // a long-sung line is carried: it moves with your walk (level, not your bob) until its last word is sung
