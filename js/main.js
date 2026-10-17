@@ -7,15 +7,15 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261017103213';
-import { createProps } from './props.js?v=20261017103213';
-import { createSky } from './sky.js?v=20261017103213';
-import { createRoute } from './route.js?v=20261017103213';
-import { createSong, LEAD } from './song.js?v=20261017103213';
-import { SONGS } from './songs.js?v=20261017103213';
-import { clamp, fmt, toLRC } from './util.js?v=20261017103213';
-import { createLanding } from './landing.js?v=20261017103213';
-import { createDrops } from './drops.js?v=20261017103213';
+import { createCity } from './city.js?v=20261017103440';
+import { createProps } from './props.js?v=20261017103440';
+import { createSky } from './sky.js?v=20261017103440';
+import { createRoute } from './route.js?v=20261017103440';
+import { createSong, LEAD } from './song.js?v=20261017103440';
+import { SONGS } from './songs.js?v=20261017103440';
+import { clamp, fmt, toLRC } from './util.js?v=20261017103440';
+import { createLanding } from './landing.js?v=20261017103440';
+import { createDrops } from './drops.js?v=20261017103440';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -176,6 +176,11 @@ if (!PLAYLIST_PAGE) { $('plist').hidden = false; const ol = $('plist').querySele
     li.addEventListener('click', () => { location.href = ROOT + sg.slug + '/'; }); ol.appendChild(li); });
 }
 $('again').addEventListener('click', () => { $('ending').hidden = true; $('player').hidden = false; song.reset(); dropsFallen = 0; $('titles').classList.remove('off'); audio.currentTime = 0; audio.play(); });
+$('ringbtn').querySelector('.ring').addEventListener('click', e => {   // a click on the ring seeks by angle (12 o'clock = the start)
+  const r = e.currentTarget.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+  if (Math.hypot(dx, dy) < r.width * 0.34) return;                                                   // the button itself
+  const frac = ((Math.atan2(dx, -dy) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI * 2);
+  const D = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : (current.duration || 0); if (D) audio.currentTime = frac * D; e.stopPropagation(); });
 $('bar').addEventListener('click', e => { const r = e.currentTarget.getBoundingClientRect(); const D = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : (current.duration || 0); if (D) audio.currentTime = clamp((e.clientX - r.left) / r.width) * D; });
 let tapping = false, tapIdx = 0;
 const tapLines = () => song.lines().filter(l => !l.title);
@@ -240,6 +245,7 @@ function frame(once) {
   const DUR = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : (current.duration || 0);
   if (DUR) $('fill').style.width = `${(t / DUR) * 100}%`;
   $('clock').textContent = `${fmt(t)} / ${fmt(DUR)}`;
+  $('ringfill').style.strokeDashoffset = (182.2 * (1 - (DUR > 0 ? clamp(t / DUR) : 0))).toFixed(1);   // the ring round the play button is the progress
   idleTimer += dt; if (idleTimer > 2.5 && !audio.paused && !tapping) $('player').classList.add('idle');
   if (!LANDING) markLyrics(t + LEAD);                                    // the panel keeps step with the words
   while (!LANDING && dropsFallen < 5 && t >= DROP_AT[dropsFallen]) { drops.drop(5 - dropsFallen); dropsFallen++; }

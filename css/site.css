@@ -207,3 +207,15 @@ body.home #lyopen, body.home #player { display: none; }
 #mute.ask { position: relative; animation: askpulse 1.6s ease-in-out infinite; }
 #mute.ask::after { content: 'tap for sound'; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 2px; white-space: nowrap; font: italic 13px/1 'Playfair Display', Georgia, serif; color: #c8102e; letter-spacing: .04em; }
 @keyframes askpulse { 0%, 100% { filter: drop-shadow(0 0 0 rgba(200,16,46,0)); } 50% { filter: drop-shadow(0 0 7px rgba(200,16,46,.9)); } }
+
+/* the strip: the progress ring round the play button docked far left, the time beside it, the labelled view group far right */
+#bar { display: none; }
+#ringbtn { position: relative; width: 64px; height: 64px; display: inline-flex; align-items: center; justify-content: center; flex: none; margin-right: 6px; cursor: pointer; }
+#ringbtn .ring { position: absolute; inset: 0; width: 64px; height: 64px; }
+#ringbtn #pp { position: relative; }
+#pctl .grp { display: flex; align-items: flex-start; }
+#pctl .ic.lab { flex-direction: column; height: 50px; width: 54px; gap: 3px; }
+#pctl .ic.lab s { text-decoration: none; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: rgba(236,232,225,.42); font-style: normal; }
+#pctl .ic.lab:hover s { color: var(--paper); }
+#mute.ask::after { bottom: 100%; }
+@media (max-width: 760px) { #pctl .ic.lab { width: 46px; } #pctl .grp a[href="about/"] { display: none; } #ringbtn { width: 56px; height: 56px; } #ringbtn .ring { width: 56px; height: 56px; } }

@@ -15,7 +15,7 @@
 <title>Roman — When God Wants to Make You Stronger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=20261017103213">
+<link rel="stylesheet" href="css/site.css?v=20261017103440">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -90,17 +90,19 @@
   <div id="pbottom">
     <div id="bar"><div id="fill"></div></div>
     <div id="pctl">
-      <button id="lowpower" hidden title="pre-recorded (low-power mode) · tap for the live city" aria-label="pre-recorded, tap for the live city"><i></i><span>rec</span></button>
+      <span id="ringbtn"><svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="none" stroke="rgba(236,232,225,.16)" stroke-width="2"/><circle id="ringfill" cx="32" cy="32" r="29" fill="none" stroke="#d8281f" stroke-width="2" stroke-linecap="round" stroke-dasharray="182.2" stroke-dashoffset="182.2" transform="rotate(-90 32 32)"/></svg>
+        <button id="pp" class="ic big" aria-label="play or pause"><svg class="when-paused"><use href="#i-play"/></svg><svg class="when-playing"><use href="#i-pause"/></svg></button></span>
       <span id="clock">0:00</span>
+      <button id="lowpower" hidden title="pre-recorded (low-power mode) · tap for the live city" aria-label="pre-recorded, tap for the live city"><i></i><span>rec</span></button>
       <span class="grow"></span>
-      <button id="pp" class="ic big" aria-label="play or pause"><svg class="when-paused"><use href="#i-play"/></svg><svg class="when-playing"><use href="#i-pause"/></svg></button>
-      <span class="grow"></span>
-      <button id="restart" class="ic" title="reset to the top" aria-label="reset"><svg><use href="#i-stop"/></svg></button>
-      <button id="mute" class="ic" title="mute (m)" aria-label="mute"><svg class="when-sound"><use href="#i-sound"/></svg><svg class="when-muted"><use href="#i-muted"/></svg></button>
-      <button id="fs" class="ic" title="fullscreen (f)" aria-label="fullscreen"><svg><use href="#i-full"/></svg></button>
-      <a id="nextsong" class="ic" href="./" title="next song" aria-label="next song"><svg><use href="#i-next"/></svg></a>
-      <button id="lyr" class="ic" hidden title="lyrics + playlist (l)" aria-label="lyrics"><svg><use href="#i-lyrics"/></svg></button>
-      <a class="ic" href="about/" title="about" aria-label="about"><svg><use href="#i-info"/></svg></a>
+      <span class="grp">
+        <button id="restart" class="ic lab" title="reset to the top" aria-label="reset"><svg><use href="#i-stop"/></svg><s>reset</s></button>
+        <button id="lyr" class="ic lab" hidden title="lyrics + playlist (l)" aria-label="lyrics"><svg><use href="#i-lyrics"/></svg><s>lyrics</s></button>
+        <button id="mute" class="ic lab" title="mute (m)" aria-label="mute"><svg class="when-sound"><use href="#i-sound"/></svg><svg class="when-muted"><use href="#i-muted"/></svg><s>sound</s></button>
+        <button id="fs" class="ic lab" title="fullscreen (f)" aria-label="fullscreen"><svg><use href="#i-full"/></svg><s>full</s></button>
+        <a id="nextsong" class="ic lab" href="./" title="next song" aria-label="next song"><svg><use href="#i-next"/></svg><s>next</s></a>
+        <a class="ic lab" href="about/" title="about" aria-label="about"><svg><use href="#i-info"/></svg><s>about</s></a>
+      </span>
       <span id="tools" hidden>
         <button id="tap" title="Enter stamps the next line">tap-sync</button>
         <button id="save">save .lrc</button>
@@ -115,6 +117,6 @@
 </div>
 <div id="loading"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M58 14 v44 a11 9 0 1 1 -5 -7.4 V14 Z" fill="#ece8e1"/><path d="M58 14 c10 6 16 12 16 22 c0 6 -4 9 -8 12 c3 -8 1 -14 -8 -20 Z" fill="#d8281f"/><path class="drop" d="M66 48 c0 0 -5 7 -5 10 a5 5 0 0 0 10 0 c0 -3 -5 -10 -5 -10Z" fill="#d8281f"/></svg><span>hyperfeeling</span></div>
 
-<script type="module" src="js/main.js?v=20261017103213"></script>
+<script type="module" src="js/main.js?v=20261017103440"></script>
 </body>
 </html>
