@@ -2,8 +2,8 @@
 // storyboard follows the words wherever the timing puts them. Rules as ever: dark city, red = blood, no yellow.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FACADE, ROW2, CHURCH, lampZs } from './layout.js?v=20261017010226';
-import { rng, clamp } from './util.js?v=20261017010226';
+import { FACADE, ROW2, CHURCH, lampZs } from './layout.js?v=20261017094556';
+import { rng, clamp } from './util.js?v=20261017094556';
 
 const ease = x => 1 - Math.pow(1 - clamp(x), 3);
 const smooth = x => { x = clamp(x); return x * x * (3 - 2 * x); };
@@ -80,6 +80,7 @@ export function createProps2(scene, city, timing, fonts, route, props) {
   let flickAt = null;
   // ---- "just how rotten you really are" / "Even the darkness struggles to swallow what's inside": the avenue goes dark around you
   const T_ROTTEN = wordT(/how rotten/i, /^rotten/i), T_DARK = T(/darkness struggles/i), T_WAIT = T(/^just wait/i);
+  const T_SWALLOW = T(/swallow what's inside/i), T_GUST = T(/find the air/i);   // the city swallowed whole for that one line; the air pushed up from the road
 
   // ---- "Karma is coming": the word rises out of the road ahead and bars the street, swivelling like the R
   const T_KARMA = wordT(/karma is coming/i, /^karma/i), T_SOAMI = T(/and so am i/i);
@@ -96,6 +97,29 @@ export function createProps2(scene, city, timing, fonts, route, props) {
   const flames = new THREE.Points(flameGeo, new THREE.PointsMaterial({ map: puff, size: 0.4, transparent: true, depthWrite: false, opacity: 0.75, vertexColors: true, blending: THREE.AdditiveBlending })); flames.visible = false; scene.add(flames);
   const fireLight = new THREE.PointLight(0xff4a14, 0, 8, 1.8); scene.add(fireLight);
   const fireAt = new THREE.Vector3(); let fireLife = 0, fireW = 1;
+  // "I won't need fire": the whole lane burns — flames climb both walls, the sky goes ember, four fire lights roam
+  const T_FIRE = T(/won't need fire/i), CF = 1800, cfPos = new Float32Array(CF * 3), cfCol = new Float32Array(CF * 3), cfLife = new Float32Array(CF).map(() => r()), cfSeed = new Float32Array(CF * 3).map(() => r());
+  const cfGeo = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(cfPos, 3)).setAttribute('color', new THREE.BufferAttribute(cfCol, 3));
+  const cityFire = new THREE.Points(cfGeo, new THREE.PointsMaterial({ map: puff, size: 1.1, transparent: true, depthWrite: false, opacity: 0.85, vertexColors: true, blending: THREE.AdditiveBlending })); cityFire.visible = false; scene.add(cityFire);
+  const fireLights = [0, 1, 2, 3].map(() => { const L = new THREE.PointLight(0xff5a12, 0, 30, 1.6); scene.add(L); return L; });
+  let cityFireZ = null;
+  // "Maybe you don't": a huge door swings across the lane and slams shut, BLOCKED across its face
+  const T_BLOCK = T(/^maybe you don't/i);
+  const door = new THREE.Group(); door.visible = false; scene.add(door);
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0x0b0a0a, roughness: 0.55, metalness: 0.6 });
+  const leaf = new THREE.Mesh(new THREE.BoxGeometry(8.6, 26, 0.9), doorMat); leaf.position.set(4.3, 13, 0); door.add(leaf);   // hinged on the group origin (the left wall), as tall as the lane walls
+  const doorRim = new THREE.Mesh(new THREE.BoxGeometry(8.9, 26.3, 0.3), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.2, 0.06, 0.04), transparent: true, opacity: 0 })); doorRim.position.set(4.3, 13, -0.35); door.add(doorRim);   // the red edge-light bleeding round the leaf
+  const studs = new THREE.InstancedMesh(new THREE.SphereGeometry(0.16, 8, 6), new THREE.MeshStandardMaterial({ color: 0x3a3230, roughness: 0.4, metalness: 0.8 }), 56);
+  { const M2 = new THREE.Matrix4(); for (let i = 0; i < 56; i++) { M2.makeTranslation(0.6 + (i % 8) * 1.05, 1.2 + Math.floor(i / 8) * 3.6, 0.5); studs.setMatrixAt(i, M2); } studs.instanceMatrix.needsUpdate = true; door.add(studs); }
+  const DN = 500, dPos = new Float32Array(DN * 3), dVel = new Float32Array(DN * 3), dGeo = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(dPos, 3));
+  const dust = new THREE.Points(dGeo, new THREE.PointsMaterial({ map: puff, size: 0.7, transparent: true, depthWrite: false, opacity: 0, color: 0x8a847c })); dust.visible = false; scene.add(dust); let dustInit = false;
+  const blocked = new THREE.Group(); [...'BLOCKED'].forEach((ch, k) => { const m = glyph(ch, 1.25, blood(), 0.2); m.position.set(1.0 + k * 1.1, 8.4, 0.6); m.userData.k = k; blocked.add(m); }); door.add(blocked);
+  const doorLight = new THREE.PointLight(0xff2a1a, 0, 24, 1.6); doorLight.position.set(4.3, 7, 4); door.add(doorLight);
+  let doorZ = null;
+  // the end: I'M COMING stands over the end of the lane, seen from the drone shot
+  const sign = new THREE.Group(); sign.visible = false; scene.add(sign);
+  const sLetters = [...'I AM COMING'].map((ch, k) => { if (ch === ' ') return null; const m = glyph(ch, 4.2, blood(), 0.6); m.position.x = (k - 5) * 3.9; sign.add(m); return m; }).filter(Boolean);
+  const sLight = new THREE.PointLight(0xff2a2a, 0, 90, 1.3); sLight.position.set(0, 2, 14); sign.add(sLight);
 
   // ---- "I'll tear through your lies": LIES stands across the street ahead; the words tear it apart
   const T_TEAR = wordT(/tear through your lies/i, /^tear/i), T_LIES_SHOW = T(/won't need fists/i);
@@ -116,7 +140,7 @@ export function createProps2(scene, city, timing, fonts, route, props) {
   // ---- the last line: "stop letting them speak for you" — the city's lamps go out one by one down the avenue;
   //      only yours stays, and the red R far ahead
   const T_LAST = T(/stop letting them speak for you/i);
-  let outLamps = null; const R = () => scene.getObjectByName('towerR');
+  let outLamps = null; const R = () => scene.getObjectByName('towerR'); const towerText = [];
 
   // ---- the back lane's light: bulbs on wires every 22 m; six real lights ride along with the camera to the nearest bulbs
   const LANE = -23, bulbs = [], bulbMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.6, 2.0, 1.3) }), wireMat = new THREE.LineBasicMaterial({ color: 0x0a0a0c });
@@ -125,6 +149,12 @@ export function createProps2(scene, city, timing, fonts, route, props) {
     const w = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-19, 5.6, z), new THREE.Vector3(b.position.x, b.position.y + 0.1, z), new THREE.Vector3(-27, 5.7, z)]), wireMat); scene.add(w);
     bulbs.push({ mesh: b, on: 1 });
   }
+  // the air: a gust of it up from the road (points) and winds racing through the lane (long faint streaks)
+  const GN = 900, gustPos = new Float32Array(GN * 3), gustVel = new Float32Array(GN * 3), gustGeo = new THREE.BufferGeometry(); gustGeo.setAttribute('position', new THREE.BufferAttribute(gustPos, 3));
+  const gust = new THREE.Points(gustGeo, new THREE.PointsMaterial({ map: puff, size: 0.16, transparent: true, depthWrite: false, opacity: 0, color: new THREE.Color(0.75, 0.82, 0.95), blending: THREE.AdditiveBlending })); gust.visible = false; scene.add(gust);
+  const WN = 36, winds = new THREE.InstancedMesh(new THREE.PlaneGeometry(7, 0.05), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.7, 0.78, 0.9), transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }), WN); winds.visible = false; scene.add(winds);
+  const windSeed = Array.from({ length: WN }, (_, i) => ({ x: (r() - 0.5) * 7, y: 0.8 + r() * 5, z0: r() * 60, sp: 22 + r() * 14, ph: r() * 6.3, yaw: (r() - 0.5) * 0.25 }));
+  let gustInit = false; const _m4 = new THREE.Matrix4(), _q = new THREE.Quaternion(), _s = new THREE.Vector3(1, 1, 1), _p = new THREE.Vector3();
   const laneLights = []; for (let i = 0; i < 6; i++) { const L = new THREE.PointLight(0xffc27a, 0, 16, 1.8); scene.add(L); laneLights.push(L); }
   const lightTheLane = cp => {
     const near = bulbs.map(b => ({ b, d: Math.abs(b.mesh.position.z - cp.z) })).sort((a, b) => a.d - b.d).slice(0, 6);
@@ -236,11 +266,25 @@ export function createProps2(scene, city, timing, fonts, route, props) {
           m.position.copy(flickAt.p).addScaledVector(flickAt.f, u.dz).addScaledVector(flickAt.r, u.dx); m.position.y = u.dy;
           m.quaternion.copy(camera.quaternion); m.material.opacity = o * 0.9; m.scale.setScalar(0.85 + 0.3 * o); });
       } else flick.forEach(m => (m.visible = false));
-      // -- the dark: rotten (a breath of it), then the darkness that struggles to swallow (the whole avenue) until "Just wait"
+      // -- the air, found: a gust up from the road and winds through the lane (the rain whipped with it)
+      if (T_GUST > 0 && t > T_GUST - 0.2 && t < T_GUST + 4.5) {
+        const k = t - T_GUST + 0.2, up = Math.min(1, k / 0.5), fade = 1 - smooth((k - 3.2) / 1.3);
+        if (!gustInit) { gustInit = true; for (let i = 0; i < GN; i++) { gustPos[i * 3] = cp.x + (r() - 0.5) * 7; gustPos[i * 3 + 1] = 0.05 + r() * 0.3; gustPos[i * 3 + 2] = cp.z - 2 - r() * 16; gustVel[i * 3] = (r() - 0.5) * 2.5; gustVel[i * 3 + 1] = 5 + r() * 9; gustVel[i * 3 + 2] = -(2 + r() * 10); } }
+        for (let i = 0; i < GN; i++) { const d = dt * up; gustPos[i * 3] += gustVel[i * 3] * d; gustPos[i * 3 + 1] += gustVel[i * 3 + 1] * d; gustPos[i * 3 + 2] += gustVel[i * 3 + 2] * d; gustVel[i * 3 + 1] -= 2.5 * d;
+          if (gustPos[i * 3 + 1] > 22 || gustPos[i * 3 + 1] < 0) { gustPos[i * 3] = cp.x + (r() - 0.5) * 7; gustPos[i * 3 + 1] = 0.05; gustPos[i * 3 + 2] = cp.z - 2 - r() * 16; gustVel[i * 3 + 1] = 5 + r() * 9; } }
+        gustGeo.attributes.position.needsUpdate = true; gust.visible = true; gust.material.opacity = 0.5 * up * fade;
+        winds.visible = true; winds.material.opacity = 0.55 * up * fade;
+        windSeed.forEach((w, i) => { const z = cp.z + 8 - ((w.z0 + k * w.sp) % 70); _p.set(cp.x + w.x + Math.sin(k * 3 + w.ph) * 0.6, w.y + Math.sin(k * 2 + w.ph) * 0.5, z); _q.setFromEuler(new THREE.Euler(0, Math.PI / 2 + w.yaw, 0)); _s.set(1 + 0.8 * Math.sin(k * 5 + w.ph) ** 2, 1, 1); _m4.compose(_p, _q, _s); winds.setMatrixAt(i, _m4); });
+        winds.instanceMatrix.needsUpdate = true; city.rainSpeed = 1 + 2.2 * up * fade;
+      } else if (gust.visible) { gust.visible = false; winds.visible = false; gustInit = false; city.rainSpeed = 1; }
+      // -- the dark: rotten (a breath of it), then the darkness that struggles to swallow (the whole avenue) until "Just wait";
+      //    on "to swallow what's inside" the city is swallowed whole: every window, bulb and lamp out, for that one line only
       if (T_ROTTEN > 0 && t > T_ROTTEN - 0.3 && t < T_ROTTEN + 3.6) city.setDark(0.9 * smooth((t - T_ROTTEN + 0.3) / 0.8) * (1 - smooth((t - T_ROTTEN - 2.4) / 1.2)), cp.z - 20);
       else if (T_DARK > 0 && t > T_DARK - 0.4 && t < T_WAIT + 1.2) { const w = smooth((t - T_DARK + 0.4) / 3.5), back = smooth((t - T_WAIT + 0.2) / 1.2); city.setDark((1 - back) * Math.min(1, w * 1.2), cp.z - 10 - w * 220); setLamps(back > 0.5 ? 'all' : 'none');
-        if (!(T_LAST > 0 && t > T_LAST)) bulbs.forEach(b => { b.on = 1 - 0.85 * Math.min(1, w * 1.2) * (1 - back); }); }
-      else if (!(T_LAST > 0 && t > T_LAST + 1)) bulbs.forEach(b => { b.on = 1; });
+        const sw = T_SWALLOW > 0 ? smooth((t - T_SWALLOW + 0.25) / 0.5) * (1 - back) : 0;
+        if (sw > 0) city.setDark(Math.max((1 - back) * Math.min(1, w * 1.2), sw), cp.z - 10 - w * 220 - sw * 400); city.dim(sw * 0.92);
+        if (!(T_LAST > 0 && t > T_LAST)) bulbs.forEach(b => { b.on = (1 - 0.85 * Math.min(1, w * 1.2) * (1 - back)) * (1 - sw); }); laneLights.forEach(L => { L.intensity *= 1 - sw; }); }
+      else { city.dim(0); if (!(T_LAST > 0 && t > T_LAST + 1)) bulbs.forEach(b => { b.on = 1; }); }
       // -- KARMA across the street
       if (T_KARMA > 0 && t > T_KARMA - 0.1 && t < T_SOAMI + 2.5) {
         if (karmaZ == null) { karmaZ = cp.z - 34; karma.position.set(0, -2.6, karmaZ); karma.rotation.y = Math.atan2(cp.x - 0, cp.z - karmaZ); }
@@ -258,6 +302,33 @@ export function createProps2(scene, city, timing, fonts, route, props) {
           fPos[i * 3] = (fSeed[i * 2 + 1] - 0.5) * fireW * (1 - q * 0.35); fPos[i * 3 + 1] = q * q * (0.45 + fSeed[i * 2] * 0.5) * fireLife; fPos[i * 3 + 2] = (fSeed[i * 2] - 0.5) * 0.12;
           const heat = (1 - q) * fireLife; fCol[i * 3] = (0.5 + 0.5 * heat) * fireLife; fCol[i * 3 + 1] = (0.04 + 0.14 * heat * heat) * fireLife; fCol[i * 3 + 2] = 0.01 * fireLife; }
         flameGeo.attributes.position.needsUpdate = true; flameGeo.attributes.color.needsUpdate = true; }
+      // -- the city on fire
+      if (T_FIRE > 0 && t > T_FIRE - 0.1 && t < T_FIRE + 7) {
+        const k = t - T_FIRE + 0.1, on = Math.min(1, k / 0.8) * (1 - smooth((k - 5) / 2));
+        if (cityFireZ == null) cityFireZ = cp.z;
+        cityFire.visible = true; cityFire.material.opacity = 0.85 * on;
+        for (let i = 0; i < CF; i++) { cfLife[i] += dt * (0.5 + cfSeed[i * 3] * 0.6); if (cfLife[i] > 1) cfLife[i] -= 1; const q = cfLife[i], wall = cfSeed[i * 3 + 1] < 0.5 ? -19.2 : -26.8, sd = wall < -23 ? 1 : -1;
+          cfPos[i * 3] = wall + sd * (0.2 + q * 1.6 * cfSeed[i * 3 + 2]) + Math.sin(time * 3 + i) * 0.25; cfPos[i * 3 + 1] = q * (9 + cfSeed[i * 3] * 9) * on; cfPos[i * 3 + 2] = cityFireZ + 10 - cfSeed[i * 3 + 2] * 90 - q * 2;
+          const heat = (1 - q) * on; cfCol[i * 3] = 0.55 + 0.45 * heat; cfCol[i * 3 + 1] = 0.05 + 0.2 * heat * heat; cfCol[i * 3 + 2] = 0.01; }
+        cfGeo.attributes.position.needsUpdate = true; cfGeo.attributes.color.needsUpdate = true;
+        fireLights.forEach((L, i) => { L.intensity = (40 + 25 * Math.sin(time * 9 + i * 2) ** 2) * on; L.position.set(i % 2 ? -19.5 : -26.5, 3 + 2 * Math.sin(time * 2 + i), cityFireZ - 4 - i * 14 - 8 * Math.sin(time * 0.7 + i)); });
+        city.setDark(0, 0); bulbs.forEach(b => { b.on = 1 + 1.5 * on; });
+      } else if (cityFire.visible) { cityFire.visible = false; fireLights.forEach(L => (L.intensity = 0)); cityFireZ = null; }
+      // -- the door: open along the left wall, then it swings and slams across the lane, BLOCKED
+      if (T_BLOCK > 0 && t > T_BLOCK - 0.3 && !(T_LAST > 0 && t > T_LAST + 9)) {
+        if (doorZ == null) { doorZ = cp.z - 24; door.position.set(-27.2, 0, doorZ); }
+        const k = t - T_BLOCK + 0.3, sw = k < 0 ? 0 : Math.min(1, Math.pow(k / 0.42, 2.4));   // a hard, accelerating swing: shut in under half a second
+        door.visible = true; door.rotation.y = -Math.PI / 2 * (1 - sw);
+        const hk = k - 0.42, hit = hk > 0 ? Math.exp(-hk * 5) : 0; door.position.x = -27.2 + Math.sin(k * 60) * 0.12 * hit;   // the shudder of the slam
+        doorLight.intensity = 260 * hit + 8 * sw; doorRim.material.opacity = 0.9 * hit + 0.25 * sw;
+        blocked.children.forEach(m => { const o = hk > 0 ? clamp((hk - m.userData.k * 0.05) / 0.22) : 0; m.visible = o > 0; const pop = 1 + 2.2 * (1 - o); m.scale.setScalar(pop); m.material.emissiveIntensity = 0.9 + 2.5 * (1 - o) + 0.6 * hit; });   // BLOCKED punches in letter by letter
+        if (hk > 0 && hk < 2.2) {                                                                  // the dust of the slam rolls out from the foot of the door
+          if (!dustInit) { dustInit = true; for (let i = 0; i < DN; i++) { dPos[i * 3] = -27.2 + 0.4 + r() * 8; dPos[i * 3 + 1] = 0.1 + r() * 1.2; dPos[i * 3 + 2] = doorZ + 0.5; dVel[i * 3] = (r() - 0.5) * 3; dVel[i * 3 + 1] = 1 + r() * 4; dVel[i * 3 + 2] = 4 + r() * 10; } }
+          for (let i = 0; i < DN; i++) { dPos[i * 3] += dVel[i * 3] * dt; dPos[i * 3 + 1] += dVel[i * 3 + 1] * dt; dPos[i * 3 + 2] += dVel[i * 3 + 2] * dt; dVel[i * 3 + 1] -= 2.2 * dt; dVel[i * 3 + 2] *= 1 - 1.6 * dt; }
+          dGeo.attributes.position.needsUpdate = true; dust.visible = true; dust.material.opacity = 0.55 * (1 - hk / 2.2);
+        } else dust.visible = false;
+        if (hk > 0 && hk < 0.6) bulbs.forEach(b => { b.on = 0.1 + 2.5 * hit * (Math.random() < 0.5 ? 1 : 0); });   // every bulb in the lane blinks hard at the slam
+      } else door.visible = false;
       // -- LIES, and the tearing
       if (T_LIES_SHOW > 0 && t > T_LIES_SHOW - 0.5 && t < T_TEAR + 6) {
         if (liesZ == null) { liesZ = cp.z - 30; lies.position.set(0, 0, liesZ); lies.rotation.y = Math.atan2(cp.x, cp.z - liesZ); }
@@ -285,7 +356,14 @@ export function createProps2(scene, city, timing, fonts, route, props) {
         const ahead = bulbs.filter(b => b.mesh.position.z < cp.z - 6).sort((a, b) => b.mesh.position.z - a.mesh.position.z);   // nearest first, down the lane
         ahead.forEach((b, n) => { b.on = 1 - clamp(((t - T_LAST - 1.0) * 1.6 - n) / 1.5); });
         lampMode = 'end';
-        const rr = R(); if (rr) rr.material.emissiveIntensity = 0.4 + 0.5 * Math.pow(Math.max(0, Math.sin(time * 1.3)), 2) * clamp((t - T_LAST - 2) / 4);
+        // I'M COMING over the end of the lane: letter by letter, lit from below, swivelling a touch like the tower's R
+        if (sign.position.z === 0) { sign.position.set(0, 63, -1080);          // across the tower's tip, where the other song's R and KARMA stand
+          const rr = R(); if (rr) rr.visible = false;
+          const wp = new THREE.Vector3(); scene.traverse(o => { if (o.isMesh && o.geometry?.type === 'TextGeometry' && !sign.children.includes(o)) { o.getWorldPosition(wp); if (wp.z < -1060 && wp.y > 50) towerText.push(o); } }); }   // the other song's KARMA letters round the R go too
+        towerText.forEach(o => { o.visible = false; });   // (props.js re-shows them every frame of its own ending)
+        sign.visible = true; const sk = t - T_LAST - 3;
+        sLetters.forEach((m, n) => { const on = clamp((sk * 2.2 - n) / 1.2); m.visible = on > 0; m.scale.setScalar(0.6 + 0.4 * on); m.material.emissiveIntensity = 1.5 + 1.2 * on * Math.pow(Math.max(0, Math.sin(time * 1.1 + n * 0.3)), 2); });
+        sign.rotation.y = Math.sin(time * 0.25) * 0.06; sLight.intensity = 400 * clamp(sk / 2);
       }
     },
   };

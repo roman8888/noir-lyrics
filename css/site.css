@@ -69,9 +69,8 @@ button:hover { opacity: 1; }
 #lyrics { position: fixed; left: 0; top: 0; bottom: 0; width: 340px; z-index: 3; background: rgba(5,6,8,.72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   border-right: 1px solid rgba(236,232,225,.08); display: flex; flex-direction: column; transform: translateX(-100%); transition: transform .5s ease; }
 #lyrics.open { transform: none; }
-#lyhead { display: flex; align-items: center; justify-content: space-between; padding: 54px 18px 10px 22px; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--dim); }
-#lyhead button { font-size: 22px; line-height: 1; padding: 0 4px; font-style: normal; }
-#lycred { padding: 0 18px 14px 22px; border-bottom: 1px solid rgba(236,232,225,.08); margin-bottom: 6px; }
+#lycred #lytoggle { position: absolute; right: 6px; top: 50px; }
+#lycred { position: relative; padding: 58px 56px 12px 22px; border-bottom: 1px solid rgba(236,232,225,.08); margin-bottom: 6px; }
 #lycred b { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; letter-spacing: .02em; color: var(--paper); }
 #lycred i { display: block; font-size: 16px; color: var(--dim); margin-top: 2px; }
 #lycred a { display: inline-block; color: var(--red); line-height: 0; transform: translateY(1px); }
@@ -143,16 +142,14 @@ body.home #lyopen, body.home #player { display: none; }
 #plsongs li:hover .t { color: #e8b4b7; }
 #playlist .foot { margin-top: 36px; font-size: 12px; letter-spacing: .25em; text-transform: uppercase; } #playlist .foot a { color: var(--dim); text-decoration: none; } #playlist .foot a:hover { color: var(--red); }
 /* the mini playlist during the tours */
-#plist { position: fixed; right: 14px; top: 64px; z-index: 4; width: 240px; background: rgba(5,6,8,.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(236,232,225,.1); border-radius: 10px; padding: 10px 0 6px; }
-#plist .head { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: rgba(236,232,225,.45); padding: 0 14px 8px; }
+#plist { flex: none; border-top: 1px solid rgba(236,232,225,.08); padding: 12px 0 10px; }
+#plist .head { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: rgba(236,232,225,.45); padding: 0 18px 6px 22px; }
 #plist ol { list-style: none; margin: 0; padding: 0; }
-#plist li { display: grid; grid-template-columns: 20px 1fr; gap: 8px; padding: 7px 14px; font-size: 14px; color: rgba(236,232,225,.6); cursor: pointer; }
-#plist li:hover { color: var(--paper); } #plist li.now { color: var(--paper); } #plist li.now .n { color: var(--red); }
+#plist li { display: grid; grid-template-columns: 34px 1fr; gap: 0; padding: 6px 18px 6px 22px; font-size: 15px; line-height: 1.3; color: rgba(236,232,225,.6); cursor: pointer; }
+#plist li:hover { color: var(--paper); background: rgba(236,232,225,.05); } #plist li.now { color: var(--paper); } #plist li.now .n { color: var(--red); }
 #plist .n { font-size: 11px; letter-spacing: .1em; padding-top: 3px; color: rgba(236,232,225,.35); }
-#plist .head { cursor: pointer; }
 @media (max-width: 760px) { #playlist { background: rgba(5,6,8,.94); } #playlist .inner { padding: 72px 22px 80px; }
-  #plist { right: 0; top: 60px; width: auto; max-width: 78vw; border-radius: 10px 0 0 10px; padding: 8px 0 4px; }
-  #plist ol { display: none; } #plist.open ol { display: block; } #plist .head { padding: 4px 14px; } }
+  #plist li { font-size: 14px; } }
 
 /* ---------- one control language: thin red line icons, 44px targets, nothing stacked ---------- */
 .ic { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; background: none; color: var(--red); cursor: pointer; opacity: .78; transition: opacity .2s, transform .2s; text-decoration: none; }
@@ -168,7 +165,7 @@ body.home #lyopen, body.home #player { display: none; }
 #topbar .brand em { font-size: 13px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 42vw; }
 #topbar .grow { flex: 1; }
 @keyframes pulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
-body.home #topbar #lyr { display: none; }
+#homenav { display: flex; gap: 2px; } body:not(.home) #homenav { display: none; }   /* the small links live in the top bar only on the front page; on a song they sit in the bottom strip */
 /* the player: a slim strip at the bottom */
 #pbottom { position: fixed; left: 0; right: 0; bottom: 0; padding: 0 8px calc(6px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(0deg, rgba(5,6,8,.82), rgba(5,6,8,0)); }
 #pctl { display: flex; align-items: center; gap: 0; margin-top: 2px; }
@@ -176,14 +173,11 @@ body.home #topbar #lyr { display: none; }
 #clock { font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; min-width: 86px; padding-left: 8px; }
 #tools button { font-size: 11px; color: var(--dim); }
 /* the lyrics panel: a sheet on phones, a side panel on wide screens */
-#lyhead { padding: 60px 8px 6px 22px; }
-#lyhead .ic { margin-left: auto; }
 #lyrics { width: min(340px, 100vw); }
-#lycred { padding-top: 0; }
 @media (max-width: 760px) {
   #lyrics { top: auto; bottom: 0; height: 46vh; width: 100vw; border-right: 0; border-top: 1px solid rgba(236,232,225,.08); transform: translateY(100%); }
   #lyrics.open { transform: none; }
-  #lyhead { padding: 10px 8px 4px 18px; }
+  #lycred { padding: 10px 56px 8px 18px; } #lycred #lytoggle { top: 2px; }
   #lylist li { font-size: 16px; grid-template-columns: 48px 1fr; }
   #clock { min-width: 70px; }
   #pctl #restart, #pctl #fs { display: none; }
@@ -200,3 +194,8 @@ body.home #topbar #lyr { display: none; }
 
 /* with the side panel open the strip starts to its right (wide screens only) */
 @media (min-width: 761px) { body.panel-open #pbottom { left: min(340px, 100vw); } }
+
+/* the browser refused sound before any touch: the speaker icon asks for one tap */
+#mute.ask { position: relative; animation: askpulse 1.6s ease-in-out infinite; }
+#mute.ask::after { content: 'tap for sound'; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 2px; white-space: nowrap; font: italic 13px/1 'Playfair Display', Georgia, serif; color: #c8102e; letter-spacing: .04em; }
+@keyframes askpulse { 0%, 100% { filter: drop-shadow(0 0 0 rgba(200,16,46,0)); } 50% { filter: drop-shadow(0 0 7px rgba(200,16,46,.9)); } }

@@ -2,10 +2,10 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261017010226';
-import { fxFor, applyFx } from './fx.js?v=20261017010226';
-import { FACADE } from './layout.js?v=20261017010226';
-import { LOOKS, MOODS } from './songs.js?v=20261017010226';
+import { clamp, easeOutExpo } from './util.js?v=20261017094556';
+import { fxFor, applyFx } from './fx.js?v=20261017094556';
+import { FACADE } from './layout.js?v=20261017094556';
+import { LOOKS, MOODS } from './songs.js?v=20261017094556';
 
 // every word appears 0.2 s before its timestamp: Roman's ear test (the aligner marks vowel onsets a touch late); ?lead= overrides
 const LEAD_PARAM = parseFloat(new URLSearchParams(location.search).get('lead'));
@@ -92,7 +92,7 @@ export function createSong(fonts, scene, route, occluders = []) {
     const rows = [[]]; let rw = 0;
     for (const tk of toks) {
       tk.geo = wordGeo(tk.w, (tk.acc || !!mood.italic) && !L.title); tk.wd = tk.geo.width * tk.ws;
-      if (rw > 0 && rw + SPACE + tk.wd > maxW) { rows.push([]); rw = 0; }
+      if (rw > 0 && (rw + SPACE + tk.wd > maxW || (tk === toks.at(-1) && /coming for me/i.test(L.text)))) { rows.push([]); rw = 0; }   // "I'm coming for me": the me stands alone on its own row
       rows.at(-1).push(tk); rw += (rw ? SPACE : 0) + tk.wd;
     }
     const rowH = rows.map(row => LINE_H * Math.max(...row.map(tk => tk.ws))), totH = rowH.reduce((s, b) => s + b, 0);
@@ -132,7 +132,7 @@ export function createSong(fonts, scene, route, occluders = []) {
         const mesh = new THREE.Mesh(tk.geo.g, mat); mesh.castShadow = true;
         const home = new THREE.Vector3(x + tk.wd / 2, y - (rowH[ri] / LINE_H - tk.ws) * SIZE * 0.4, 0);
         const seed = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
-        mesh.userData = { w: tk.w, home, seed, reveal: (tk.t ?? (L.t + wi * step)) - LEAD, acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : (/^and so am i/i.test(L.text) && /^i\.?$/i.test(tk.w) ? 'huge' : fxFor(tk.w)), tone: mood.tone, arrive: mood.arrive, motion: mood.motion, hl: 0, hov: 0 };
+        mesh.userData = { w: tk.w, home, seed, reveal: (tk.t ?? (L.t + wi * step)) - LEAD, acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : (/^and so am i/i.test(L.text) && /^i\.?$/i.test(tk.w) ? 'huge' : /the man you left standing/i.test(L.text) && /^man\.?$/i.test(tk.w) ? 'tall' : /coming for me/i.test(L.text) && /^me\.?$/i.test(tk.w) ? 'grow' : /not my soul/i.test(L.text) && /^soul[,.]?$/i.test(tk.w) ? 'soul' : fxFor(tk.w)), growTo: rows.length > 1 && ri > 0 ? Math.max(2, (rows[0].reduce((s2, q) => s2 + q.wd, 0) + SPACE * (rows[0].length - 1)) / tk.wd) : 1, tone: mood.tone, arrive: mood.arrive, motion: mood.motion, hl: 0, hov: 0 };
         if (mesh.userData.fx === 'tight' || mesh.userData.fx === 'home' || a.fall) {   // built letter by letter: these words move as letters
           const chars = [...tk.w], geos = chars.map(ch => wordGeo(ch, tk.acc)), gap = SIZE * 0.1;
           const natW = geos.reduce((s2, g) => s2 + g.width, 0) + gap * (chars.length - 1), sqW = geos.reduce((s2, g) => s2 + g.width * 0.86, 0);
@@ -216,14 +216,14 @@ export function createSong(fonts, scene, route, occluders = []) {
         if (lines[i].t == null) { if (live.has(i)) drop(i); continue; }
         const cut = actAt(lines[i].t).cut;
         const nxt = lines[i + 1];
-        const want = t >= lines[i].t - 0.3 && t < (nxt ? nxt.t + (cut ? 0.5 : 1.2) + (/hell|losing all the only way/i.test(lines[i].text) ? 4.5 : 0) : lineEnd(i) + 4);
+        const want = t >= lines[i].t - 0.3 && t < (nxt ? nxt.t + (cut ? 0.5 : 1.2) + (/hell|losing all the only way|not my soul/i.test(lines[i].text) ? 4.5 : 0) : lineEnd(i) + 4);
         if (want && !live.has(i)) build(i); else if (!want && live.has(i)) drop(i);
       }
 
       for (const [i, { group, words, a }] of live) {
         const end = lineEnd(i), isActive = i === active, cut = actAt(lines[i].t).cut;
         const nx = lines[i + 1];                                               // a line steps aside when the next one starts
-        const hold = words.some(m => m.userData.fx === 'hell') ? 2.4 : a.fall ? 3.2 : 0;    // a burning word, or letters lying on the road, stay a while after the next line starts
+        const hold = words.some(m => m.userData.fx === 'hell') ? 2.4 : words.some(m => m.userData.fx === 'soul') ? 2.0 : a.fall ? 3.2 : 0;   // (the soul is sung as the next line starts: it stays)    // a burning word, or letters lying on the road, stay a while after the next line starts
         let leave = nx ? clamp((t - nx.t + 0.15 - hold) / (cut && !hold ? 0.35 : a.kind === 'floor' ? 0.5 : 0.9)) : clamp((t - end) / 3);
         // a street line also steps aside as the walk reaches it: never a wall of giant letters at the lens
         if ((a.kind === 'banner' || a.kind === 'ahead' || a.kind === 'sky') && !a.fall) { const dx = camera.position.x - group.position.x, dz = camera.position.z - group.position.z; const near = (a.beat?.dist ?? 9) > 12 ? 9 : 7.5; leave = Math.max(leave, clamp((near - Math.hypot(dx, dz)) / (near * 0.5))); }

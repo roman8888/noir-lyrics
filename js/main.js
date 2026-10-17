@@ -7,15 +7,15 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261017010226';
-import { createProps } from './props.js?v=20261017010226';
-import { createSky } from './sky.js?v=20261017010226';
-import { createRoute } from './route.js?v=20261017010226';
-import { createSong, LEAD } from './song.js?v=20261017010226';
-import { SONGS } from './songs.js?v=20261017010226';
-import { clamp, fmt, toLRC } from './util.js?v=20261017010226';
-import { createLanding } from './landing.js?v=20261017010226';
-import { createDrops } from './drops.js?v=20261017010226';
+import { createCity } from './city.js?v=20261017094556';
+import { createProps } from './props.js?v=20261017094556';
+import { createSky } from './sky.js?v=20261017094556';
+import { createRoute } from './route.js?v=20261017094556';
+import { createSong, LEAD } from './song.js?v=20261017094556';
+import { SONGS } from './songs.js?v=20261017094556';
+import { clamp, fmt, toLRC } from './util.js?v=20261017094556';
+import { createLanding } from './landing.js?v=20261017094556';
+import { createDrops } from './drops.js?v=20261017094556';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -131,19 +131,26 @@ let needUnmute = false;
 const LINE_AT = (() => { const m = location.pathname.match(/\/([^/]+)\/line\/(\d+)\/?$/); if (!m || m[1] !== current.slug) return 0;   // /<song>/ alone starts from the top
   const L = timing.lines[parseInt(m[2], 10) - 1]; return L && L.t != null ? Math.max(0, L.t - 0.15) : 0; })();
 async function startSong() {
-  if (LINE_AT > 0 && audio.readyState < 1) await new Promise(r => audio.addEventListener('loadedmetadata', r, { once: true }));   // seek only once the file is known, or the seek is lost
+  if (LINE_AT > 0 && audio.readyState < 1) {                                   // seek only once the file is known, or the seek is lost
+    const known = await new Promise(r => { audio.addEventListener('loadedmetadata', () => r(true), { once: true }); setTimeout(() => r(false), 6000); });
+    if (!known && !LOWPOWER && /\.m4a$/.test(audio.src)) {                     // the AAC file never came (a server that mislabels .m4a): the mp3 instead of silence
+      audio.src = audio.src.replace(/\.m4a$/, '.mp3'); audio.load();
+      await new Promise(r => { audio.addEventListener('loadedmetadata', () => r(true), { once: true }); setTimeout(() => r(false), 8000); });
+    }
+  }
   audio.currentTime = LINE_AT; audio.muted = false;
   try { await audio.play(); }
-  catch { audio.muted = true; needUnmute = true; try { await audio.play(); } catch { /* nothing more we can do until a gesture */ } }
+  catch { audio.muted = true; needUnmute = true; $('mute').classList.add('muted', 'ask');   // the browser refused sound: say so on the speaker icon until the first touch
+    try { await audio.play(); } catch { /* nothing more we can do until a gesture */ } }
   if (actx) actx.resume();
 }
-if (!LANDING) { $('player').hidden = false; $('lyr').hidden = false; $('barsong').textContent = current.title; if (!RECORD) startSong(); }   // recording waits for one click (the audio graph needs it)
+if (!LANDING) { $('player').hidden = false; $('lyr').hidden = false; $('barsong').textContent = current.title; if (!RECORD || Q.has('auto')) startSong(); }   // recording waits for one click (the audio graph needs it) unless &auto=1 (a Chrome launched with autoplay allowed)
 const unlock = () => {
   ensureAudioGraph(); actx.resume();
-  if (needUnmute) { needUnmute = false; audio.muted = false; }
+  if (needUnmute) { needUnmute = false; audio.muted = false; $('mute').classList.remove('muted', 'ask'); }
   if (audio.paused && !userPaused) audio.play().catch(() => {});
 };
-for (const ev of ['pointerdown', 'keydown', 'touchend', 'wheel']) addEventListener(ev, unlock, { passive: true });
+for (const ev of ['pointerdown', 'click', 'keydown', 'touchstart', 'touchend', 'wheel']) addEventListener(ev, unlock, { passive: true });
 let userPaused = false;
 
 // ---------- player ----------
@@ -164,7 +171,6 @@ audio.addEventListener('ended', () => { if (!LANDING) { location.href = nextInLi
 if (!PLAYLIST_PAGE) { $('plist').hidden = false; const ol = $('plist').querySelector('ol');
   SONGS.forEach((sg, i) => { const li = document.createElement('li'); li.className = sg.slug === current.slug ? 'now' : ''; li.innerHTML = `<span class="n">${String(i + 1).padStart(2, '0')}</span><span>${sg.title}</span>`;
     li.addEventListener('click', () => { location.href = ROOT + sg.slug + '/'; }); ol.appendChild(li); });
-  $('plist').querySelector('.head').addEventListener('click', () => $('plist').classList.toggle('open'));   // on phones the list folds to a tab
 }
 $('again').addEventListener('click', () => { $('ending').hidden = true; $('player').hidden = false; song.reset(); dropsFallen = 0; $('titles').classList.remove('off'); audio.currentTime = 0; audio.play(); });
 $('bar').addEventListener('click', e => { const r = e.currentTarget.getBoundingClientRect(); const D = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : (current.duration || 0); if (D) audio.currentTime = clamp((e.clientX - r.left) / r.width) * D; });

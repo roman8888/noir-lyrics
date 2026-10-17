@@ -1,7 +1,7 @@
 // Words that act out what they mean: "fade" fades, "fall" falls, "fly" flies away, "drown" sinks...
 // Each effect runs after the word is sung. age = seconds since it was sung.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261017010226';
+import { clamp } from './util.js?v=20261017094556';
 
 const RED = new THREE.Color(0.36, 0.015, 0.03), EMBER = new THREE.Color(0.8, 0.12, 0.05), GOLD = new THREE.Color(0.85, 0.88, 1.0);   // 'GOLD' is now a pale cold light: no yellow in this film
 const BLUE = new THREE.Color(0.25, 0.4, 0.6), ASH = new THREE.Color(0.2, 0.19, 0.18);
@@ -65,6 +65,17 @@ const FX = {
   },
   huge(m, u, a, x) {                           // "so am I": the I grows into a tower of itself
     const k = ease(a / 0.8); m.scale.multiplyScalar(1 + 5.5 * k); m.position.y += 1.6 * k; m.position.z -= 0.4 * k; x.glow(0.35 * k, GOLD);
+  },
+  grow(m, u, a, x) {                           // "I'm coming for me": the me swells through the singing until it is as wide as the whole sentence
+    const k = ease(a / 3.2), sc = 1 + ((u.growTo || 4) - 1) * k; m.scale.multiplyScalar(sc); m.position.y -= (sc - 1) * 0.3; m.position.z += 0.2 * k; x.tint(RED, k); x.glow(0.35 * k, RED);
+  },
+  soul(m, u, a, x) {                           // "not my soul": the soul is huge; as it is sung the letters squeeze together and the gaps flash blood
+    const k = ease(a / 0.5), sung = a < 2.6 ? 1 : Math.max(0, 1 - (a - 2.6) / 0.8), beat = Math.pow(Math.max(0, Math.sin(x.now * 7.5)), 4) * sung;
+    m.scale.multiplyScalar(1 + 1.9 * k); m.scale.x *= 1 - 0.42 * beat; m.position.y += 0.5 * k; m.position.z += 0.3 * k;
+    m.material.color.copy(RED).multiplyScalar(0.55 + 0.45 * beat); m.material.emissive.copy(RED); m.material.emissiveIntensity = 0.25 + 0.6 * beat;   // blood, never a white blob under the bloom
+  },
+  tall(m, u, a, x) {                           // "the man you left standing": the man stands five lines tall, stretched up from the kerb
+    const k = ease(a / 0.9); m.scale.y *= 1 + 4.5 * k; m.scale.x *= 1 + 0.5 * k; m.position.z -= 0.3 * k; m.material.emissiveIntensity *= 1 - 0.55 * k;   // no glow: the tall letters must stay readable
   },
   hell(m, u, a, x) {                           // the word is set alight: it glows ember-red from inside and chars dark, flickering
     const k = ease(a / 0.5), fl = 0.8 + 0.2 * Math.sin(x.now * 23) * Math.sin(x.now * 7.3);

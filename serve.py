@@ -3,6 +3,7 @@ usage: python3 serve.py [port]   -> http://localhost:8812"""
 import http.server, os, re, sys
 
 class RangeHandler(http.server.SimpleHTTPRequestHandler):
+    extensions_map = {**http.server.SimpleHTTPRequestHandler.extensions_map, '.m4a': 'audio/mp4', '.webm': 'video/webm', '.mp3': 'audio/mpeg'}   # macOS mimetypes says audio/mp4a-latm for .m4a and Chrome never finishes loading it
     def send_head(self):
         if re.search(r'^/[a-z0-9-]+/?(line/\d+/?)?$', self.path.split('?')[0]) and not self.path.startswith('/listen'): self.path = '/index.html'     # deep links: /<song>/ and /<song>/line/<n> (listen/ is a real folder)
         rng = self.headers.get('Range')

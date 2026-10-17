@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261017010226';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261017010226';
+import { clamp } from './util.js?v=20261017094556';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261017094556';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0], A2 = ALLEYS[1];
@@ -71,21 +71,24 @@ const BEATS2 = {
   Chorus:  { sky: 'storm', keys: [[0, LANE, EYE, -500], [1, LANE, EYE, -640]], stride: 1,
              place: ['ahead', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 20 },
   // the flooded crossing: the hands and the water again, and this time you come up
-  'Verse 2': { sky: 'storm', keys: [[0, LANE, EYE, -640], [0.2, LANE + 1, EYE, A3.z + 6], [0.26, LANE + 2, 0.9, A3.z + 3.6], [0.62, LANE + 2.2, 0.75, A3.z + 3.4], [0.8, LANE + 1.5, 1.2, A3.z + 2.5], [1, LANE, EYE, A3.z - 2]],
+  'Verse 2': { sky: 'storm', keys: [[0, LANE, EYE, -640], [0.14, LANE, EYE, -658], [0.22, LANE + 1, 1.3, A3.z + 8], [0.3, LANE + 2, 0.9, A3.z + 4], [0.62, LANE + 2, 0.8, A3.z], [0.8, LANE + 1.5, 1.1, A3.z - 3.5], [1, LANE, EYE, A3.z - 8]],   // keys ≥3 m apart and monotone in z: near-duplicate keys made the spline loop and lift the eye above the water
              place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner'], dist: 9, walk: 1,
-             looks: [[0, LANE, 1.6, -690, 0.9], [0.2, LANE + 2, 0.9, A3.z - 3, 1], [0.8, LANE + 2, 0.9, A3.z - 3, 1], [1, LANE, 1.6, A3.z - 30, 0.9]] },
+             looks: [[0, LANE, 1.6, -690, 0.9], [0.22, LANE + 2, 0.9, A3.z - 4, 1], [0.8, LANE + 2, 0.9, A3.z - 8, 1], [1, LANE, 1.6, A3.z - 36, 0.9]] },
   // the cold bridge: standing past the water, the lane dark ahead; he comes to you
-  Bridge:  { sky: 'fog', keys: [[0, LANE, EYE, A3.z - 2], [0.4, LANE, EYE, A3.z - 5], [1, LANE, EYE, A3.z - 7]],
+  Bridge:  { sky: 'fog', keys: [[0, LANE, EYE, A3.z - 8], [0.4, LANE, EYE, A3.z - 11], [1, LANE, EYE, A3.z - 13]],
              place: ['ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead', 'ahead'], dist: 11,
              looks: [[0, LANE, 1.6, A3.z - 30, 0.95], [1, LANE, 1.6, A3.z - 40, 0.95]] },
   // the run down the lane through the storm
-  'Final Chorus': { sky: 'storm', keys: [[0, LANE, EYE, A3.z - 7], [1, LANE, EYE, -860]], stride: 1, dist: 22,
+  'Final Chorus': { sky: 'storm', keys: [[0, LANE, EYE, A3.z - 13], [1, LANE, EYE, -860]], stride: 1, dist: 22,
              place: ['ahead', 'ahead', 'banner', 'ahead', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'ahead', 'banner'] },
   // whispered: slowing to a stop; the bulbs go out down the lane
   Outro:   { sky: 'night', keys: [[0, LANE, EYE, -860], [0.6, LANE, EYE, -884], [1, LANE, EYE, -892]], walk: 1,
              place: ['banner', 'banner', 'banner', 'banner'], dist: 13 },
-  End:     { sky: 'night', keys: [[0, LANE, EYE, -892], [1, LANE, EYE, -892.5]], place: ['ahead'],
-             looks: [[0, LANE, 2, -960, 0.8], [1, LANE, 6, -980, 0.9]] },
+  // the drone shot: straight up out of the lane, over the roofs, the eyes on I'M COMING standing over the end of the lane
+  // the drone shot: up out of the lane in front of the slammed door, over the roofs, in toward the tower, where I AM COMING
+  // stands in place of the R (the tower is at z -1085, straight down the lane's heading)
+  End:     { sky: 'night', keys: [[0, LANE, EYE, -892], [0.2, LANE, 7, -891], [0.5, LANE + 4, 34, -920], [1, -5, 58, -1000]], place: ['ahead'],
+             looks: [[0, LANE, 8, -896, 0.95], [0.25, LANE, 20, -920, 0.96], [0.55, -4, 60, -1085, 0.97], [1, 0, 62, -1085, 0.98]] },
 };
 const ORDER2 = ['Pre', 'Intro', 'Verse 1', 'Pre-Chorus', 'Chorus', 'Verse 2', 'Bridge', 'Final Chorus', 'Outro', 'End'];
 const STORY = { 'when-god-wants-to-make-you-stronger': [BEATS1, ORDER1], 'on-my-way-to-you': [BEATS2, ORDER2] };
@@ -157,7 +160,7 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
       const dash = dashAt(t); if (dash > 0) out.pos.x += (dodgeX(t) - out.pos.x) * dash;      // the run for the kerb when a car comes
     }
     const sg = surgeAt(t) + pushAt(t) + stompAt(t); if (sg > 0) out.pos.addScaledVector(lastDir, sg);   // the run forward, the push on "so am I", the stomps on "Enough"
-    out.pos.y += shoveAt(t) + (stompAt(t) > 0 ? -0.06 * stompAt(t) : 0);                            // shoved down, up for air; the stomp lands heavy
+    out.pos.y += shoveAt(t) + (stompAt(t) > 0 ? -0.06 * stompAt(t) : 0) - 0.09 * slamAt(t) * Math.abs(Math.sin((t - T_SLAM) * 38));   // the slam shakes the ground under you                            // shoved down, up for air; the stomp lands heavy
     const pl = pullAt(t); if (pl > 0) {                                                            // "I'm coming for me": back and up, to see the man standing there
       if (!selfSpot) selfSpot = out.pos.clone();
       out.pos.copy(selfSpot).addScaledVector(lastDir, -8.5 * pl); out.pos.y += 4.6 * pl; }
@@ -253,7 +256,9 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
   const fallAt = t => T_FALL < 0 ? 0 : clamp((t - T_FALL) / 0.85);                                                  // the drop itself
   // the walk slows while the eyes are on the road (the letters must not pass underfoot unseen), then catches up
   const T_BURY = (() => { const L = lines.find(l => /bury you in words/i.test(l.text)); return L?.words?.find(w => /^bury/i.test(w.w || ''))?.t ?? L?.t ?? -1; })();
+  const T_SOULL = (() => { const L = lines.find(l => /not my soul/i.test(l.text)); return L?.words?.find(w => /^soul/i.test(w.w || ''))?.t ?? L?.t ?? -1; })();   // (song 1) the walk stands while the soul is sung and swells (keyed to the word)
   const lingerAt = t => { let L = 0;
+    if (T_SOULL > 0) { const a = clamp((t - (T_SOULL - 1.2)) / 3.0) * 3.0; L += a * (1 - smooth((t - (T_SOULL + 4.5)) / 8)); }   // a dead stop (the delay grows at 1 s/s, never faster: faster would walk backwards)
     if (T_FALL > 0) { const a = smooth((t - (T_FALL - 0.2)) / 3.2) * 1.9; L += a * (1 - smooth((t - (T_FALL + 3.0)) / 9)); }
     if (T_BURY > 0) { const a = smooth((t - (T_BURY - 0.2)) / 4.5) * 2.6; L += a * (1 - smooth((t - (T_BURY + 5.5)) / 10)); }   // the grave fills while you slow to watch it
     if (T_WAITL > 0) { const a = smooth((t - T_WAITL) / 1.6) * 1.5; L += a * (1 - smooth((t - (T_WAITL + 1.8)) / 6)); }       // "Just wait.": you stand
@@ -279,6 +284,8 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
   const T_WAITL = lines.find(l => /^just wait/i.test(l.text))?.t ?? -1;                                       // stand still
   const T_SOAMI = lines.find(l => /and so am i/i.test(l.text))?.t ?? -1;                                     // push forward
   const T_LOCK = wT(/locked on the truth/i, /^locked/i);                                                      // dead straight, no sway
+  const T_SLAM = (lines.find(l => /^maybe you don't/i.test(l.text))?.t ?? -99) + 0.12;   // the door lands (props2 swings it from 0.3 s before the line)
+  const slamAt = t => { const k = t - T_SLAM; return k > 0 && k < 1.2 ? Math.exp(-k * 4.5) : 0; };
   const T_SHOVE = lines.find(l => /^push me down/i.test(l.text))?.t ?? -1, T_AIR2 = lines.find(l => /find the air/i.test(l.text))?.t ?? -1;   // shoved down, up for air
   const T_THERE = lines.find(l => /still be there/i.test(l.text))?.t ?? -1;                                   // planted
   const stompAt = t => { let d = 0; for (const T of T_STOMP) { const k = t - T + 0.05; if (k > 0 && k < 0.9) d += Math.sin(Math.min(1, k / 0.9) * Math.PI) * 0.7; } return d; };
@@ -303,7 +310,7 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
     return out;
   }
   return {
-    beats, pose, anchorFor, beatAt, fade, T_DOOR, gait(t) { const g = gaitOf(beatAt(t), t, Math.max(dashAt(t), runAt(t))); const lk = 1 - lockAt(t); g.sway *= lk; g.roll *= lk; g.yaw = g.yaw * lk + noAt(t); g.pitch *= lk; return g; }, carAt, dashAt, CARS, prayAt, floorAt, fallAt, buryAt, pullAt, get selfSpot() { return selfSpot; }, T_VOID: 1e9, T_TOWER: endBeat.t0 + 0.74 * (endBeat.t1 - endBeat.t0),
+    beats, pose, anchorFor, beatAt, fade, T_DOOR, gait(t) { const g = gaitOf(beatAt(t), t, Math.max(dashAt(t), runAt(t))); const lk = 1 - lockAt(t); g.sway *= lk; g.roll *= lk; g.yaw = g.yaw * lk + noAt(t); g.pitch = g.pitch * lk + Math.sin((t - T_SLAM) * 42) * 0.028 * slamAt(t); g.roll += Math.sin((t - T_SLAM) * 31) * 0.012 * slamAt(t); return g; }, carAt, dashAt, CARS, prayAt, floorAt, fallAt, buryAt, pullAt, get selfSpot() { return selfSpot; }, T_VOID: 1e9, T_TOWER: endBeat.t0 + 0.74 * (endBeat.t1 - endBeat.t0),
     skyAt(t) { return beatAt(t).sky; },
     // how far the hands have pushed the viewer under the water (metres below the path), gasping back up after the line
     dive(t) { if (T_DROWN < 0) return 0; const down = smooth((t - T_DROWN - 1.2) / 1.6), up = T_AIR > 0 ? smooth((t - T_AIR + 0.2) / 1.1) : smooth((t - T_DROWN - 3.4) / 2.8); return -0.72 * down * (1 - up); },

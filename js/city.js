@@ -2,8 +2,8 @@
 // interior-mapped windows (every lit window is a small parallax room), street lamps, traffic, rain.
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
-import { rng, makeRain } from './util.js?v=20261017010226';
-import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261017010226';
+import { rng, makeRain } from './util.js?v=20261017094556';
+import { FACADE, ROW2, Z_START, Z_END, ALLEYS, HERO, ROOM, LAMP_H, LAMP_X, lampZs, CELL } from './layout.js?v=20261017094556';
 
 const buildingVS = /* glsl */`
   varying vec3 vW; varying vec3 vN; varying float vSeed;
@@ -261,6 +261,7 @@ export function createCity() {
     lampAt(z, side) { let best = 0, bd = 1e9; lampPos.forEach(([x, zz], i) => { const d = Math.abs(zz - z) + (Math.sign(x) === side ? 0 : 100); if (d < bd) { bd = d; best = i; } }); return best; },
     part(m) { placeBoxes(m); },
     setDark(amount, z) { bMat.uniforms.uDark.value = amount; bMat.uniforms.uDarkZ.value = z; },
+    dim(k) { hemi.intensity = 0.35 * (1 - k); moon.intensity = 0.6 * (1 - k); },   // the whole city swallowed: sky light and moon go too
     dimLamp(i, v) { dim[i] = v; cones.geometry.attributes.aDim.needsUpdate = true; bulbColor.setRGB(v, v, v); bulbs.setColorAt(i, bulbColor); bulbs.instanceColor.needsUpdate = true; },
     rainSpeed: 1,
     chaseAt(p, camera) { if (!p) { chase.visible = false; return; } chase.visible = true; chase.position.set(p.x, 0, p.z);

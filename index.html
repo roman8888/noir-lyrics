@@ -14,7 +14,7 @@
 <title>Roman — When God Wants to Make You Stronger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=20261017010226">
+<link rel="stylesheet" href="css/site.css?v=20261017094556">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -44,10 +44,7 @@
 <canvas id="glass"></canvas>
 
 <header id="topbar"><a class="ic logo" href="./" aria-label="hyperfeeling"><svg><use href="#i-drop"/></svg></a><span class="brand"><a href="https://hyperfeeling.com">hyperfeeling</a><em id="barsong"></em></span><span class="grow"></span>
-  <button id="lyr" class="ic" hidden title="lyrics (l)" aria-label="lyrics"><svg><use href="#i-lyrics"/></svg></button>
-  <a class="ic" href="listen/" title="just listen — light, for any phone" aria-label="listen"><svg><use href="#i-sound"/></svg></a>
-  <a class="ic" href="playlist/" title="playlist" aria-label="playlist"><svg><use href="#i-list"/></svg></a>
-  <a class="ic" href="about/" title="about" aria-label="about"><svg><use href="#i-info"/></svg></a>
+  <nav id="homenav"><a class="ic" href="listen/" title="just listen — light, for any phone" aria-label="listen"><svg><use href="#i-sound"/></svg></a><a class="ic" href="playlist/" title="playlist" aria-label="playlist"><svg><use href="#i-list"/></svg></a><a class="ic" href="about/" title="about" aria-label="about"><svg><use href="#i-info"/></svg></a></nav>
 </header>
 <div id="home" hidden>
 <div class="hero"><a class="mark" href="https://hyperfeeling.com"><span>HYPER</span><span>FEELING</span></a><p class="who">Roman Shikhri</p><p class="tag">Words that come to life.</p></div></div>
@@ -61,7 +58,6 @@
     <p class="foot"><a href="./">&larr; the wall</a> &middot; <a href="about/">about</a></p>
   </div>
 </section>
-<aside id="plist" hidden><div class="head">playlist</div><ol></ol></aside>
 <section id="about" hidden>
   <a class="close" href="./" aria-label="back to the songs">&times;</a>
   <div class="inner">
@@ -87,7 +83,7 @@
 </header>
 <div id="count"></div>
 
-<aside id="lyrics" class="open"><div id="lyhead"><span>Lyrics</span><button id="lytoggle" class="ic" aria-label="Hide lyrics"><svg><use href="#i-close"/></svg></button></div><div id="lycred"><b>Roman Shikhri</b><i id="lytitle">When God Wants to Make You Stronger</i></div><ol id="lylist"></ol></aside>
+<aside id="lyrics" class="open"><div id="lycred"><button id="lytoggle" class="ic" aria-label="Hide lyrics"><svg><use href="#i-close"/></svg></button><b>Roman Shikhri</b><i id="lytitle">When God Wants to Make You Stronger</i></div><ol id="lylist"></ol><div id="plist" hidden><div class="head">playlist</div><ol></ol></div></aside>
 <div id="player" hidden>
   <div id="pbottom">
     <div id="bar"><div id="fill"></div></div>
@@ -103,6 +99,8 @@
       <button id="mute" class="ic" title="mute (m)" aria-label="mute"><svg class="when-sound"><use href="#i-sound"/></svg><svg class="when-muted"><use href="#i-muted"/></svg></button>
       <button id="fs" class="ic" title="fullscreen (f)" aria-label="fullscreen"><svg><use href="#i-full"/></svg></button>
       <a id="nextsong" class="ic" href="./" title="next song" aria-label="next song"><svg><use href="#i-next"/></svg></a>
+      <button id="lyr" class="ic" hidden title="lyrics + playlist (l)" aria-label="lyrics"><svg><use href="#i-lyrics"/></svg></button>
+      <a class="ic" href="about/" title="about" aria-label="about"><svg><use href="#i-info"/></svg></a>
       <span id="tools" hidden>
         <button id="tap" title="Enter stamps the next line">tap-sync</button>
         <button id="save">save .lrc</button>
@@ -117,6 +115,6 @@
 </div>
 <div id="loading"></div>
 
-<script type="module" src="js/main.js?v=20261017010226"></script>
+<script type="module" src="js/main.js?v=20261017094556"></script>
 </body>
 </html>
