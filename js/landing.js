@@ -2,7 +2,8 @@
 // black paper under one hard street light. Hover brightens a bill; a click walks into that song.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FACADE } from './layout.js?v=20261017114822';
+import { FACADE } from './layout.js?v=20261017124227';
+import { LINE_URLS } from './songs.js?v=20261017124227';
 
 const EYE = 1.7;
 export function createLanding(scene, fonts, songs, root) {
@@ -125,7 +126,9 @@ export function createLanding(scene, fonts, songs, root) {
       }
     },
     click() { if (held || moved > 6 || performance.now() - downAt > 300) return;   // a walk or a turn is not a click
-      if (overNote) location.href = root + overNote.song.slug + '/line/' + overNote.line; else if (over) location.href = root + over.song.slug + '/'; },
+      if (overNote) { if (LINE_URLS) location.href = root + overNote.song.slug + '/line/' + overNote.line;
+        else { try { sessionStorage.setItem('noir-line', JSON.stringify({ slug: overNote.song.slug, line: overNote.line })); } catch { /* storage blocked: the song from the top */ } location.href = root + overNote.song.slug + '/'; } }
+      else if (over) location.href = root + over.song.slug + '/'; },
     get free() { return free.on; },
     teleport(x, y, z, yaw = 0, pitch = 0) { free.on = true; free.pos.set(x, y, z); free.vel.set(0, 0, 0); free.yaw = free.tyaw = yaw; free.pitch = free.tpitch = pitch; },
   };

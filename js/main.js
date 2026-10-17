@@ -7,15 +7,15 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261017114822';
-import { createProps } from './props.js?v=20261017114822';
-import { createSky } from './sky.js?v=20261017114822';
-import { createRoute } from './route.js?v=20261017114822';
-import { createSong, LEAD } from './song.js?v=20261017114822';
-import { SONGS } from './songs.js?v=20261017114822';
-import { clamp, fmt, toLRC } from './util.js?v=20261017114822';
-import { createLanding } from './landing.js?v=20261017114822';
-import { createDrops } from './drops.js?v=20261017114822';
+import { createCity } from './city.js?v=20261017124227';
+import { createProps } from './props.js?v=20261017124227';
+import { createSky } from './sky.js?v=20261017124227';
+import { createRoute } from './route.js?v=20261017124227';
+import { createSong, LEAD } from './song.js?v=20261017124227';
+import { SONGS, LINE_URLS } from './songs.js?v=20261017124227';
+import { clamp, fmt, toLRC } from './util.js?v=20261017124227';
+import { createLanding } from './landing.js?v=20261017124227';
+import { createDrops } from './drops.js?v=20261017124227';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -131,8 +131,9 @@ setTimeout(endLoader, LOADER_MS);
 // first touch/scroll/key anywhere unmutes it silently. The analyser is wired only once the browser allows audio.
 let needUnmute = false;
 // a deep link /<song>/line/<n> starts the song at that line
-const LINE_AT = (() => { const m = location.pathname.match(/\/([^/]+)\/line\/(\d+)\/?$/); if (!m || m[1] !== current.slug) return 0;   // /<song>/ alone starts from the top
-  const L = timing.lines[parseInt(m[2], 10) - 1]; return L && L.t != null ? Math.max(0, L.t - 0.15) : 0; })();
+const LINE_AT = (() => { let n = 0; const m = location.pathname.match(/\/([^/]+)\/line\/(\d+)\/?$/); if (m && m[1] === current.slug) n = parseInt(m[2], 10);   // /<song>/ alone starts from the top
+  try { const h = JSON.parse(sessionStorage.getItem('noir-line') || 'null'); sessionStorage.removeItem('noir-line'); if (h && h.slug === current.slug && !n) n = h.line; } catch { /* storage blocked */ }   // a front-page quote
+  const L = n ? timing.lines[n - 1] : null; return L && L.t != null ? Math.max(0, L.t - 0.15) : 0; })();
 async function startSong() {
   if (LINE_AT > 0 && audio.readyState < 1) {                                   // seek only once the file is known, or the seek is lost
     const known = await new Promise(r => { audio.addEventListener('loadedmetadata', () => r(true), { once: true }); setTimeout(() => r(false), 6000); });
@@ -225,8 +226,9 @@ function markLyrics(t) {
   if (n === lyNow) return;
   if (lyNow >= 0) lyItems[lyNow].classList.remove('now');
   lyNow = n; if (n >= 0) { lyItems[n].classList.add('now'); lyItems[n].scrollIntoView({ block: 'center', behavior: 'smooth' }); }
-  // the address follows the line: /<song>/line/<n> (1-based, as listed in the panel)
-  try { history.replaceState(null, '', ROOT + current.slug + (n >= 0 ? `/line/${n + 1}` : '/')); } catch { /* file:// and friends */ }   // before the first line: /<song>/
+  // the address follows the line: /<song>/line/<n> (1-based, as listed in the panel). Switched off (LINE_URLS): it stays /<song>/
+  if (LINE_URLS) { try { history.replaceState(null, '', ROOT + current.slug + (n >= 0 ? `/line/${n + 1}` : '/')); } catch { /* file:// and friends */ } }   // before the first line: /<song>/
+  else if (/\/line\/\d+\/?$/.test(location.pathname)) { try { history.replaceState(null, '', ROOT + current.slug + '/'); } catch { /* */ } }   // an old line link: tidy the address once
 }
 let idleTimer = 0;
 addEventListener('pointermove', e => { $('player').classList.remove('idle'); idleTimer = 0; song.setPointer((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); });

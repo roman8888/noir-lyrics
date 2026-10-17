@@ -1,6 +1,6 @@
 // Per-line backdrops: a backlit noir "frame" with a silhouette motif chosen from the words of the line.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261017114822';
+import { clamp } from './util.js?v=20261017124227';
 
 // first rule that matches the line wins
 const RULES = [

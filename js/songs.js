@@ -2,6 +2,12 @@
 // Each section has a "look" — the scene blends into it when the section starts:
 //   rain 0..1.5 · warm 0..1 (cold → gold light) · red 0..1 (red accents, harsher) · beam 0..1 (light from above)
 //   dawn 0..1 (sky opens) · cut 0|1 (hard cuts, words slam in) · fog
+// Line addresses (/<song>/line/<n>): kept, but switched off. GitHub Pages has no file at those paths, so it answers
+// "not found" and forwards through 404.html; WhatsApp and Google read that as a broken link. With this off the address stays
+// /<song>/ while you listen, and a quote on the front page still opens its song at that line (handed over in sessionStorage).
+// Old /line/<n> links keep working. Turn back on once every line has a real page (or the site is on a server with rewrites).
+export const LINE_URLS = false;
+
 export const LOOKS = {
   'Intro':        { rain: 0.8, warm: 0,  red: 0.15, beam: 0.0,  dawn: 0,    cut: 0, fog: 0.05 },
   'Verse 1':      { rain: 1.1, warm: 0, red: 0.3,  beam: 0.0,  dawn: 0,    cut: 0, fog: 0.045 },
