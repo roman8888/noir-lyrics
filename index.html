@@ -10,12 +10,22 @@
 (() => { const q = new URLSearchParams(location.search), p = q.get('p');
   if (p) history.replaceState(null, '', p);
   const root = location.pathname.replace(/[^/]+\/?(line\/\d+\/?)?$/, '').replace(/\/?$/, '/');   // strips /<song>/ and /<song>/line/<n>
-  const b = document.createElement('base'); b.href = location.origin + root; document.head.appendChild(b); window.__root = root; })();
+  const b = document.createElement('base'); b.href = location.origin + root; document.head.appendChild(b); window.__root = root;
+  // the intro (the bleeding note + %): only the first time the front page opens in this session, for 2 s. Everywhere else: none.
+  const seg = location.pathname.slice(root.length).split('/')[0]; let seen = true; try { seen = !!sessionStorage.getItem('noir-intro'); sessionStorage.setItem('noir-intro', '1'); } catch { /* storage blocked */ }
+  if (seg !== '' || seen) { document.documentElement.classList.add('noload'); return; }
+  const I = window.__intro = { t0: performance.now(), ready: false, skip: false };
+  const tick = () => { const el = document.getElementById('loading'); if (!el) return requestAnimationFrame(tick);
+    const k = Math.min(1, (performance.now() - I.t0) / 2000), pct = Math.round(100 * Math.min(k, I.ready ? 1 : 0.95));   // never 100% before the city is built
+    const out = el.querySelector('.pct'); if (out) out.textContent = pct + '%';
+    if ((k >= 1 && I.ready) || (I.skip && I.ready)) { if (out) out.textContent = '100%'; el.classList.add('gone'); return; }
+    requestAnimationFrame(tick); };
+  requestAnimationFrame(tick); })();
 </script>
 <title>Roman — When God Wants to Make You Stronger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=20261017124227">
+<link rel="stylesheet" href="css/site.css?v=20261017124428">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -115,8 +125,8 @@
 <div id="ending" hidden>
   <button id="again">play again</button>
 </div>
-<div id="loading"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M58 14 v44 a11 9 0 1 1 -5 -7.4 V14 Z" fill="#ece8e1"/><path d="M58 14 c10 6 16 12 16 22 c0 6 -4 9 -8 12 c3 -8 1 -14 -8 -20 Z" fill="#d8281f"/><path class="drop" d="M66 48 c0 0 -5 7 -5 10 a5 5 0 0 0 10 0 c0 -3 -5 -10 -5 -10Z" fill="#d8281f"/></svg><span>hyperfeeling</span></div>
+<div id="loading"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M58 14 v44 a11 9 0 1 1 -5 -7.4 V14 Z" fill="#ece8e1"/><path d="M58 14 c10 6 16 12 16 22 c0 6 -4 9 -8 12 c3 -8 1 -14 -8 -20 Z" fill="#d8281f"/><path class="drop" d="M66 48 c0 0 -5 7 -5 10 a5 5 0 0 0 10 0 c0 -3 -5 -10 -5 -10Z" fill="#d8281f"/></svg><span>hyperfeeling</span><span class="pct">0%</span></div>
 
-<script type="module" src="js/main.js?v=20261017124227"></script>
+<script type="module" src="js/main.js?v=20261017124428"></script>
 </body>
 </html>

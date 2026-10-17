@@ -56,7 +56,7 @@ button:hover { opacity: 1; }
 #ending p { margin: 12px 0 18px .2em; font-style: italic; font-size: clamp(16px, 2vw, 26px); opacity: .85; }
 @keyframes fadein { from { opacity: 0; } }
 
-#loading { position: fixed; inset: 0; z-index: 5; background: var(--ink); transition: opacity 1.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+#loading { position: fixed; inset: 0; z-index: 5; background: var(--ink); transition: opacity .6s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
 #loading .mark { width: 96px; height: 96px; overflow: visible; }
 #loading .drop { transform-box: fill-box; transform-origin: 50% 0; animation: logodrip 2.4s cubic-bezier(.4,0,.6,1) infinite; }
 #loading .mark, #loading span { animation: logoin 1.4s ease-out both; }
@@ -66,6 +66,8 @@ button:hover { opacity: 1; }
   54% { transform: translateY(30px) scale(1, 1.15); opacity: 1; } 64% { transform: translateY(36px) scale(.9); opacity: 0; } 100% { transform: translateY(36px) scale(.2); opacity: 0; } }
 @keyframes logoin { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 #loading.gone { opacity: 0; pointer-events: none; }
+.noload #loading { display: none; }                                   /* the intro is for the first front-page visit only */
+#loading .pct { margin-top: -6px; font-size: 11px; letter-spacing: .2em; color: rgba(236,232,225,.6); font-variant-numeric: tabular-nums; animation: none; }
 
 @media (max-width: 600px) {
   #titles, #ending { left: 16px; right: 16px; }
