@@ -7,15 +7,15 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261017100830';
-import { createProps } from './props.js?v=20261017100830';
-import { createSky } from './sky.js?v=20261017100830';
-import { createRoute } from './route.js?v=20261017100830';
-import { createSong, LEAD } from './song.js?v=20261017100830';
-import { SONGS } from './songs.js?v=20261017100830';
-import { clamp, fmt, toLRC } from './util.js?v=20261017100830';
-import { createLanding } from './landing.js?v=20261017100830';
-import { createDrops } from './drops.js?v=20261017100830';
+import { createCity } from './city.js?v=20261017101743';
+import { createProps } from './props.js?v=20261017101743';
+import { createSky } from './sky.js?v=20261017101743';
+import { createRoute } from './route.js?v=20261017101743';
+import { createSong, LEAD } from './song.js?v=20261017101743';
+import { SONGS } from './songs.js?v=20261017101743';
+import { clamp, fmt, toLRC } from './util.js?v=20261017101743';
+import { createLanding } from './landing.js?v=20261017101743';
+import { createDrops } from './drops.js?v=20261017101743';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -161,7 +161,7 @@ const togglePlay = () => { if (audio.paused) { userPaused = false; audio.play();
 $('pp').addEventListener('click', togglePlay);
 const lineStep = dir => { const ts = timing.lines.map(L => L.t).filter(t => t != null).sort((x, y) => x - y), now = audio.currentTime;
   const to = dir > 0 ? ts.find(t => t > now + 0.3) : [...ts].reverse().find(t => t < now - 1.0); if (to != null) audio.currentTime = Math.max(0, to - 0.15); };
-$('prevline').addEventListener('click', () => lineStep(-1)); $('nextline').addEventListener('click', () => lineStep(1));
+// (the line-step buttons are gone from the strip; ↑/↓ on the keyboard still step lines)
 $('restart').addEventListener('click', () => { audio.currentTime = 0; if (audio.paused) { userPaused = false; audio.play().catch(() => {}); } });
 $('mute').addEventListener('click', () => { audio.muted = !audio.muted; $('mute').classList.toggle('muted', audio.muted); });
 $('lyr').addEventListener('click', () => openLyrics(!$('lyrics').classList.contains('open')));

@@ -15,7 +15,7 @@
 <title>Roman — When God Wants to Make You Stronger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=20261017100830">
+<link rel="stylesheet" href="css/site.css?v=20261017101743">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -38,6 +38,7 @@
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M12 10.5v6M12 7.6v.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-drop" viewBox="0 0 100 100"><path d="M58 14 v44 a11 9 0 1 1 -5 -7.4 V14 Z" fill="#ece8e1"/><path d="M58 14 c10 6 16 12 16 22 c0 6 -4 9 -8 12 c3 -8 1 -14 -8 -20 Z" fill="currentColor"/><path d="M66 48 c0 0 -5 7 -5 10 a5 5 0 0 0 10 0 c0 -3 -5 -10 -5 -10Z" fill="currentColor"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="5.5" y="5.5" width="13" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
   <symbol id="i-rec" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.2" fill="none" opacity=".5"/></symbol>
 </svg>
 <canvas id="gl"></canvas>
@@ -92,11 +93,9 @@
       <button id="lowpower" hidden title="pre-recorded (low-power mode) · tap for the live city" aria-label="pre-recorded, tap for the live city"><i></i><span>rec</span></button>
       <span id="clock">0:00</span>
       <span class="grow"></span>
-      <button id="prevline" class="ic" title="previous line (↑)" aria-label="previous line"><svg><use href="#i-prev"/></svg></button>
       <button id="pp" class="ic big" aria-label="play or pause"><svg class="when-paused"><use href="#i-play"/></svg><svg class="when-playing"><use href="#i-pause"/></svg></button>
-      <button id="nextline" class="ic" title="next line (↓)" aria-label="next line"><svg><use href="#i-next"/></svg></button>
       <span class="grow"></span>
-      <button id="restart" class="ic" title="from the top" aria-label="restart"><svg><use href="#i-restart"/></svg></button>
+      <button id="restart" class="ic" title="reset to the top" aria-label="reset"><svg><use href="#i-stop"/></svg></button>
       <button id="mute" class="ic" title="mute (m)" aria-label="mute"><svg class="when-sound"><use href="#i-sound"/></svg><svg class="when-muted"><use href="#i-muted"/></svg></button>
       <button id="fs" class="ic" title="fullscreen (f)" aria-label="fullscreen"><svg><use href="#i-full"/></svg></button>
       <a id="nextsong" class="ic" href="./" title="next song" aria-label="next song"><svg><use href="#i-next"/></svg></a>
@@ -116,6 +115,6 @@
 </div>
 <div id="loading"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M58 14 v44 a11 9 0 1 1 -5 -7.4 V14 Z" fill="#ece8e1"/><path d="M58 14 c10 6 16 12 16 22 c0 6 -4 9 -8 12 c3 -8 1 -14 -8 -20 Z" fill="#d8281f"/><path class="drop" d="M66 48 c0 0 -5 7 -5 10 a5 5 0 0 0 10 0 c0 -3 -5 -10 -5 -10Z" fill="#d8281f"/></svg><span>hyperfeeling</span></div>
 
-<script type="module" src="js/main.js?v=20261017100830"></script>
+<script type="module" src="js/main.js?v=20261017101743"></script>
 </body>
 </html>
