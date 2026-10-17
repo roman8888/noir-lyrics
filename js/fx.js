@@ -1,7 +1,7 @@
 // Words that act out what they mean: "fade" fades, "fall" falls, "fly" flies away, "drown" sinks...
 // Each effect runs after the word is sung. age = seconds since it was sung.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261017102144';
+import { clamp } from './util.js?v=20261017102923';
 
 const RED = new THREE.Color(0.36, 0.015, 0.03), EMBER = new THREE.Color(0.8, 0.12, 0.05), GOLD = new THREE.Color(0.85, 0.88, 1.0);   // 'GOLD' is now a pale cold light: no yellow in this film
 const BLUE = new THREE.Color(0.25, 0.4, 0.6), ASH = new THREE.Color(0.2, 0.19, 0.18);

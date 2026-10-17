@@ -2,8 +2,8 @@
 // storyboard follows the words wherever the timing puts them. Rules as ever: dark city, red = blood, no yellow.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FACADE, ROW2, CHURCH, lampZs } from './layout.js?v=20261017102144';
-import { rng, clamp } from './util.js?v=20261017102144';
+import { FACADE, ROW2, CHURCH, lampZs } from './layout.js?v=20261017102923';
+import { rng, clamp } from './util.js?v=20261017102923';
 
 const ease = x => 1 - Math.pow(1 - clamp(x), 3);
 const smooth = x => { x = clamp(x); return x * x * (3 - 2 * x); };
