@@ -7,15 +7,15 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
-import { createCity } from './city.js?v=20261017100122';
-import { createProps } from './props.js?v=20261017100122';
-import { createSky } from './sky.js?v=20261017100122';
-import { createRoute } from './route.js?v=20261017100122';
-import { createSong, LEAD } from './song.js?v=20261017100122';
-import { SONGS } from './songs.js?v=20261017100122';
-import { clamp, fmt, toLRC } from './util.js?v=20261017100122';
-import { createLanding } from './landing.js?v=20261017100122';
-import { createDrops } from './drops.js?v=20261017100122';
+import { createCity } from './city.js?v=20261017100542';
+import { createProps } from './props.js?v=20261017100542';
+import { createSky } from './sky.js?v=20261017100542';
+import { createRoute } from './route.js?v=20261017100542';
+import { createSong, LEAD } from './song.js?v=20261017100542';
+import { SONGS } from './songs.js?v=20261017100542';
+import { clamp, fmt, toLRC } from './util.js?v=20261017100542';
+import { createLanding } from './landing.js?v=20261017100542';
+import { createDrops } from './drops.js?v=20261017100542';
 
 const $ = id => document.getElementById(id);
 const FONTS = { roman: 'fonts/playfair-700-normal.woff', italic: 'fonts/playfair-700-italic.woff' };
@@ -123,7 +123,10 @@ if (new URLSearchParams(location.search).has('edit')) $('tools').hidden = false;
 let mode = 'song', dropsFallen = 0;
 const DROP_AT = [1.0, 2.8, 4.6, 6.4, 8.2], TITLES_OFF = timing.lines[0].t - 1.2;
 const clock = new THREE.Clock();
-setTimeout(() => { $('loading').classList.add('gone'); }, 150);
+// the loader stays for a couple of drops (two 2.4 s cycles), then fades; the song starts as it goes. A touch ends it early.
+const LOADER_MS = LANDING ? 2400 : 4800; let started = false;
+const endLoader = () => { if ($('loading').classList.contains('gone')) return; $('loading').classList.add('gone'); if (!LANDING && !started && (!RECORD || Q.has('auto'))) { started = true; startSong(); } };
+setTimeout(endLoader, LOADER_MS);
 // Autoplay: the song starts by itself. If the browser refuses sound before any touch, it starts muted and the
 // first touch/scroll/key anywhere unmutes it silently. The analyser is wired only once the browser allows audio.
 let needUnmute = false;
@@ -144,9 +147,9 @@ async function startSong() {
     try { await audio.play(); } catch { /* nothing more we can do until a gesture */ } }
   if (actx) actx.resume();
 }
-if (!LANDING) { $('player').hidden = false; $('lyr').hidden = false; $('barsong').textContent = current.title; if (!RECORD || Q.has('auto')) startSong(); }   // recording waits for one click (the audio graph needs it) unless &auto=1 (a Chrome launched with autoplay allowed)
+if (!LANDING) { $('player').hidden = false; $('lyr').hidden = false; $('barsong').textContent = current.title; }   // the song starts when the loader ends (recording waits for one click unless &auto=1)
 const unlock = () => {
-  ensureAudioGraph(); actx.resume();
+  ensureAudioGraph(); actx.resume(); endLoader();
   if (needUnmute) { needUnmute = false; audio.muted = false; $('mute').classList.remove('muted', 'ask'); }
   if (audio.paused && !userPaused) audio.play().catch(() => {});
 };
