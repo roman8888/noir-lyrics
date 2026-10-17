@@ -1,7 +1,7 @@
 // Words that act out what they mean: "fade" fades, "fall" falls, "fly" flies away, "drown" sinks...
 // Each effect runs after the word is sung. age = seconds since it was sung.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261017101743';
+import { clamp } from './util.js?v=20261017102144';
 
 const RED = new THREE.Color(0.36, 0.015, 0.03), EMBER = new THREE.Color(0.8, 0.12, 0.05), GOLD = new THREE.Color(0.85, 0.88, 1.0);   // 'GOLD' is now a pale cold light: no yellow in this film
 const BLUE = new THREE.Color(0.25, 0.4, 0.6), ASH = new THREE.Color(0.2, 0.19, 0.18);
@@ -64,7 +64,7 @@ const FX = {
     const k = ease(a / 0.6); m.position.z += 0.5 * k; m.scale.multiplyScalar(1 + 0.08 * k); x.glow(0.25 * k, GOLD);
   },
   huge(m, u, a, x) {                           // "so am I": the I grows into a tower of itself
-    const k = ease(a / 0.8); m.scale.multiplyScalar(1 + 5.5 * k); m.position.y += 1.6 * k; m.position.z -= 0.4 * k; x.glow(0.35 * k, GOLD);
+    const k = ease(a / 0.8); m.scale.multiplyScalar(1 + 4.2 * k); m.position.y -= 0.9 * k; m.position.z -= 0.4 * k; x.glow(0.35 * k, GOLD);   // on its own row under the words, growing down and out, never over them
   },
   grow(m, u, a, x) {                           // "I'm coming for me": the me swells through the singing until it is as wide as the whole sentence
     const k = ease(a / 3.2), sc = 1 + ((u.growTo || 4) - 1) * k; m.scale.multiplyScalar(sc); m.position.y -= (sc - 1) * 0.3; m.position.z += 0.2 * k; x.tint(RED, k); x.glow(0.35 * k, RED);

@@ -2,10 +2,10 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261017101743';
-import { fxFor, applyFx } from './fx.js?v=20261017101743';
-import { FACADE } from './layout.js?v=20261017101743';
-import { LOOKS, MOODS } from './songs.js?v=20261017101743';
+import { clamp, easeOutExpo } from './util.js?v=20261017102144';
+import { fxFor, applyFx } from './fx.js?v=20261017102144';
+import { FACADE } from './layout.js?v=20261017102144';
+import { LOOKS, MOODS } from './songs.js?v=20261017102144';
 
 // every word appears 0.2 s before its timestamp: Roman's ear test (the aligner marks vowel onsets a touch late); ?lead= overrides
 const LEAD_PARAM = parseFloat(new URLSearchParams(location.search).get('lead'));
@@ -92,7 +92,7 @@ export function createSong(fonts, scene, route, occluders = []) {
     const rows = [[]]; let rw = 0;
     for (const tk of toks) {
       tk.geo = wordGeo(tk.w, (tk.acc || !!mood.italic) && !L.title); tk.wd = tk.geo.width * tk.ws;
-      if (rw > 0 && (rw + SPACE + tk.wd > maxW || (tk === toks.at(-1) && /coming for me/i.test(L.text)))) { rows.push([]); rw = 0; }   // "I'm coming for me": the me stands alone on its own row
+      if (rw > 0 && (rw + SPACE + tk.wd > maxW || (tk === toks.at(-1) && /coming for me|^and so am i/i.test(L.text)))) { rows.push([]); rw = 0; }   // "I'm coming for me" / "And so am I": the last word stands alone on its own row
       rows.at(-1).push(tk); rw += (rw ? SPACE : 0) + tk.wd;
     }
     const rowH = rows.map(row => LINE_H * Math.max(...row.map(tk => tk.ws))), totH = rowH.reduce((s, b) => s + b, 0);
