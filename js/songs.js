@@ -23,7 +23,7 @@ export const MOODS = {
     [/venom of people/i,        { size: 1.0, italic: true, tone: 'ash', arrive: 'slow', motion: 'tremble' }],
     [/standing all alone/i,     { size: 0.95, italic: true, tone: 'pale', arrive: 'slow', motion: 'drift' }],
     [/coming to save you|from here|from them|on my way to you/i, { size: 1.0, italic: true, tone: 'pale', arrive: 'slow' }],
-    [/^i'm coming\.?$/i,         { size: 1.3, tone: 'blood', arrive: 'slam', motion: 'still' }],
+    [/^(i'm coming\.?\s*)+$/i,     { size: 1.3, tone: 'blood', arrive: 'slam', motion: 'still' }],
     [/talk too much|bury you in words/i, { size: 1.08, arrive: 'slam', motion: 'tremble' }],
     [/enough words in any language/i,    { size: 0.92, tone: 'pale', arrive: 'slow', motion: 'drift' }],
     [/how rotten/i,             { size: 1.1, tone: 'ash', arrive: 'slam', motion: 'sink' }],

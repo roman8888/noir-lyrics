@@ -2,8 +2,8 @@
 // Each beat is a list of keys [fraction of the section, x, y, z]; the camera eases from key to key and lingers
 // where two keys sit at the same place. Every lyric line is placed squarely facing the camera, never tilted.
 import * as THREE from 'three';
-import { clamp } from './util.js?v=20261017103440';
-import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261017103440';
+import { clamp } from './util.js?v=20261017114822';
+import { FACADE, ROW2, ALLEYS, ROOM, BRIDGE, CHURCH, TOWER, ZS } from './layout.js?v=20261017114822';
 
 const EYE = 1.7;
 const A1 = ALLEYS[0], A2 = ALLEYS[1];
@@ -61,13 +61,13 @@ const ORDER1 = ['Pre', 'Intro', 'Verse 1', 'Rap 1', 'Pre-Chorus', 'Chorus', 'Ver
 // alley meets it at z -672, flooded. No street lamps here, only bulbs on wires (props2).
 const LANE = -23, A3 = ALLEYS[2];
 const BEATS2 = {
-  Pre:     { sky: 'night', keys: [[0, LANE, 92, -210], [0.5, LANE, 40, -260], [0.85, LANE, 8, -290], [1, LANE, EYE + 0.3, -300]], place: ['sky'], lookAt: new THREE.Vector3(LANE, 44, -370), lookMix: 0.85 },
+  Pre:     { sky: 'night', keys: [[0, LANE, 92, -210], [0.5, LANE, 40, -260], [0.85, LANE, 8, -290], [1, LANE, EYE + 0.3, -300]], place: ['sky'], looks: [[0, LANE, 44, -370, 0.85], [0.7, LANE, 20, -380, 0.85], [1, LANE, 2.2, -340, 0.9]] },   // the eyes come down to the lane before the first line
   Intro:   { sky: 'night', keys: [[0, LANE, EYE, -300], [0.58, LANE, EYE, -318], [1, LANE, EYE, -352]], walk: 1,     // slow and heavy, then the walk picks up on "I'm on my way to you"
              place: ['ahead', 'ahead', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'ahead'], dist: 16 },
   'Verse 1': { sky: 'verse', keys: [[0, LANE, EYE, -352], [0.5, LANE, EYE, -378], [1, LANE, EYE, -405]], walk: 1,
              place: ['banner', 'ahead', 'banner', 'ahead', 'banner', 'banner', 'ahead', 'banner'], dist: 17 },
   'Pre-Chorus': { sky: 'storm', keys: [[0, LANE, EYE, -405], [1, LANE, EYE, -500]], walk: 1,
-             place: ['ahead', 'sky', 'ahead', 'banner', 'banner', 'ahead', 'ahead'], dist: 20 },
+             place: ['ahead', 'ahead', 'ahead', 'banner', 'banner', 'ahead', 'ahead'], dist: 20 },   // (no 'sky' in the lane: its 2.6× letters sit 8 m away under the wires)
   Chorus:  { sky: 'storm', keys: [[0, LANE, EYE, -500], [1, LANE, EYE, -640]], stride: 1,
              place: ['ahead', 'ahead', 'banner', 'ahead', 'banner', 'ahead', 'ahead', 'banner', 'ahead', 'banner', 'ahead'], dist: 20 },
   // the flooded crossing: the hands and the water again, and this time you come up
@@ -107,6 +107,7 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
     b.t1 = next ? (sec[next] ?? 1e9) - 0.6 : b.t0 + 34;
     b.lines = lines.map((L, i) => ({ L, i })).filter(x => x.L.t >= b.t0 && x.L.t < b.t1).map(x => x.i);
     const pts = b.keys.map(kk => new THREE.Vector3(kk[1], kk[2], kk[3]));
+    const two = pts.length === 2; if (two) pts.splice(1, 0, pts[0].clone().lerp(pts[1], 0.5));   // two keys: a Catmull-Rom through two points bends BACKWARDS at its start (the camera jumped, lines landed behind you); a midpoint on the curve only — the pacing still has two keys, no stop halfway
     for (let i = 1; i < pts.length; i++) if (pts[i].distanceTo(pts[i - 1]) < 0.02) pts[i].z += 0.03 * i;   // the spline needs distinct points
     b.curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.5);
     const lens = b.curve.getLengths(400), total = lens[lens.length - 1] || 1;
@@ -115,6 +116,7 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
       let best = 0, bd = 1e9; for (let s = 0; s <= 400; s++) { const d = b.curve.getPoint(s / 400).distanceToSquared(p); if (d < bd) { bd = d; best = s; } }
       return lens[best] / total;
     });
+    if (two) b.uAt = [0, 1];
     beats.push(b);
   });
   const beatAt = t => { let b = beats[0]; for (const x of beats) if (x.t0 <= t) b = x; return b; };
@@ -191,10 +193,13 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
     if (anchors.has(i)) return anchors.get(i);
     const L = lines[i]; let b = beatAt(L.t); const idx = Math.max(0, b.lines.indexOf(i));
     const kind = b.place[idx % b.place.length];
-    const cam = pose(prayAt(L.t + 0.9) > 0 ? T_PRAY : L.t + 0.9);              // a line sung with the eyes up is placed where the eyes will be
+    const nextT = lines.slice(i + 1).find(x => x.t != null)?.t ?? L.t + 4, mid = Math.max(0.9, Math.min(2.0, 0.45 * (nextT - L.t)));   // the eyes may still be swinging as the line starts: place it where they will be in the middle of it
+    const cam = pose(prayAt(L.t + 0.9) > 0 ? T_PRAY : L.t + (L.t < 8 ? 2.2 : mid));   // a line sung with the eyes up is placed where the eyes will be; the first lines where the descent will have landed
     const fb = clamp((L.t - b.t0) / (b.t1 - b.t0)); if (b.dist2 && fb >= b.dist2[0]) b = { ...b, dist: b.dist2[1] };   // a beat may change its distance partway (out of the alley)
     const camPos = cam.pos.clone();
     const fwd = tmp.copy(cam.look).sub(cam.pos); fwd.y = 0; if (fwd.lengthSq() < 1e-4) fwd.set(0, 0, -1); fwd.normalize();
+    if (CARS.some(c => { const k = L.t + 0.9 - c.t; return k > 0.8 && k < 5.4; })) {                 // the eyes are on a passing car: place the line down the road, where they come back to
+      const p1 = pose(L.t + 1.6).pos.clone(), p0 = pose(L.t + 0.4).pos; p1.sub(p0); p1.y = 0; if (p1.lengthSq() > 0.09) fwd.copy(p1.normalize()); }
     const yawTo = (from, to) => Math.atan2(from.x - to.x, from.z - to.z);
     const pos = new THREE.Vector3(), q = new THREE.Quaternion(), E = new THREE.Euler(); let scale = 1;
     switch (kind) {
@@ -217,9 +222,13 @@ export function createRoute(timing, slug = 'when-god-wants-to-make-you-stronger'
         pos.z = Math.min(al.z + al.w / 2 - 0.5, Math.max(al.z - al.w / 2 + 0.5, pos.z));
         if (Math.abs(pos.x) > ROW2 - 1.5) pos.x = Math.sign(pos.x) * (ROW2 - 1.5);
       } else if (Math.abs(pos.x) > FACADE - 1.3 && pos.y < 40 && Math.abs(cam.pos.x) < FACADE - 1.3) pos.x = Math.sign(pos.x) * (FACADE - 1.3);   // (not when the camera itself is inside a building)
+      if (cam.pos.x < -18.5 && cam.pos.x > -27.5 && pos.y < 40) { pos.x = Math.max(LANE - 2.3, Math.min(LANE + 2.3, pos.x)); pos.z = Math.min(pos.z, cam.pos.z - Math.max(8, (b.dist ?? 9) - 1)); }   // the back lane: a line never leaves its 8 m, never behind you (a turning look once put one inside the row-0 wall)
       q.setFromEuler(E.set(0, yawTo(cam.pos, pos), 0));
     }
-    const a = { pos, q, scale, kind, beat: b, camPos, fall: i === I_FALL };   // fall: the letters drop to the road after the line
+    let noOcc = false;
+    if (cam.pos.y < 1.25 && kind !== 'room') {                                                      // sung from the water, inside the ring of hands: small, close, in the clear centre, and the occlusion rule leaves it alone
+      pos.copy(cam.pos).addScaledVector(fwd, 3.0); pos.y = cam.pos.y + 0.06; scale = 0.17; q.setFromEuler(E.set(0, yawTo(cam.pos, pos), 0)); noOcc = true; }   // ~22° wide: inside the clear centre the hands leave
+    const a = { pos, q, scale, kind, beat: b, camPos, fall: i === I_FALL, noOcc };   // fall: the letters drop to the road after the line
     anchors.set(i, a); return a;
   }
 

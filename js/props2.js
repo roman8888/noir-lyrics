@@ -2,8 +2,8 @@
 // storyboard follows the words wherever the timing puts them. Rules as ever: dark city, red = blood, no yellow.
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FACADE, ROW2, CHURCH, lampZs } from './layout.js?v=20261017103440';
-import { rng, clamp } from './util.js?v=20261017103440';
+import { FACADE, ROW2, CHURCH, lampZs } from './layout.js?v=20261017114822';
+import { rng, clamp } from './util.js?v=20261017114822';
 
 const ease = x => 1 - Math.pow(1 - clamp(x), 3);
 const smooth = x => { x = clamp(x); return x * x * (3 - 2 * x); };
@@ -69,7 +69,7 @@ export function createProps2(scene, city, timing, fonts, route, props) {
     m.userData = { x: over ? (r() - 0.5) * 3.2 : (r() - 0.5) * (GW - 0.5), dz: over ? (r() - 0.5) * (GL + 2.4) : (r() - 0.5) * (GL - 0.5), delay: i * 0.052 + r() * 0.1, spin: (r() - 0.5) * 4, yaw: (r() - 0.5) * 3.2, y0: 7 + r() * 5,
       rest: over ? 0.19 : -GD + 0.08 + (i / 105) * (GD + 0.1) };                          // the pile rises as the grave fills
     grave.add(m); rainGlyphs.push(m); }
-  let buryZ = null;
+  let buryZ = null; const gwp = new THREE.Vector3();
 
   // ---- "I've still got words you haven't heard yet": forty words from later in the song flicker into the lane ahead,
   //      each for a breath, pale, and are gone again — what is still to come
@@ -233,7 +233,8 @@ export function createProps2(scene, city, timing, fonts, route, props) {
       // -- the words that came too late
       if (T_LATE > 0 && t > T_LATE && t < T_LATE + 4.5) { const k = t - T_LATE, right = new THREE.Vector3(f.z, 0, -f.x);
         lateWords.forEach(m => { const u = m.userData, a = k - u.delay; m.visible = a > 0 && a < 3.2; if (!m.visible) return;
-          m.position.copy(cp).addScaledVector(f, -3 + a * u.sp).addScaledVector(right, u.dx); m.position.y = u.dy; m.quaternion.copy(camera.quaternion); m.material.opacity = 0.85 * Math.sin(Math.min(1, a / 3.2) * Math.PI); }); }
+          m.position.copy(cp).addScaledVector(f, -3 + a * u.sp).addScaledVector(right, u.dx + Math.sign(u.dx || 1) * 1.8); m.position.y = u.dy; m.quaternion.copy(camera.quaternion);   // beside the lens, never through it
+          const near = Math.max(0, 1 - m.position.distanceTo(cp) / 3.5); m.material.opacity = 0.85 * Math.sin(Math.min(1, a / 3.2) * Math.PI) * (1 - near); }); }
       else lateWords.forEach(m => (m.visible = false));
       // -- the man turns to you when he is done waiting
       if (T_NOTWAIT > 0 && man.visible && t > T_NOTWAIT && t < T_NOTWAIT + 3) { const k = t - T_NOTWAIT; man.rotation.y = Math.atan2(cp.x - man.position.x, cp.z - man.position.z) + Math.PI * (1 - ease(k / 1.2)); manLight.intensity = 16 + 22 * Math.exp(-k * 2.5); }
@@ -254,7 +255,11 @@ export function createProps2(scene, city, timing, fonts, route, props) {
         grave.visible = true; grave.scale.set(1, 1, open);                                          // the mouth opens along its length
         rainGlyphs.forEach(m => { const u = m.userData, q = clamp((k - u.delay) / 1.1), g = q * q;
           m.visible = q > 0; m.position.set(u.x, u.y0 - (u.y0 - u.rest) * g, u.dz);
-          m.rotation.set(-Math.PI / 2 * clamp(q * 1.25), u.yaw * q, u.spin * Math.sin(q * Math.PI) * 0.5); });
+          m.rotation.set(-Math.PI / 2 * clamp(q * 1.25), u.yaw * q, u.spin * Math.sin(q * Math.PI) * 0.5);
+          if (q > 0 && q < 1) { m.getWorldPosition(gwp); if (gwp.distanceTo(cp) < 3) m.visible = false;   // a word still in the air never crosses the lens,
+            else if (song?.live) { const gd = Math.hypot(gwp.x - cp.x, gwp.z - cp.z);                     // and passes BEHIND the sung line: hidden while it crosses the text band in front of it
+              for (const e of song.live.values()) { if (!e.hgt) continue; const ld = Math.hypot(e.group.position.x - cp.x, e.group.position.z - cp.z);
+                if (gd < ld && Math.abs(gwp.y - (cp.y + (e.group.position.y - cp.y) * gd / ld)) < (e.hgt * 0.5 + 0.35) * gd / ld + 0.25) { m.visible = false; break; } } } } });
         graveGlow.intensity = 14 * clamp(k / 3) + Math.sin(time * 7) * 0.6;
       } else grave.visible = false;
       // -- the words still to come

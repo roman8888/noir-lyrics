@@ -2,16 +2,17 @@
 // appears on its own timestamp, the sung word is lit by a follow-spot, words act out their meaning (fx.js).
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { clamp, easeOutExpo } from './util.js?v=20261017103440';
-import { fxFor, applyFx } from './fx.js?v=20261017103440';
-import { FACADE } from './layout.js?v=20261017103440';
-import { LOOKS, MOODS } from './songs.js?v=20261017103440';
+import { clamp, easeOutExpo } from './util.js?v=20261017114822';
+import { fxFor, applyFx } from './fx.js?v=20261017114822';
+import { FACADE } from './layout.js?v=20261017114822';
+import { LOOKS, MOODS } from './songs.js?v=20261017114822';
 
 // every word appears 0.2 s before its timestamp: Roman's ear test (the aligner marks vowel onsets a touch late); ?lead= overrides
 const LEAD_PARAM = parseFloat(new URLSearchParams(location.search).get('lead'));
 export const LEAD = Number.isFinite(LEAD_PARAM) ? Math.max(-1, Math.min(1, LEAD_PARAM)) : 0.2;
 const FLAT = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));   // text laid flat on the ground
 const SIZE = 0.56, DEPTH = 0.07, SPACE = SIZE * 0.42, LINE_H = SIZE * 1.6, MAXW = 7.4;
+const edgeR = new THREE.Vector3(), edgeP = new THREE.Vector3();
 const PAPER = new THREE.Color(0xf1eee8), INK = new THREE.Color(0x060607), COLD = new THREE.Color(0.62, 0.74, 0.9);
 const SMALL = new Set(['the','a','an','to','and','of','in','on','for','by','with','as','at','or','so','but','i','i\'m','i\'ll','you','your','you\'re','me','my','he','his','they','them','their','it','is','was','be','that','what','when','then','than','though','if','all','do','don\'t','who','there','were','will','would','we']);
 const KEYS = ['rain', 'warm', 'red', 'beam', 'dawn', 'cut', 'fog'];
@@ -69,7 +70,8 @@ export function createSong(fonts, scene, route, occluders = []) {
     for (const k of KEYS) P[k] = (prev[k] ?? 0) + ((cur[k] ?? 0) - (prev[k] ?? 0)) * (i === 0 ? 1 : f);
     if (i !== actIdx) { actIdx = i; onAct(cur); }
   }
-  const lineEnd = i => { const L = lines[i], n = lines[i + 1]; if (!n) return L.t + 9; return Math.min(n.t, L.t + Math.max(5, (L.words?.length || 6) * 0.7 + 3.5)); };
+  const nextOf = i => { for (let k = i + 1; k < lines.length; k++) if (lines[k].t != null) return lines[k]; return null; };   // the next line that is shown (a merged twin has t = null)
+  const lineEnd = i => { const L = lines[i], n = nextOf(i); if (!n) return L.t + 9; return Math.min(n.t, L.t + Math.max(5, (L.words?.length || 6) * 0.7 + 3.5)); };
 
   function build(i) {
     const L = lines[i], act = actAt(L.t), a = route.anchorFor(i);
@@ -106,7 +108,7 @@ export function createSong(fonts, scene, route, occluders = []) {
       if (a.pos.x + ext > lim) a.pos.x = lim - ext; else if (a.pos.x - ext < -lim) a.pos.x = -lim + ext;
       group.position.copy(a.pos);
     }
-    if (a.kind !== 'room' && a.camPos) {
+    if (a.kind !== 'room' && a.camPos && !a.noOcc) {
       // nothing may stand between the camera and the line
       const dir = new THREE.Vector3().subVectors(a.pos, a.camPos), dist = dir.length(); dir.normalize();
       // test the centre and both ends of the line (and a point below it): the nearest obstacle wins
@@ -128,11 +130,11 @@ export function createSong(fonts, scene, route, occluders = []) {
       let x = -total / 2; const y = totH / 2 - rowH.slice(0, ri).reduce((s, b) => s + b, 0) - rowH[ri] / 2;
       for (const tk of row) {
         const blood = tk.acc;
-        const mat = blood ? bloodMat.clone() : baseMat.clone();
+        const mat = blood ? bloodMat.clone() : baseMat.clone(); if (blood && mood.tone === 'blood' && !L.title) mat.emissiveIntensity = 1.0;   // a whole line in blood needs its own light to read on the night
         const mesh = new THREE.Mesh(tk.geo.g, mat); mesh.castShadow = true;
         const home = new THREE.Vector3(x + tk.wd / 2, y - (rowH[ri] / LINE_H - tk.ws) * SIZE * 0.4, 0);
         const seed = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
-        mesh.userData = { w: tk.w, home, seed, reveal: (tk.t ?? (L.t + wi * step)) - LEAD, acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : (/^and so am i/i.test(L.text) && /^i\.?$/i.test(tk.w) ? 'huge' : /the man you left standing/i.test(L.text) && /^man\.?$/i.test(tk.w) ? 'tall' : /coming for me/i.test(L.text) && /^me\.?$/i.test(tk.w) ? 'grow' : /not my soul/i.test(L.text) && /^soul[,.]?$/i.test(tk.w) ? 'soul' : fxFor(tk.w)), growTo: rows.length > 1 && ri > 0 ? Math.max(2, (rows[0].reduce((s2, q) => s2 + q.wd, 0) + SPACE * (rows[0].length - 1)) / tk.wd) : 1, tone: mood.tone, arrive: mood.arrive, motion: mood.motion, hl: 0, hov: 0 };
+        mesh.userData = { w: tk.w, home, seed, reveal: (tk.t ?? (L.t + wi * step)) - LEAD, acc: tk.acc, blood, base: mat.emissiveIntensity, cut: act.cut, ws: tk.ws, fx: L.title ? null : (/^and so am i/i.test(L.text) && /^i\.?$/i.test(tk.w) ? 'huge' : /the man you left standing/i.test(L.text) && /^man\.?$/i.test(tk.w) ? 'tall' : /coming for me/i.test(L.text) && /^me\.?$/i.test(tk.w) ? 'grow' : /not my soul/i.test(L.text) && /^soul[,.]?$/i.test(tk.w) ? 'soul' : (fxFor(tk.w) === 'shame' && /^enough/i.test(tk.w) && !/^enough of/i.test(L.text)) ? null : fxFor(tk.w)), growTo: rows.length > 1 && ri > 0 ? Math.max(2, (rows[0].reduce((s2, q) => s2 + q.wd, 0) + SPACE * (rows[0].length - 1)) / tk.wd) : 1, tone: mood.tone, arrive: mood.arrive, motion: mood.motion, hl: 0, hov: 0 };
         if (mesh.userData.fx === 'tight' || mesh.userData.fx === 'home' || a.fall) {   // built letter by letter: these words move as letters
           const chars = [...tk.w], geos = chars.map(ch => wordGeo(ch, tk.acc)), gap = SIZE * 0.1;
           const natW = geos.reduce((s2, g) => s2 + g.width, 0) + gap * (chars.length - 1), sqW = geos.reduce((s2, g) => s2 + g.width * 0.86, 0);
@@ -147,7 +149,7 @@ export function createSong(fonts, scene, route, occluders = []) {
           });
         } else { mesh.visible = false; group.add(mesh); words.push(mesh); }
         if (mesh.userData.fx === 'shame') {                      // shame shame shame: copies knock in around the word
-          const offs = [[-1.9, 0.9], [1.8, 1.0], [-2.1, -0.8], [2.0, -0.85], [-0.3, 1.5], [0.5, -1.45]];
+          const offs = [[-3.6, 1.6], [3.4, 1.9], [-4.1, -1.3], [3.9, -1.5], [-1.2, 2.6], [1.4, -2.5]].map(([ox, oy]) => [ox + (Math.random() - 0.5) * 1.2, oy + (Math.random() - 0.5) * 0.8]);   // scattered wide round the line, never on it
           offs.forEach(([ox, oy], k) => {
             const d = new THREE.Mesh(tk.geo.g, mesh.material.clone()); d.castShadow = true;
             d.userData = { ...mesh.userData, home: home.clone().add(new THREE.Vector3(ox, oy, -0.4 - k * 0.1)), reveal: mesh.userData.reveal + 0.12 + k * 0.14, ws: tk.ws * (0.8 + (k % 3) * 0.12), dup: true, seed: seed.clone() };
@@ -168,7 +170,17 @@ export function createSong(fonts, scene, route, occluders = []) {
       if (fit < 1) group.scale.multiplyScalar(fit);
     }
     for (const m of words) m.layers.set(1);
-    scene.add(group); live.set(i, { group, words, a });
+    const lineW = Math.max(...rows.map(row => row.reduce((s2, tk) => s2 + tk.wd, 0) + SPACE * (row.length - 1))) * group.scale.x;   // the line's width in metres (for the frame-edge fade)
+    // a short line the next one crowds out within a breath ("I'm coming." right before "No more standing…"): it stays ~1.8 s,
+    // lifted one line-height above where the next line will land, so the two read as a stanza and never sit on each other
+    let nk = -1; for (let k = i + 1; k < lines.length; k++) if (lines[k].t != null) { nk = k; break; }
+    const nl = nk >= 0 ? lines[nk] : null, lastW = Math.max(L.t, ...(L.words || []).map(w => w.t ?? L.t)); let crowd = 0;
+    if (nl && !L.title && toks.length <= 6 && nl.t - lastW < 1.4 && a.kind !== 'room') {
+      crowd = Math.max(0, L.t + 1.8 - nl.t + 0.15);
+      group.position.y += (totH * 0.5 + LINE_H * 0.8) * group.scale.y; }                     // a first lift; the frame loop then stacks it above the next line on screen
+    if (a.noOcc) for (const m of words) { m.material.depthTest = false; m.renderOrder = 20; }   // under the water the hands are on the lens: the line reads over them, a subtitle in the water
+    const carryTo = (lastW - L.t > 3 && !a.noOcc && a.kind !== 'room' && !a.fall) ? lastW + 0.8 : 0;   // a line sung over 3 s or more walks ahead of you until its last word (else you pass it before it is finished)
+    scene.add(group); live.set(i, { group, words, a, lineW, crowd, nk, baseY: group.position.y, hgt: totH * group.scale.y, carryTo, prevCam: camera.position.clone(), vOff: 0 });
   }
   function drop(i) { const e = live.get(i); if (!e) return; e.words.forEach(m => m.material.dispose()); scene.remove(e.group); live.delete(i); }
   const clear = () => { for (const i of [...live.keys()]) drop(i); };
@@ -194,6 +206,11 @@ export function createSong(fonts, scene, route, occluders = []) {
       clear(); actIdx = -1;
       song = { ...s, acts: timing.sections.map(x => ({ ...(LOOKS[x.name] || LOOKS['Verse 1']), name: x.name, desc: x.desc, t: x.name === 'Intro' ? 0 : x.t - 0.8 })) };
       lines = timing.lines.slice();
+      // "I'm coming. I'm coming.": whisper stamps the twin a breath after the first, so the first was gone before it could be read.
+      // The pair is shown as one line; every word still lands on its own sung moment. (Indices stay put: the twin is only hidden.)
+      for (let i = 0; i + 1 < lines.length; i++) { const A = lines[i], B = lines[i + 1];
+        if (A.t != null && B.t != null && A.text.trim().toLowerCase() === B.text.trim().toLowerCase() && B.t - A.t < 1.6 && (A.words || []).length <= 4) {
+          lines[i] = { ...A, text: A.text + ' ' + B.text, words: [...(A.words || []), ...(B.words || [])] }; lines[i + 1] = { ...B, t: null }; } }
       route.pose(-0.5, pose); camBase.copy(pose.pos); look.copy(pose.look);
     },
     lines: () => lines,
@@ -215,18 +232,47 @@ export function createSong(fonts, scene, route, occluders = []) {
       for (let i = 0; i < lines.length; i++) {
         if (lines[i].t == null) { if (live.has(i)) drop(i); continue; }
         const cut = actAt(lines[i].t).cut;
-        const nxt = lines[i + 1];
-        const want = t >= lines[i].t - 0.3 && t < (nxt ? nxt.t + (cut ? 0.5 : 1.2) + (/hell|losing all the only way|not my soul/i.test(lines[i].text) ? 4.5 : 0) : lineEnd(i) + 4);
+        const nxt = nextOf(i);
+        const want = t >= lines[i].t - 0.3 && t < (nxt ? Math.max(nxt.t, lines[i].t + 2.4) + (cut ? 0.5 : 1.2) + (/hell|losing all the only way|not my soul/i.test(lines[i].text) ? 4.5 : 0) : lineEnd(i) + 4);
         if (want && !live.has(i)) build(i); else if (!want && live.has(i)) drop(i);
       }
 
-      for (const [i, { group, words, a }] of live) {
+      // under the water the line rides the gaze itself: 3 m along wherever the eyes are (they look up at the hands)
+      for (const e of live.values()) { if (!e.a.noOcc) continue; camera.getWorldDirection(edgeR); e.group.position.copy(camera.position).addScaledVector(edgeR, 3.0); e.group.quaternion.copy(camera.quaternion); }
+      // a long-sung line is carried: it moves with your walk (level, not your bob) until its last word is sung
+      for (const e of live.values()) { if (!e.carryTo) continue; const dx = camera.position.x - e.prevCam.x, dz = camera.position.z - e.prevCam.z; e.prevCam.copy(camera.position);
+        if (t < e.carryTo) { e.group.position.x += dx; e.group.position.z += dz;
+          const hx = e.group.position.x - camera.position.x, hz = e.group.position.z - camera.position.z, hd = Math.hypot(hx, hz) || 1, D = 13;   // and it holds a readable distance (it may have been built far down the road)
+          const k = Math.min(1, dt * 1.5); e.group.position.x = camera.position.x + hx / hd * (hd + (D - hd) * k); e.group.position.z = camera.position.z + hz / hd * (hd + (D - hd) * k); } }
+      // every line is kept inside the top and bottom of the frame (the pull-back on "coming for me", the high bridge lines)
+      for (const e of live.values()) { if (e.crowd || e.a.noOcc || e.a.fall || e.a.kind === 'room') continue;
+        edgeP.copy(e.group.position); edgeP.y += e.hgt * 0.5; edgeP.project(camera); const over = edgeP.z < 1 ? edgeP.y - 0.86 : 0;
+        edgeR.copy(e.group.position); edgeR.y -= e.hgt * 0.5; edgeR.project(camera); const under = edgeR.z < 1 ? -0.62 - edgeR.y : 0;   // (the player strip covers the bottom)
+        const depth = Math.max(1, e.group.position.distanceTo(camera.position)), unit = depth * Math.tan(camera.fov * Math.PI / 360);
+        const want = over > 0 ? e.vOff - over * unit : under > 0 ? e.vOff + under * unit : e.vOff * 0.98;
+        const dv = (want - e.vOff) * Math.min(1, dt * 6); e.vOff += dv; e.group.position.y += dv; }
+      // a crowded short line rides just above the line that crowds it, on screen (they may stand at different depths)
+      for (const e of live.values()) { if (!e.crowd || !live.has(e.nk)) continue; const n = live.get(e.nk);
+        const d1 = Math.max(1, Math.hypot(e.group.position.x - camera.position.x, e.group.position.z - camera.position.z)), d2 = Math.max(1, Math.hypot(n.group.position.x - camera.position.x, n.group.position.z - camera.position.z));
+        const top = (n.group.position.y + n.hgt * 0.5 - camera.position.y) / d2, cap = Math.tan(camera.fov * Math.PI / 360) * 0.86;
+        const bottom = Math.min(top + 0.03, cap - e.hgt / d1);                                 // its bottom just over the next line's top, but its own top never past the frame's
+        e.capFade = clamp((top + 0.03 - bottom) / 0.05);                                     // no room above: it gives way (it has been sung), the line being sung stays clear
+        const want = Math.max(e.baseY - e.hgt, camera.position.y + d1 * bottom + e.hgt * 0.5);
+        e.group.position.y += (want - e.group.position.y) * Math.min(1, dt * 7); }
+      for (const [i, { group, words, a, lineW, crowd, capFade }] of live) {
         const end = lineEnd(i), isActive = i === active, cut = actAt(lines[i].t).cut;
-        const nx = lines[i + 1];                                               // a line steps aside when the next one starts
-        const hold = words.some(m => m.userData.fx === 'hell') ? 2.4 : words.some(m => m.userData.fx === 'soul') ? 2.0 : a.fall ? 3.2 : 0;   // (the soul is sung as the next line starts: it stays)    // a burning word, or letters lying on the road, stay a while after the next line starts
+        const nx = nextOf(i);                                                  // a line steps aside when the next one starts
+        const hold = words.some(m => m.userData.fx === 'hell') ? 2.4 : words.some(m => m.userData.fx === 'soul') ? 2.0 : a.fall ? 3.2 : (crowd || 0);   // (the soul is sung as the next line starts: it stays)    // a burning word, or letters lying on the road, stay a while after the next line starts
         let leave = nx ? clamp((t - nx.t + 0.15 - hold) / (cut && !hold ? 0.35 : a.kind === 'floor' ? 0.5 : 0.9)) : clamp((t - end) / 3);
+        if (capFade && nx && t > nx.t) leave = Math.max(leave, capFade * clamp((t - nx.t) / 0.5));   // gives way over half a second
         // a street line also steps aside as the walk reaches it: never a wall of giant letters at the lens
-        if ((a.kind === 'banner' || a.kind === 'ahead' || a.kind === 'sky') && !a.fall) { const dx = camera.position.x - group.position.x, dz = camera.position.z - group.position.z; const near = (a.beat?.dist ?? 9) > 12 ? 9 : 7.5; leave = Math.max(leave, clamp((near - Math.hypot(dx, dz)) / (near * 0.5))); }
+        if ((a.kind === 'banner' || a.kind === 'ahead' || a.kind === 'sky') && !a.fall && !a.noOcc) {   // (a line held inside the ring of hands is meant to be close) const dx = camera.position.x - group.position.x, dz = camera.position.z - group.position.z; const near = (a.beat?.dist ?? 9) > 12 ? 9 : 7.5; const dxz = Math.hypot(dx, dz); leave = Math.max(leave, clamp((near - dxz) / (near * 0.5)));
+          if (!a.noOcc && lineW) {                                                          // and it fades as soon as either end would spill past the frame's edge: never a line cut off at the side
+            const xmin = (camera.view?.enabled ? -1 + 2 * (-2 * camera.view.offsetX) / camera.view.fullWidth : -1) + 0.02;   // the lyrics panel covers the left of the canvas: the frame starts past it
+            let worst = 0, shown = 0;
+            for (const m of words) { if (m.userData.dup || !m.visible) continue; shown++; m.getWorldPosition(edgeP); edgeP.project(camera);   // every word that is on: its centre must be inside the frame
+              if (edgeP.z < 1) worst = Math.max(worst, edgeP.x - 0.985, xmin - edgeP.x); else worst = 2; }
+            if (shown) leave = Math.max(leave, clamp(worst / 0.3)); } }
         let newest = null;
         for (const m of words) if (m.userData.reveal <= t) newest = m;
         if (isActive && newest) { newest.getWorldPosition(spotAt); spotOn = 1; }
@@ -259,7 +305,8 @@ export function createSong(fonts, scene, route, occluders = []) {
             m.material.opacity = Math.max(m.material.opacity, (1 - leave) * e);
           }
           m.scale.setScalar(Math.max(0.001, u.ws * (u.arrive === 'slam' ? 1.3 - 0.3 * e : 0.82 + 0.18 * e) * (1 + u.hl * 0.06 + u.hov * 0.2)));
-          if (u.dup) m.scale.multiplyScalar(Math.max(0.001, 1 - leave * 1.6));   // the knocked-in copies are the first to go: never a wall of them at the lens while the next line speaks
+          if (u.dup) { const age = t - u.reveal, gone = clamp((age - 0.45) / 0.5);   // a knocked-in copy lives under a second: in, and gone, so the line itself is always readable
+            m.scale.multiplyScalar(Math.max(0.001, (1 - leave * 1.6) * (1 - gone * 0.6))); m.material.opacity *= 1 - gone; m.position.x += (u.home.x > 0 ? 1 : -1) * gone * 0.8; if (gone >= 1) m.visible = false; }
           m.material.opacity = e * (1 - leave);
           if (!u.acc) { m.material.color.copy(PAPER).multiplyScalar(isActive ? 0.72 + 0.28 * Math.max(u.hl, u.hov) : 0.82).lerp(INK, P.dawn * 0.9);
             if (u.tone === 'ash') m.material.color.multiplyScalar(0.42); else if (u.tone === 'cold') m.material.color.multiply(COLD);   // ash: half-swallowed by the dark; cold: under water, in the storm
